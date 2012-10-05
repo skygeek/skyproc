@@ -43,7 +43,7 @@ Sp.core.Globals.COMET_FLASH_WEBSOCKET = "https://" + window.location.hostname + 
 Sp.core.Globals.MAIN_CTX_PADDING = '15 15 10 10'
 Sp.core.Globals.WINDOW_MARGIN = 8
 
-Sp.core.Globals.GOOGLE_MAPS_API_KEY = "AIzaSyDCTw9TFDz7JLODp1UolEHyYfEsIET3_bE";
+Sp.core.Globals.GOOGLE_MAPS_API_KEY = "";
 
 Sp.core.Globals.DATE_FORMAT = "Y-m-d";
 Sp.core.Globals.TIME_FORMAT = "H:i:s.u";

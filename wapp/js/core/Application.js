@@ -114,7 +114,7 @@ Ext.define('Sp.core.Application', {
         
     loadDataModels: function(){
     	try {
-    		Data;
+			Data;
 			this.loadMyProfile();
 			return;
     	} catch(e){
