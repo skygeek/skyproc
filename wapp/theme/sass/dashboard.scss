@@ -1,0 +1,75 @@
+
+$bold-font: "Open Sans Bold";
+
+$dashboard-bg-color: #F6F6F6;
+
+$dashboard-title-color: #000033;
+
+$dashboard-grid-header-bg: #BA9C5A;
+$dashboard-grid-header-color: #452D16;
+
+$dashboard-grid-row-color: #000000;
+$dashboard-grid-row-bg: #DCB86A;
+$dashboard-grid-alt-row-bg: #F3DA99;
+
+$dashboard-grid-summary-row-bg: #AA8E52;
+$dashboard-grid-summary-row-color: #000000;
+
+
+.dashboard-bg {
+  background: none;
+  background-color: $dashboard-bg-color !important;
+}
+
+.dashboard-title {
+  color: $dashboard-title-color;
+  font-family: $bold-font;
+  line-height: 16px;
+}
+
+.dashboard-grid .x-panel-body {
+  border-style: none;
+}
+
+.dashboard-grid .x-grid-body { 
+  background: none;
+  background-color: $dashboard-bg-color !important;
+}
+
+.dashboard-grid .x-grid-header-ct {
+  background: none;
+  background-color: $dashboard-grid-header-bg;
+  border-style: none;
+  color: $dashboard-grid-header-color;
+}
+
+.dashboard-grid .x-column-header,
+.dashboard-grid .x-column-header-over {
+  background: none;
+  background-color: $dashboard-grid-header-bg;
+  font-family: "Open Sans Semibold";
+}
+
+.dashboard-grid .x-grid-cell {
+  background: none;
+}
+
+.dashboard-grid .x-grid-row {
+  background-color: $dashboard-grid-row-bg;
+  color: $dashboard-grid-row-color;
+}
+
+.dashboard-grid .x-grid-row-alt {
+  background-color: $dashboard-grid-alt-row-bg;
+  color: $dashboard-grid-row-color;
+}
+
+.dashboard-grid .x-grid-row-summary {
+  background-color: $dashboard-grid-summary-row-bg;
+  font-family: $bold-font;
+  color: $dashboard-grid-summary-row-color;
+}
+
+.dashboard-grid .x-grid-row .x-grid-cell {
+  border-style: none;
+}

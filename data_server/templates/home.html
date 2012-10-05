@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Skyproc.com - Login Page</title>
+    
+        <link rel="stylesheet" href="/static/css/home/bootstrap.min.css" />
+        <link rel="stylesheet" href="/static/css/home/bootstrap-responsive.min.css" />
+        <link rel="stylesheet" href="/static/css/home/style.css" />
+        <link rel="stylesheet" href="/static/css/sp.css" />
+
+        <script src='/static/js/lib/srp.js'></script>
+        <script src='/static/js/lib/srp_register.js'></script>
+        
+        <script src="/static/js/tmp/jquery.min.js"></script>
+        <script src="/static/js/tmp/jquery.actual.min.js"></script>
+        <script src="/static/js/tmp/jquery.validate.js"></script>
+		<script src="/static/js/tmp/bootstrap.min.js"></script>
+        
+        <script type="text/javascript">
+			function login()
+			{
+			    srp = new SRP();
+			    srp.identify();
+			    return false;
+			}
+			function register()
+			{
+			    if(document.getElementById("confirm_password").value != document.getElementById("r_password").value)
+			        alert("Passwords do not match");
+			    else if(document.getElementById("r_password").value == "")
+			        alert("Password cannot be blank");
+			    else
+			    {
+			        srp = new SRP();
+			        srp.register();
+			    }
+			    return false;
+			};
+		</script>
+    
+    </head>
+    
+    <body class="login_page">
+		<div class="login_box">
+			
+			<form action="#" method="POST" id="login_form" onsubmit="return login()">{% csrf_token %}
+				<div class="top_b">Sign in to Skyproc <sup>(beta)</sup></div>    
+				<div class="cnt_b">
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on"><i class="icon-user"></i></span>
+							<input type="text" id="username" name="username" placeholder="Email address" value="" autocorrect="off" autocapitalize="off" />
+						</div>
+					</div>
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on"><i class="icon-lock"></i></span>
+							<input type="password" id="password" name="password" placeholder="Password" value="" />
+						</div>
+					</div>
+					<div class="formRow clearfix">
+						<label class="checkbox"><input type="checkbox" /> Remember me</label>
+					</div>
+				</div>
+				<div class="btm_b clearfix">
+					<button class="btn btn-inverse pull-right" type="submit">Sign In</button>
+					<span class="link_reg">Don't have an account? <a href="#reg_form">Click here to register</a></span>
+				</div>  
+			</form>
+			
+			<form action="#" method="post" id="pass_form" style="display:none">
+				<div class="top_b">Can't sign in?</div>    
+					<div class="alert alert-info alert-login">
+					Please enter your email address. You will receive a link to create a new password via email.
+				</div>
+				<div class="cnt_b">
+					<div class="formRow clearfix">
+						<div class="input-prepend">
+							<span class="add-on">@</span><input type="text" placeholder="Your email address" autocorrect="off" autocapitalize="off" />
+						</div>
+					</div>
+				</div>
+				<div class="btm_b tac">
+					<button class="btn btn-inverse" type="submit">Request New Password</button>
+				</div>  
+			</form>
+			
+			<form action="#" method="post" id="reg_form" onsubmit="return register()" style="display:none">{% csrf_token %}
+				<div class="top_b">Sign up to Skyproc</div>
+				<div class="cnt_b">
+					
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on"><i class="icon-user"></i></span>
+							<input type="text" name="r_fullname" id="r_fullname" placeholder="Full name" autocorrect="off" autocapitalize="off" />
+						</div>
+					</div>
+					
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on">@</span>
+							<input type="text" name="r_username" id="r_username" placeholder="Your email address" autocorrect="off" autocapitalize="off" />
+						</div>
+					</div>
+					
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on">@</span>
+							<input type="text" name="r_email" id="r_email" placeholder="Confirm email address" autocorrect="off" autocapitalize="off" />
+						</div>
+					</div>
+					
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on"><i class="icon-lock"></i></span>
+							<input type="password" name="r_password" id="r_password" placeholder="Password" />
+						</div>
+					</div>
+					
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on"><i class="icon-lock"></i></span>
+							<input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" />
+						</div>
+					</div>
+					 
+				</div>
+				<div class="btm_b tac">
+					<button class="btn btn-inverse" type="submit">Register</button>
+				</div>  
+			</form>
+			
+		</div>
+		<div class="links_b links_btm clearfix">
+			<span class="linkform"><a href="#pass_form">Forgot password?</a></span>
+			<span class="linkform" style="display:none">Never mind, <a href="#login_form">send me back to the sign-in screen</a></span>
+		</div>  
+        
+        
+        <script>
+            $(document).ready(function(){
+                
+				//* boxes animation
+				$form_wrapper = $('.login_box');
+                var $currentForm = $form_wrapper.find('form:visible');
+                $($form_wrapper).css({
+                    'height' : $currentForm.height()
+                });
+                $('.linkform a,.link_reg a').on('click',function(e){
+					var $link	= $(this);
+					var target	= $link.attr('href');
+                    $($currentForm).fadeOut(400,function(){
+						$currentForm = $(target);
+						$form_wrapper.stop().animate({
+                            height	: $currentForm.actual('height')
+                        },500,function(){
+                            $currentForm.fadeIn(400);
+                            $('.links_btm .linkform').toggle();
+                        });
+					});
+					e.preventDefault();
+				});
+				
+				//* validation
+				$('#login_form').validate({
+					onkeyup: false,
+					errorClass: 'error',
+					validClass: 'valid',
+					rules: {
+						username: { required: true, minlength: 1 },
+						password: { required: true, minlength: 1 }
+					},
+					highlight: function(element) {
+						$(element).closest('div').addClass("f_error");
+					},
+					unhighlight: function(element) {
+						$(element).closest('div').removeClass("f_error");
+					},
+					errorPlacement: function(error, element) {
+						$(element).closest('div').append(error);
+					}
+				});
+				
+				
+				
+            });
+        </script>
+		
+					
+    </body>
+</html>

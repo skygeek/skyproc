@@ -1,0 +1,382 @@
+@import 'ux';
+@import 'lmanager-boards';
+@import 'dashboard';
+
+/*=====================================
+FONTS
+=====================================*/
+
+@font-face{
+    font-family: "PT Sans";
+    src : url('/static/fonts/PT_Sans-Web-Regular.eot');
+    src : url('/static/fonts/PT_Sans-Web-Regular.eot?') format('eot');
+    src : url('/static/fonts/PT_Sans-Web-Regular.ttf') format('truetype');
+}
+
+@font-face{
+    font-family: "Open Sans";
+    src : url('/static/fonts/OpenSans-Regular.eot');
+    src : url('/static/fonts/OpenSans-Regular.eot?') format('eot');
+    src : url('/static/fonts/OpenSans-Regular.ttf') format('truetype');
+}
+
+@font-face{
+    font-family: "Open Sans Bold";
+    src : url('/static/fonts/OpenSans-Bold.ttf') format('truetype');
+}
+
+@font-face{
+    font-family: "Open Sans Semibold";
+    src : url('/static/fonts/OpenSans-Semibold.ttf') format('truetype');
+}
+
+@font-face{
+    font-family: "Russo One";
+    src : url('/static/fonts/RussoOne-Regular.ttf') format('truetype');
+}
+
+
+/*=====================================
+Misc
+=====================================*/
+
+.bold {
+  font-family: "Open Sans Bold";
+}
+
+.semi-bold {
+  font-family: "Open Sans Semibold";
+}
+
+.russo {
+  font-family: "Russo One";
+}
+
+.pointer-cursor {
+  cursor: pointer !important;
+}
+
+.help-cursor,
+.help-cursor .x-menu-item-link,
+.help-cursor .x-tool-help {
+  cursor: help !important;
+}
+
+.notif-time-6px {
+  margin-bottom: 6px;
+}
+
+.notif-time-4px {
+  margin-bottom: 4px;
+}
+
+table.badge-table td { 
+  padding: 2px; 
+}
+
+.menu-item-checked {
+  font-family: "Open Sans Bold";
+}
+
+.menu-item-unchecked {
+  font-family: "Open Sans";
+}
+
+table.resa-item-table td { 
+  padding: 1px; 
+}
+
+table.resa-item-table {
+  margin-top: 6px; 
+}
+
+.inline-table {
+  display: inline-block;
+}
+
+table.location-table td { 
+  padding-right: 2px; 
+}
+
+.hidden-el {
+  visibility: hidden;
+}
+
+.auto-label {
+  font-family: "Russo One";
+  font-size: 13px;
+}
+
+.autoM-button-on {
+  background: transparent no-repeat center center !important;
+  background-image: url("/static/images/button_on.png") !important;
+}
+
+.autoM-button-off {
+  background: transparent no-repeat center center !important;
+  background-image: url("/static/images/button_off.png") !important;
+}
+
+.autoM-button-wait {
+  background: transparent no-repeat center center !important;
+  background-image: url("/static/images/button_wait.png") !important;
+}
+
+table.combobox-table td { 
+  padding-right: 8px; 
+}
+
+.placeholder-color { 
+  color: #a9a9a9; 
+}
+
+.stores-load-progress-bar .x-progress-text {
+  font-weight: normal !important;
+}
+
+
+/*=====================================
+Load manager
+=====================================*/
+
+@mixin load-state-icon($state) {
+  background: transparent no-repeat left center; 
+  background-image: url(/static/images/icons/load_states/#{$state}.png); 
+  width:16px; 
+  height:16px;
+  display: block;
+  padding-left: 20px;
+}
+
+.load-state-icon-P {
+  @include load-state-icon("P");
+}
+
+.load-state-icon-B {
+  @include load-state-icon("B");
+}
+
+.load-state-icon-T {
+  @include load-state-icon("T");
+}
+
+.load-state-icon-D {
+  @include load-state-icon("D");
+}
+
+.load-state-icon-S {
+  @include load-state-icon("S");
+}
+
+.load-state-icon-L {
+  @include load-state-icon("L");
+}
+
+.load-state-icon-I {
+  @include load-state-icon("I");
+}
+
+.load-planned-row {
+  background-color: #FFD9B0 !important;
+}
+
+.load-boarding-row {
+  background-color: #9BCD9B !important;
+}
+
+.load-in-air-row {
+  background-color: #80B3FF !important;
+}
+
+.load-error-row {
+  background-color: #FF8A6D !important;
+}
+
+.slot-normal-row {
+  background-color: #FFFDF4 !important;
+}
+
+.slot-alt-row {
+  background-color: #FFECEB !important;
+}
+
+.slot-error-row {
+  background-color: #FFBCAD !important;
+}
+
+/*=====================================
+ICONS
+=====================================*/
+
+.icon-search {
+  background-image:url("/static/images/icons/search_white.png")
+}
+
+.icon-requests {
+  background-image:url("/static/images/icons/user.png")
+}
+
+.icon-notifications {
+  background-image: url("/static/images/icons/info_white.png")
+}
+
+.x-btn-top-toolbar-menu-arrow {
+  background: transparent no-repeat right center; 
+  background-image:url('/static/images/icons/arrow_white.png');
+  padding-right: 10px;
+  padding-top: 0px;
+  display: block;  
+}
+
+.icon-setting-personal-profile {
+  background-image:url("/static/images/icons/settings/personal_profile.png");
+}
+
+.icon-setting-account-profile {
+  background-image:url("/static/images/icons/settings/password.png");
+}
+
+.icon-setting-l10n {
+  background-image:url("/static/images/icons/settings/l10n.png");
+}
+
+.icon-setting-jumper-profile {
+  background-image:url("/static/images/icons/settings/parachute.png");
+}
+
+.icon-setting-jumper-gear {
+  background-image:url("/static/images/icons/settings/parachute_pack.png");
+}
+
+.icon-setting-privacy {
+  background-image:url("/static/images/icons/settings/privacy.png");
+}
+
+.icon-setting-catalog {
+  background-image:url("/static/images/icons/settings/cart.png");
+}
+
+.icon-setting-regulation {
+  background-image:url("/static/images/icons/settings/regulation.png");
+}
+
+
+/*=====================================
+Top toolbar buttons hover effect
+=====================================*/
+
+.x-btn-top-toolbar-toolbar-small {
+	opacity: 0.75;
+	filter: alpha(opacity=75);
+}
+
+.x-btn-top-toolbar-toolbar-small-over {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+
+.x-btn-top-toolbar-toolbar-small-menu-active {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+
+/*=====================================
+SP Logo (temp)
+=====================================*/
+
+.logo-text {
+	font: 100 18px/40px 'PT Sans', sans-serif;
+	text-decoration:none;
+	color: #ffffff
+}
+
+.logo-icon{
+	background-image:url("/static/images/tmp/glyphicons-halflings-white.png");
+	background-position:-72px -120px
+}
+
+/*=====================================
+Main menu tree
+=====================================*/
+
+.main-menu-tree .x-grid-body {
+	border-style: none; 
+	background: #f1f1f1;
+}
+
+.main-menu-tree .x-grid-cell {
+	padding-top: 9px;
+	padding-bottom: 9px;
+	font-size: 13px;
+	color: #222222;
+	background: #f1f1f1;
+}
+
+.main-menu-tree .x-grid-cell-inner img {
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+.main-menu-tree .x-tree-icon-leaf {
+  background-image: none; 
+  width: 0px;
+}
+
+.main-menu-tree .x-tree-elbow,
+.main-menu-tree .x-tree-elbow-end {
+  width: 0px;
+  background-image: none;
+}
+
+.main-menu-tree .x-grid-row-focused .x-grid-cell,
+.main-menu-tree .x-grid-row-over .x-grid-cell {
+  border-color: #DDDDDD;
+  background-color: #CFCFCF; 
+}
+
+.main-menu-tree .x-grid-row-selected .x-grid-cell {
+  border-style: dotted;
+  border-color: #DDDDDD;
+  background-color: #E0E0E0 !important; 
+}
+
+/*=====================================
+Main settings container padding
+=====================================*/
+
+.settings-items-container td {
+    padding:8px;
+}
+
+.page-top-title {
+    font-size: 18px;
+}
+
+.location-top-title {
+    font-size: 14px;
+    $font-family: "Open Sans Semibold",tahoma,arial,verdana,sans-serif;
+}
+
+/*=====================================
+Ext overrides
+=====================================*/
+
+.x-window-header-text {
+  font-weight: normal !important;
+}
+
+.x-panel-header-text {
+  font-weight: normal !important;
+}
+
+.x-tab button {
+  font-weight: normal !important;
+}
+
+/*=====================================
+Extensible overrides
+=====================================*/
+
+.ext-cal-dayview .ext-cal-gutter-rt {
+  width: 8px !important;
+}

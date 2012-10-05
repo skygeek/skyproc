@@ -1,0 +1,415 @@
+{
+    "projectName": "Skyproc",
+    "licenseText": "Copyright 2012, Nabil SEFRIOUI
+
+This file is part of Skyproc.
+
+Skyproc is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of
+the License, or any later version.
+
+Skyproc is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.",
+    "builds": [
+        {
+            "name": "Skyproc",
+            "target": "all-classes.js",
+            "options": {
+                "debug": false
+            },
+            "files": [
+      
+				{
+                    "name": "Globals.js",
+                    "path": "/static/js/core/"
+                },
+				{
+                    "name": "Misc.js",
+                    "path": "/static/js/utils/"
+                },
+                {
+                    "name": "Help.js",
+                    "path": "/static/js/utils/"
+                },
+                
+				{
+                    "name": "Overrides.js",
+                    "path": "/static/js/core/"
+                },
+                {
+                    "name": "Comet.js",
+                    "path": "/static/js/core/"
+                },
+				{
+                    "name": "Application.js",
+                    "path": "/static/js/core/"
+                },
+                
+                {
+                    "name": "Request.js",
+                    "path": "/static/js/utils/"
+                },
+                {
+                    "name": "Rpc.js",
+                    "path": "/static/js/utils/"
+                },
+                {
+                    "name": "i18n.js",
+                    "path": "/static/js/utils/"
+                },
+                
+                {
+                    "name": "Proxy.js",
+                    "path": "/static/js/data/"
+                },
+                {
+                    "name": "Manager.js",
+                    "path": "/static/js/data/"
+                },
+                {
+                    "name": "StoresLoader.js",
+                    "path": "/static/js/data/"
+                },
+                {
+                    "name": "Comet.js",
+                    "path": "/static/js/data/"
+                },
+
+				{
+                    "name": "Misc.js",
+                    "path": "/static/js/ui/"
+                },
+				{
+                    "name": "SettingsForm.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "BigButton.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "CardContainer.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "CountryCity.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "Data.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "GMapPanel.js",
+                    "path": "/static/js/ui/"
+                },
+				{
+                    "name": "LockWindow.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "PersonCombo.js",
+                    "path": "/static/js/ui/"
+                },
+                {
+                    "name": "PageGridPrint.js",
+                    "path": "/static/js/ui/"
+                },
+                
+                
+                {
+                    "name": "StatusBar.js",
+                    "path": "/static/js/ui/ux/"
+                },
+                {
+                    "name": "RowExpander.js",
+                    "path": "/static/js/ui/ux/"
+                },
+                {
+                    "name": "Printer.js",
+                    "path": "/static/js/ui/ux/"
+                },
+                
+
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "EditCatalogItem.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "PersonalProfile.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "Privacy.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "EditCatalogElement.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "Account.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "JumperProfile.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "Catalog.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "Regulation.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "l10n.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "JumperGear.js",
+		    "path": "/static/js/views/settings/"
+		},
+		{
+		    "name": "EditWorker.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormCatalog.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormGeoLocation.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "EditAircraft.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "EditMapMarker.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "Viewer.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormPayment.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "Locator.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormAircrafts.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormDelete.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormWorkers.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "EditLocation.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "AddLocation.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormDescription.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormGeneral.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "CatalogCopy.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormMembers.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "MembershipOpt.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "EditProfile.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "InviteMember.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "EditMember.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "AddMember.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "EditMembersProfile.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "Clearances.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "AddClearance.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "FormOptions.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "MakeDeposit.js",
+		    "path": "/static/js/views/locations/"
+		},
+		{
+		    "name": "BuyItem.js",
+		    "path": "/static/js/views/locations/"
+		},
+		
+		
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/reservations/"
+		},
+		{
+		    "name": "EditReservation.js",
+		    "path": "/static/js/views/reservations/"
+		},
+		
+		
+		{
+		    "name": "Misc.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "Board.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "Planner.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "CatalogSelect.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "Ressources.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "ArchiveLoad.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		{
+		    "name": "DeleteLoad.js",
+		    "path": "/static/js/views/lmanager/"
+		},
+		
+		
+		
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/tmanager/"
+		},
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/teams/"
+		},
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/events/"
+		},
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/competitions/"
+		},
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/logbook/"
+		},
+		
+		{
+		    "name": "MainPanel.js",
+		    "path": "/static/js/views/reports/"
+		},
+		{
+		    "name": "Dashboard.js",
+		    "path": "/static/js/views/reports/"
+		},
+		{
+		    "name": "LoadsReport.js",
+		    "path": "/static/js/views/reports/"
+		},
+		{
+		    "name": "AccountsReport.js",
+		    "path": "/static/js/views/reports/"
+		},
+		
+		
+		
+		{
+		    "name": "Requests.js",
+		    "path": "/static/js/views/global/"
+		},
+		{
+		    "name": "Notifications.js",
+		    "path": "/static/js/views/global/"
+		},
+		
+		
+		
+                
+            ]
+        },
+        {
+            "name": "Skyproc Prod",
+            "target": "sp-all.js",
+            "compress": true,
+            "files": [
+                {
+                    "path": "",
+                    "name": "all-classes.js"
+                },
+                {
+                    "path": "",
+                    "name": "app.js"
+                }
+            ]
+        }
+    ],
+    "resources": []
+}

@@ -1,0 +1,217 @@
+
+// Unless you want to include all components, you must set $include-default to false
+// IF you set this to true, you can also remove lines 10 to 38 of this file
+$include-default: false;
+
+// Insert your custom variables here.
+//$base-color: #ffffff;
+
+$toolbar-background-color: #f1f1f1;
+$toolbar-border-color: #e0e0e0;
+$toolbar-separator-color: #e0e0e0;
+
+$border-layout-ct-background: #ffffff;
+
+$panel-base-color: #f6f6f6;
+$panel-border-color: #e0e0e0;
+
+$fieldset-header-color: adjust-color(#ffffff, $hue: 3.785deg, $saturation: 18.194%, $lightness: -52.745%);
+
+$button-toolbar-border-color-over: adjust-color(#ffffff, $hue: 0.084deg, $saturation: -9.891%, $lightness: -18.039%);
+$button-toolbar-border-color-pressed: adjust-color(#ffffff, $hue: 0.721deg, $saturation: -17.014%, $lightness: -21.765%);
+
+$button-toolbar-background-color-over: adjust-color(#ffffff, $hue: -5deg, $saturation: 44.444%, $lightness: 8.824%) !default;
+$button-toolbar-background-color-pressed: adjust-color(#ffffff, $hue: -1.138deg, $saturation: -11.47%, $lightness: -2.353%) !default;
+
+$window-base-color: #ffffff;
+$window-background-color: #f1f1f1;
+$window-header-color: #000000;
+
+//$window-base-color: $base-color !default;
+
+//$window-border-radius: 5px 5px !default;
+//$window-border-width: 1px !default;
+//$window-border-color: adjust-color($window-base-color, $hue: 0.952deg, $saturation: -32.377%, $lightness: -13.725%) !default;
+//$window-inner-border-width: 1px !default;
+//$window-inner-border-color: adjust-color($window-base-color, $hue: 2.667deg, $saturation: 9.662%, $lightness: 11.373%) !default;
+//$window-background-color: adjust-color($window-base-color, $hue: 0.267deg, $saturation: -21.309%, $lightness: 1.569%) !default;
+
+//$window-body-border-width: 1px !default;
+//$window-body-border-style: solid !default;
+//$window-body-border-color: adjust-color($window-base-color, $hue: 0.844deg, $saturation: 7.644%, $lightness: -8.627%) !default;
+//$window-body-background-color: adjust-color($window-base-color, $hue: 3.188deg, $saturation: 0.542%, $lightness: 7.843%) !default;
+//$window-body-color: #000 !default;
+
+//$window-header-padding: 5px 5px 0 !default;
+//$window-header-font-size: ceil($font-size * .9) !default; //11px
+//$window-header-line-height: 17px !default;
+//$window-header-color: adjust-color($window-base-color, $hue: -2.451deg, $saturation: 38.889%, $lightness: -55.882%) !default;
+//$window-header-font-weight: bold !default;
+
+
+$font-family: "Open Sans",tahoma,arial,verdana,sans-serif;
+$semibold-font-family: "Open Sans Semibold",tahoma,arial,verdana,sans-serif;
+
+$form-field-height: 22px;
+
+@import 'ext4/default/all';
+
+// You may remove any of the following modules that you
+// do not use in order to create a smaller css file.
+@include extjs-boundlist;
+@include extjs-button;
+@include extjs-btn-group;
+@include extjs-datepicker;
+@include extjs-colorpicker;
+@include extjs-menu;
+@include extjs-grid;
+@include extjs-form;
+    @include extjs-form-field;
+    @include extjs-form-fieldset;
+    @include extjs-form-file;
+    @include extjs-form-checkboxfield;
+    @include extjs-form-checkboxgroup;
+    @include extjs-form-triggerfield;
+    @include extjs-form-htmleditor;
+@include extjs-panel;
+@include extjs-qtip;
+@include extjs-slider;
+@include extjs-progress;
+@include extjs-toolbar;
+@include extjs-window;
+@include extjs-messagebox;
+@include extjs-tabbar;
+@include extjs-tab;
+@include extjs-tree;
+@include extjs-drawcomponent;
+@include extjs-viewport;
+
+// This line changes the location of your images when creating UIs to be relative instead of within the ExtJS directory.
+// You MUST set this to true/string value if you are creating new UIs + supporting legacy browsers.
+// This only applies to new UIs. It does not apply to default component images (i.e. when changing $base-color)
+// The value can either be true, in which case the image path will be "../images/"
+// or a string, of where the path is
+$relative-image-path-for-uis: true; // defaults to "../images/" when true
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+// theme colors
+$top-toolbar-color: #3993ba;
+$top-toolbar-bt-text-size: 13px;
+$top-toolbar-bt-text-color: #ffffff;
+$main-menu-panel-border-color: #e0e0e0; 
+
+
+// top toolbar
+@include extjs-toolbar-ui(
+    'top-toolbar',
+    $background-color: $top-toolbar-color,
+    $background-gradient: 'matte'
+);
+
+// top toolbar button
+
+@include extjs-button-ui(
+    'top-toolbar-toolbar-small',
+
+    $border-radius: $button-small-border-radius,
+    $border-width: $button-small-border-width,  
+
+    $border-color: transparent,
+    $border-color-over: transparent,
+    $border-color-focus: transparent,
+    $border-color-pressed: transparent,
+    $border-color-disabled: transparent,
+
+    $padding: $button-small-padding,
+    $text-padding: $button-small-text-padding,
+
+    $background-color: transparent,
+    $background-color-over: transparent,
+    $background-color-focus: transparent,
+    $background-color-pressed: transparent,
+    $background-color-disabled: transparent,
+
+    $background-gradient: $button-default-background-gradient,
+    $background-gradient-over: $button-default-background-gradient-over,
+    $background-gradient-focus: $button-default-background-gradient-focus,
+    $background-gradient-pressed: $button-default-background-gradient-pressed,
+    $background-gradient-disabled: $button-default-background-gradient-disabled,
+
+    $color: $top-toolbar-bt-text-color,
+    $color-over: $top-toolbar-bt-text-color,
+    $color-focus: $top-toolbar-bt-text-color,
+    $color-pressed: $top-toolbar-bt-text-color,
+    $color-disabled: $button-default-color-disabled,
+    
+    $font-size: $top-toolbar-bt-text-size,
+    $font-size-over: $top-toolbar-bt-text-size,
+    $font-size-focus: $top-toolbar-bt-text-size,
+    $font-size-pressed: $top-toolbar-bt-text-size,
+    $font-size-disabled: $button-small-font-size-disabled,
+
+    $font-weight: $button-small-font-weight,
+    $font-weight-over: $button-small-font-weight-over,
+    $font-weight-focus: $button-small-font-weight-focus,
+    $font-weight-pressed: $button-small-font-weight-pressed,
+    $font-weight-disabled: $button-small-font-weight-disabled,
+
+    $font-family: $button-small-font-family,
+    $font-family-over: $button-small-font-family-over,
+    $font-family-focus: $button-small-font-family-focus,
+    $font-family-pressed: $button-small-font-family-pressed,
+    $font-family-disabled: $button-small-font-family-disabled,
+
+    $icon-size: $button-small-icon-size
+);
+
+
+@include extjs-button-ui(
+    'big-button-large',
+    
+    $border-radius: 8px,
+    
+    $background-color: #f1f1f1,
+    $background-color-over: #cfcfcf,
+    $background-color-focus: #cfcfcf,
+    $background-color-pressed: #cfcfcf,
+    $background-color-disabled: #f1f1f1,
+    
+    $border-color: #e0e0e0,
+    $border-color-over: #e0e0e0,
+    $border-color-focus: #e0e0e0,
+    $border-color-pressed: #e0e0e0,
+    $border-color-disabled: #e0e0e0,
+    
+    $font-family: $semibold-font-family,
+    $font-family-over: $semibold-font-family,
+    $font-family-focus: $semibold-font-family,
+    $font-family-pressed: $semibold-font-family,
+    $font-family-disabled: $semibold-font-family,
+    
+    $font-size: 13px,
+    $font-size-over: 13px,
+    $font-size-focus: 13px,
+    $font-size-pressed: 13px,
+    $font-size-disabled: 13px,
+    
+    $color: #222222,
+    $color-over: #222222,
+    $color-focus: #222222,
+    $color-pressed: #222222,
+    $color-disabled: #222222
+
+);
+
+
+// main menu panel
+@include extjs-panel-ui(
+    'main-menu',
+    
+    $ui-header-background-color: $main-menu-panel-border-color,
+    $ui-body-background-color: $main-menu-panel-border-color,
+    $ui-border-radius: 4px
+);
+

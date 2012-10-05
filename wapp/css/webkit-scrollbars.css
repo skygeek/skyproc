@@ -1,0 +1,38 @@
+
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 6px !important;
+}
+
+::-webkit-scrollbar-button:start:decrement, ::-webkit-scrollbar-button:end:increment {
+  border-bottom-left-radius: 5px 5px !important;
+  border-bottom-right-radius: 5px 5px !important;
+  border-top-left-radius: 5px 5px !important;
+  border-top-right-radius: 5px 5px !important;
+  height: 0px !important;
+  display: block !important;
+  background-color: transparent !important;
+}
+
+::-webkit-scrollbar-track-piece {
+  background-color: #EEE !important;
+  border-bottom-left-radius: 5px 5px !important;
+  border-bottom-right-radius: 5px 5px !important;
+  border-top-left-radius: 5px 5px !important;
+  border-top-right-radius: 5px 5px !important;
+}
+
+::-webkit-scrollbar-thumb:vertical, ::-webkit-scrollbar-thumb:horizontal {
+  height: 50px !important;
+  background-color: #CACACA !important;
+  -webkit-border-radius: 5px !important;
+}
+
+::-webkit-scrollbar-thumb:vertical:hover, ::-webkit-scrollbar-thumb:horizontal:hover {
+  background-color: #ACACAC !important;
+}
+
+::-webkit-scrollbar-corner {
+  display: none !important;
+  background-color: #FFF !important;
+}

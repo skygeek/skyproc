@@ -1,0 +1,106 @@
+
+$title-font-size: 48px;
+$toolbar-font-size: 32px;
+$header-font-size: 16px;
+$text-font-size: 26px;
+$note-font-size: 20px;
+$font-family: "Open Sans",tahoma,arial,verdana,sans-serif;
+$bold-font-family: "Open Sans Bold",tahoma,arial,verdana,sans-serif;
+
+/*=====================================
+Black
+=====================================*/
+
+
+$black-color: #ffffff;
+$black-bg: #000000;
+$black-note-color: #000000;
+$black-note-bg: #a0a000;
+$black-title-color: #003333;
+$black-header-color: #000000;
+$black-header-bg: #909090;
+$black-row-bg: #202020;
+$black-alt-row-bg: #404040;
+
+.lmanager-board-black-ctx {
+  color: $black-color; 
+  background-color: $black-bg;
+}
+
+.lmanager-board-black-toolbar {
+  border-style: none;
+  background: none;
+}
+
+.lmanager-board-black-title {
+  color: $black-title-color; 
+  background-color: $black-bg;
+  font-size: $title-font-size;
+  font-family: $bold-font-family; 
+}
+
+.lmanager-board-black-toolbar-text {
+  color: $black-color; 
+  font-size: $toolbar-font-size;
+  font-family: $font-family; 
+}
+
+.lmanager-board-black-note {
+  color: $black-note-color;
+  background: $black-note-bg; 
+  font-size: $note-font-size;
+  font-family: $font-family; 
+  line-height: 40px;
+}
+
+.lmanager-board-black .x-panel-body {
+  border-style: none;
+}
+ 
+.lmanager-board-black .x-grid-body {
+  color: $black-color; 
+  background: $black-bg;
+}
+
+.lmanager-board-black .x-grid-header-ct {
+  border-style: none;
+  background: none;
+}
+
+.lmanager-board-black .x-column-header,
+.lmanager-board-black .x-column-header-over {
+  color: $black-header-color;
+  background: $black-header-bg;
+  font-size: $header-font-size;
+}
+
+.lmanager-board-black .x-grid-cell {
+  background: none;
+  font-size: $text-font-size;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.lmanager-board-black .x-grid-cell-inner {
+  line-height: $text-font-size;
+}
+
+.lmanager-board-black .x-grid-row .x-grid-cell {
+  border-style: none;
+}
+
+.lmanager-board-black .x-grid-row {
+  background-color: $black-row-bg;
+  color: $black-color;
+}
+
+.lmanager-board-black .x-grid-row-alt {
+  background-color: $black-alt-row-bg;
+  color: $black-color;
+}
+
+.lmanager-board-black .jump-master-slot {
+  background-color: #7A8C37;
+  color: $black-color;
+}
+
