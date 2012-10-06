@@ -483,7 +483,7 @@ Ext.define('Sp.views.locations.EditMember', {
             ],
             buttons: [
 				{
-					text: TR("Apply"),
+					text: this.instantSave ? TR("Save") : TR("Apply"),
 					itemId: 'okBt',
 					icon: '/static/images/icons/save.png',
 					handler: this.apply,
@@ -607,7 +607,21 @@ Ext.define('Sp.views.locations.EditMember', {
     		record.endEdit();
     	}
     	
-    	record.afterCommit();
+    	if (this.instantSave){
+    		this.membershipRec.save();
+    		this.membershipRec.Accounts().sync({
+    			success: function(){
+    				this.membershipRec.Accounts().each(function(a){
+		    			a.AccountOperations().sync();
+		    		});
+		    		this.membershipRec.BuyedItems().sync();
+    			},
+    			scope: this,
+    		});
+    		this.afterSlotEdit(this.slotRec);
+    	} else {
+    		record.afterCommit();
+    	}
     	
     	// close window
     	this.cancel_close = false;

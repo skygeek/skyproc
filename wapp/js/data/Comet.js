@@ -332,24 +332,12 @@ Ext.define('Sp.data.Comet', {
     	});
     },
     
-    // helper
-    findLoad: function(load_uuid){
-    	var load;
-    	Data.locations.each(function(location){
-    		load = location.Loads().getById(load_uuid);
-    		if (load){
-    			return false;
-    		}
-    	});
-    	return load;
-    },
-    
     onSlotCreate: function(data){
     	if (!Sp.app.isOp()){
     		return;
     	}
     	Data.load('Slot', data.uuid, function(rec){
-    		var load = this.findLoad(rec.data.load);
+    		var load = Sp.utils.findLoad(rec.data.load);
     		if (load){
     			load.Slots().add(rec);
     		}
@@ -361,7 +349,7 @@ Ext.define('Sp.data.Comet', {
     		return;
     	}
     	Data.load('Slot', data.uuid, function(rec){
-    		var load = this.findLoad(rec.data.load);
+    		var load = Sp.utils.findLoad(rec.data.load);
     		if (load){
     			var slot = load.Slots().getById(data.uuid);
     			if (slot){

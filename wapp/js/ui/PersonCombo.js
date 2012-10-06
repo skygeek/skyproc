@@ -26,27 +26,31 @@ Ext.define('Sp.ui.PersonCombo', {
     	this.listeners = this.listeners || {};
     	
     	Ext.applyIf(this, {
-    		emptyText: TR("search"),
     		forceSelection: true,
     		matchFieldWidth: false,
     		allowPhantom: false,
     		returnMembership: false,
     	});
     	
+    	var name_tpl = (Data.me.data.name_order == 'FL' ? 
+						"{person.first_name} {person.last_name}" : 
+						"{person.last_name} {person.first_name}");
+    	
     	if (this.locationRec){
     		Ext.apply(this, {
     			minChars: 1,
     			queryDelay: 250,
+    			
     			tpl: Ext.create('Ext.XTemplate',
 			        '<tpl for=".">',
 			            '<div class="x-boundlist-item">',
-			            "{person.last_name} {person.first_name}",
+			            name_tpl,
 			            '</div>',
 			        '</tpl>'
 			    ),
 			    displayTpl: Ext.create('Ext.XTemplate',
 			        '<tpl for=".">',
-			            '{person.last_name} {person.first_name}',
+			            name_tpl,
 			        '</tpl>'
 			   	),
     		});
@@ -57,13 +61,13 @@ Ext.define('Sp.ui.PersonCombo', {
     			tpl: Ext.create('Ext.XTemplate',
 			        '<tpl for=".">',
 			            '<div class="x-boundlist-item">',
-			            '{last_name} {first_name}',
+			            name_tpl,
 			            '</div>',
 			        '</tpl>'
 			    ),
 			    displayTpl: Ext.create('Ext.XTemplate',
 			        '<tpl for=".">',
-			            '{last_name} {first_name}',
+			            name_tpl,
 			        '</tpl>'
 				),
     		});
@@ -155,11 +159,6 @@ Ext.define('Sp.ui.PersonCombo', {
     },
     
     setValue: function(value){
-    	
-    	Log('SSSSSSSSSSSSSSSSSSSSSSSSSs')
-    	Log(value)
-    	Log('SSSSSSSSSSSSSSSSSSSSSSSSSs')
-    	
     	if (Ext.isObject(value)){
     		if (value.hasOwnProperty('first_name') && value.hasOwnProperty('last_name')){
     			if (this.locationRec){
@@ -175,6 +174,8 @@ Ext.define('Sp.ui.PersonCombo', {
     		} else if (value.hasOwnProperty('name')){
     			this.setRawValue(value.name);
     			return this;    			
+    		} else {
+    			return this.callParent(arguments);
     		}
     	} else if (Ext.isString(value)){
     		return this;
@@ -216,12 +217,6 @@ Ext.define('Sp.ui.PersonCombo', {
 				name: value,
 			};
     	}
-    	
-    	Log('VVVVVVVVVVVVVVVVVVVVVVVVVVVV')
-    	Log(value)
-    	Log(new_value)
-    	Log('VVVVVVVVVVVVVVVVVVVVVVVVVVVV')
-    	
     	return (new_value ? new_value : value);
     },
     
@@ -233,4 +228,3 @@ Ext.define('Sp.ui.PersonCombo', {
     },
     
 });
-

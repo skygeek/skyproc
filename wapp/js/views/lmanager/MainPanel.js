@@ -631,7 +631,49 @@ Ext.define('Sp.views.lmanager.MainPanel', {
 		}, this);
     },
     
-    replayUpdateAction: function(action, stack){
+    doCreateAction: function(action, stack){
+    	var have_related;
+    	var model_name = Data.getSpModelName(action.record);
+    	action.store.add(action.record);
+		if (Ext.isFunction(action.handleRelatedSlots)){
+    		have_related = action.handleRelatedSlots(action.record, 'create');
+    	}
+		this.actionRpc(action.record, 'misc.undelete', [Data.getSpModelName(action.record), action.record.data.uuid], have_related);
+		stack.push(action);
+		
+		if (model_name == 'Slot'){
+			var loadRec = Sp.utils.findLoad(action.record.data.load);
+    		if (loadRec){
+    			var planner = this.down('#plannersCtx').getComponent(loadRec.data.location + '-planner');
+    			if (planner){
+    				planner.handleJumpmaster(loadRec, action.record, 'create');
+    			}
+    		}
+		}
+    },
+    
+    doDestroyAction: function(action, stack){
+    	var have_related;
+    	var model_name = Data.getSpModelName(action.record);
+    	if (Ext.isFunction(action.handleRelatedSlots)){
+    		have_related = action.handleRelatedSlots(action.record, 'destroy');
+    	}
+		action.store.remove(action.record);
+		this.actionOperation(action.record, 'destroy', have_related);
+		stack.push(action);
+		
+		if (model_name == 'Slot'){
+			var loadRec = Sp.utils.findLoad(action.record.data.load);
+    		if (loadRec){
+    			var planner = this.down('#plannersCtx').getComponent(loadRec.data.location + '-planner');
+    			if (planner){
+    				planner.handleJumpmaster(loadRec, action.record, 'destroy');
+    			}
+    		}
+		}
+    },
+    
+    doUpdateAction: function(action, stack){
     	var current_values = {}, have_related;
     	var model_name = Data.getSpModelName(action.record);
     	Ext.Object.each(action.values, function(k,v){
@@ -642,7 +684,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
     	if (Ext.isFunction(action.handleRelatedSlots)){
     		have_related = action.handleRelatedSlots(action.record, 'update');
     	}
-    	// update probelms display
+    	
     	if (model_name == 'Load'){
     		var planner = this.down('#plannersCtx').getComponent(action.record.data.location + '-planner');
     		var slots_grid = planner.slots_grids[action.record.data.uuid];
@@ -666,7 +708,18 @@ Ext.define('Sp.views.lmanager.MainPanel', {
     				jumpmasterCbx.clearValue();
     			}
     		}
+    		planner.afterSlotEdit(null, action.record);
+    	} else if (model_name == 'Slot'){
+    		var loadRec = Sp.utils.findLoad(action.record.data.load);
+    		if (loadRec){
+    			var planner = this.down('#plannersCtx').getComponent(loadRec.data.location + '-planner');
+    			if (planner){
+    				planner.afterSlotEdit(null, loadRec);
+    				planner.handleJumpmaster(loadRec, action.record, 'update');
+    			}
+    		}
     	}
+    	
     	this.actionOperation(action.record, 'save', have_related);
     	stack.push({
 			action: 'update',
@@ -677,7 +730,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
     },
     
     undo: function(){
-    	var action, have_related,
+    	var action,
     		undo_stack = this.undo_stack[this.currentLocation.data.uuid],
     		redo_stack = this.redo_stack[this.currentLocation.data.uuid];
     	if (Ext.isDefined(undo_stack)){
@@ -689,28 +742,18 @@ Ext.define('Sp.views.lmanager.MainPanel', {
     	}
     	
     	if (action.action == 'create'){
-	    	if (Ext.isFunction(action.handleRelatedSlots)){
-	    		have_related = action.handleRelatedSlots(action.record, 'destroy');
-	    	}
-    		action.store.remove(action.record);
-    		this.actionOperation(action.record, 'destroy', have_related);
-    		redo_stack.push(action);
+    		this.doDestroyAction(action, redo_stack);
     	} else if (action.action == 'destroy'){
-    		action.store.add(action.record);
-    		if (Ext.isFunction(action.handleRelatedSlots)){
-	    		have_related = action.handleRelatedSlots(action.record, 'create');
-	    	}
-    		this.actionRpc(action.record, 'misc.undelete', [Data.getSpModelName(action.record), action.record.data.uuid], have_related);
-    		redo_stack.push(action);
+    		this.doCreateAction(action, redo_stack);
     	} else if (action.action == 'update'){
-    		this.replayUpdateAction(action, redo_stack);
+    		this.doUpdateAction(action, redo_stack);
     	}
     	this.down('#undoBt').setDisabled(undo_stack.length == 0);
     	this.down('#redoBt').enable();    	
     },
     
     redo: function(){
-    	var action, have_related,
+    	var action,
     		undo_stack = this.undo_stack[this.currentLocation.data.uuid],
     		redo_stack = this.redo_stack[this.currentLocation.data.uuid];
     	if (Ext.isDefined(redo_stack)){
@@ -720,23 +763,13 @@ Ext.define('Sp.views.lmanager.MainPanel', {
     		this.down('#redoBt').disable();
     		return;
     	}
-    	
+
     	if (action.action == 'create'){
-    		action.store.add(action.record);
-    		if (Ext.isFunction(action.handleRelatedSlots)){
-	    		have_related = action.handleRelatedSlots(action.record, 'create');
-	    	}
-    		this.actionRpc(action.record, 'misc.undelete', [Data.getSpModelName(action.record), action.record.data.uuid], have_related);
-    		undo_stack.push(action);
+    		this.doCreateAction(action, undo_stack);
     	} else if (action.action == 'destroy'){
-    		if (Ext.isFunction(action.handleRelatedSlots)){
-	    		have_related = action.handleRelatedSlots(action.record, 'destroy');
-	    	}
-    		action.store.remove(action.record);
-    		this.actionOperation(action.record, 'destroy', have_related);
-    		undo_stack.push(action);
+    		this.doDestroyAction(action, undo_stack);
     	} else if (action.action == 'update'){
-    		this.replayUpdateAction(action, undo_stack);
+    		this.doUpdateAction(action, undo_stack);
     	}
     	this.down('#redoBt').setDisabled(redo_stack.length == 0);
     	this.down('#undoBt').enable();

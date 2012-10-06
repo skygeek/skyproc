@@ -121,7 +121,7 @@ application = tornado.web.Application(
 )
 
 # setup logging
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 
 # start server
 tornadio2.server.SocketServer(application, ssl_options={

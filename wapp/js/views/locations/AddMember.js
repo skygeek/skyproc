@@ -25,6 +25,19 @@ Ext.define('Sp.views.locations.AddMember', {
     	
     	this.personRec = Data.create('Person');
     	
+    	var first_name, last_name;
+    	if (this.phantomName){
+    		var names = this.phantomName.trim().split(' ');
+    		var o = Data.me.data.name_order;
+    		if (o == 'FL'){
+    			first_name = names.splice(0, 1);
+    			last_name = names.join(' ');
+    		} else {
+    			last_name = names.splice(0, 1);
+    			first_name = names.join(' ');
+    		}
+    	}
+    	
         Ext.apply(this, {
         	width: 560,
         	height: 400,
@@ -144,7 +157,14 @@ Ext.define('Sp.views.locations.AddMember', {
         });
  
  		this.callParent(arguments);
- 		this.getComponent('form').form.loadRecord(this.personRec);
+ 		var form = this.getComponent('form').form;
+ 		form.loadRecord(this.personRec);
+ 		if (first_name){
+ 			form.findField('first_name').setValue(first_name);
+ 		}
+ 		if (last_name){
+ 			form.findField('last_name').setValue(last_name);
+ 		}
     },
     
     onCountrySelect: function(cb, records){
@@ -222,7 +242,22 @@ Ext.define('Sp.views.locations.AddMember', {
 			    			}
 			    			// reload membership
 			    			Data.load('LocationMembership', membership.data.uuid, function(membership_rec){
-			    				this.membersStore.add(membership_rec);
+			    				if (this.membersStore){
+			    					this.membersStore.add(membership_rec);
+			    				}
+			    				if (this.slotRec){
+			    					this.slotRec.membershipRec = membership_rec;
+			    					this.slotRec.set({
+			    						person: membership_rec.data.person,
+			    						membership_uuid: membership_rec.data.uuid,
+			    						phantom: null,
+			    						is_paid: true,
+			    						is_ready: true,
+			    					});
+			    					this.slotRec.save();
+			    					this.updateRelatedSlotsData(this.slotRec);
+			    					this.afterSlotEdit(this.slotRec);
+			    				}
 			    				this.close();
 			    			}, this);
 	    				},

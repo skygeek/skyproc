@@ -279,6 +279,8 @@ Ext.define('Sp.views.lmanager.CatalogSelect', {
 		if (have_related){
 			loadRec.afterCommit();
 		}
+		// after edit
+		this.afterSlotEdit(slotRec);
 		// save
 		this.actionOperation(slotRec, 'save', have_related);
 		// store action

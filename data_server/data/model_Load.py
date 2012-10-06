@@ -19,6 +19,7 @@
 
 from django.db import models
 import base
+import fields
 from choices import *
 
 class Load(base.Model):
@@ -54,6 +55,7 @@ class Slot(base.Model):
     
     load = models.ForeignKey('Load')
     person = models.ForeignKey('Person', blank=True, null=True)
+    membership_uuid = fields.UUIDField(blank=True, null=True)
     phantom = models.ForeignKey('Phantom', blank=True, null=True)
     worker = models.ForeignKey('Worker', blank=True, null=True)
     
@@ -74,4 +76,3 @@ class Slot(base.Model):
 
     class Meta:
         ordering = ['exit_order']
-

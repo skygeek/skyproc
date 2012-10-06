@@ -34,7 +34,7 @@ Ext.define('Sp.views.locations.EditLocation', {
 		        {id: 'Aircrafts', label:TR("Aircrafts"), icon: '/static/images/icons/plane_small.png'},
 		        {id: 'Workers', label:TR("Staff"), icon: '/static/images/icons/staff.png'},
 		        {id: 'Parachutes', label:TR("Parachutes"), icon: '/static/images/icons/parachute_small.png'},
-		        {id: 'Services', label:TR("Services"), icon: '/static/images/icons/star.png'},
+		        //{id: 'Services', label:TR("Services"), icon: '/static/images/icons/star.png'},
 		        {id: 'Catalog', label:TR("Catalog"), icon: '/static/images/icons/cart.png'},
 		        {id: 'Options', label:TR("Options"), icon: '/static/images/icons/options.png'},
 		        {id: 'Permissions', label:TR("Permissions"), icon: '/static/images/icons/key.png'},

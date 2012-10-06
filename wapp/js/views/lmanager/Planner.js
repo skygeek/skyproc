@@ -23,6 +23,7 @@ Ext.define('Sp.views.lmanager.Planner', {
     constructor: function(){
     	this.slots_grids = {};
     	this.save_tasks = {};
+    	this.validate_tasks = {};
     	this.first_expand = true;
     	this.taskRunner = new Ext.util.TaskRunner();
     	this.tasks = {};
@@ -37,7 +38,7 @@ Ext.define('Sp.views.lmanager.Planner', {
         	{
         		ptype: 'cellediting',
         		pluginId: 'edit',
-        		clicksToEdit: 1,
+        		triggerEvent: 'cellclick',
         	},
         ];
         this.callParent(arguments);
@@ -82,7 +83,8 @@ Ext.define('Sp.views.lmanager.Planner', {
 			enableColumnMove: false,
 			disableSelection: true,
         	selModel: {
-	            selType: 'cellmodel'
+	            selType: 'cellmodel',
+	            ignoreRightMouseSelection: true,
 	        },
 	        viewConfig: {
 	        	selectedItemCls: '',
@@ -510,7 +512,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 	        	{
 	        		ptype: 'cellediting',
 	        		pluginId: 'edit',
-	        		clicksToEdit: 1,
+	        		triggerEvent: 'cellclick',
 	        	},
 	        ],
 	        emptyText: TR("Click on 'Add Slot' to create a new slot"),
@@ -581,6 +583,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 								allowPhantom: true,
 								matchFieldWidth: false,
 								loadRec: rec,
+								emptyText: TR("Enter jumper's name"),
 								listeners: {
 									focus: function(me){
 										var r = this.slots_grids[me.loadRec.data.uuid].getView().clickedRec;
@@ -589,6 +592,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 										} else if (r.data.phantom){
 											me.setValue(r.data.phantom);
 										}
+										me.selectText();
 									},
 							    	select: function(me){
 							    		this.slots_grids[me.loadRec.data.uuid].getPlugin('edit').completeEdit();
@@ -896,12 +900,11 @@ Ext.define('Sp.views.lmanager.Planner', {
 	        			afterrender: function(me){
 	        				me.setValue(me.loadRec.data.note);
 	        			},
-	        			keypress: function(me, e){
-	        				// enter event isn't catched here... ?
-	        				if (e.getKey() == 13){
-	        					this.updateLoadNote(me.loadRec);
-	        				}
-	        			},
+	        			specialkey: function(me, e){
+		                	if (e.getKey() == e.ENTER && !me.ownerCt.down('#updateloadNoteBt').isDisabled()){
+		                		this.updateLoadNote(me.loadRec);
+		                    }
+						},
 	        			scope: this,
 	        		},
 	        	},
@@ -933,6 +936,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 				beforedestroy: this.beforeLoadDestroy,
 				itemmouseenter: this.onSlotMouseEnter,
 	        	itemmouseleave: this.onSlotMouseLeave,
+	        	itemcontextmenu: this.onSlotContextMenu,
 				scope: this,
 			},
 			renderTo: body_div,
@@ -974,9 +978,9 @@ Ext.define('Sp.views.lmanager.Planner', {
 			jumpmasterCbx.setValue(jm_store.findRecord('uuid', rec.data.jumpmaster_slot));
 		}
 		
-		if (!recreate){
+		/*if (!recreate){
 			rec.Slots().on('datachanged', this.onSlotDataChange, this);
-		}
+		}*/
 	},
 	
 	onCollapse: function(row, rec, exp_row){
@@ -1004,7 +1008,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 	},
 	
 	beforeLoadDestroy: function(grid){
-		grid.getStore().un('datachanged', this.onSlotDataChange, this);
+		//grid.getStore().un('datachanged', this.onSlotDataChange, this);
 	},
 	
 	beforeLoadCellEdit: function(editor, event){
@@ -1461,9 +1465,10 @@ Ext.define('Sp.views.lmanager.Planner', {
 		
 		// load is ok, remove problematic flag if set
 		this.setProblematic(loadRec, false);
+		this.statusBarClear();
 		return true;
 	},
-	
+		
 	setupBoardingTimerUpdater: function(loadRec){
 		var interval = Sp.core.Globals.DEBUG ? 1000 : 60000;
 		if (!Ext.isDefined(this.tasks[loadRec.data.uuid])){
@@ -1574,6 +1579,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 				actionOperation: this.actionOperation,
 				handleRelatedSlots: Ext.bind(this.handleRelatedSlots, this),
 				getSlotsInfos: Ext.bind(this.getSlotsInfos, this),
+				afterSlotEdit: Ext.bind(this.afterSlotEdit, this),
 			}).showAt(e.getXY());
 		}
 	},
@@ -1696,62 +1702,51 @@ Ext.define('Sp.views.lmanager.Planner', {
 		
 		// update person/phantom/worker
 		if (event.colIdx == 0){
+			var edit_values = {};
 			if (event.record.data.worker_type){
 				field = 'worker';
+				undo_values.person = event.record.get('person');
+				undo_values.membership_uuid = event.record.get('membership_uuid');
+				undo_values.phantom = event.record.get('phantom');
+				edit_values.person = null;
+				edit_values.membership_uuid = null;
+				edit_values.phantom = null;
 			} else if (Ext.isObject(event.value)){
 				field = event.value.type;
 				delete event.value.type;
 				if (field == 'person'){
+					// store membershipRec for later use
 					var membershipRec = editor.editors.getByKey('jumper').field.getFullValue();
-					event.record.membershipRec = membershipRec; // store membershipRec for later use
+					event.record.membershipRec = membershipRec;
+					undo_values.worker = event.record.get('worker');
+					undo_values.phantom = event.record.get('phantom');
+					edit_values.membership_uuid = membershipRec.data.uuid;
+					edit_values.worker = null;
+					edit_values.phantom = null;
+				} else {
+					undo_values.worker = event.record.get('worker');
+					undo_values.person = event.record.get('person');
+					undo_values.membership_uuid = event.record.get('membership_uuid');
+					edit_values.worker = null;
+					edit_values.person = null;
+					edit_values.membership_uuid = null;
 				}
 			} else {
 				return;
 			}
-			var edit_values = {};
+			// set default catalog item
 			var originalValue = event.record.get(field);
 			if (!originalValue || 
 			((originalValue.uuid && originalValue.uuid != event.value.uuid) || 
 			(originalValue != event.value))){
 				edit_values[field] = event.value;
-				// catalog item is not yet set and we are setting a jumper
-				// try to put a default catalog item here
-				if (!event.record.data.item){
-					if (field == 'person'){ // default member catalog
-						if (membershipRec){
-							var pp = Sp.ui.data.getPersonProfile(membershipRec, this.locationRec);
-							if (pp.catalog_item){
-								undo_values.item = null;
-								edit_values.item = pp.catalog_item;
-								var item = this.locationRec.LocationCatalogItems().getById(pp.catalog_item);
-								if (item && item.data.jump_type){
-									if (Ext.isObject(item.data.jump_type)){
-										var jump_type = item.data.jump_type.uuid;
-									} else {
-										var jump_type = item.data.jump_type;
-									}
-									undo_values.jump_type = event.record.data.jump_type;
-									edit_values.jump_type = jump_type;
-								}
-							}
-							if (pp.catalog_element){
-								undo_values.element = null;
-								edit_values.element = pp.catalog_element;
-							}
-							if (pp.catalog_price){
-								undo_values.price = null;
-								edit_values.price = pp.catalog_price;
-							}
-							if (pp.bill_person_data){
-								undo_values.payer = null;
-								edit_values.payer = pp.bill_person_data;
-							}
-						}
-					} else if (field == 'phantom'){ // default phantom catalog
-						if (this.locationRec.data.lmanager_default_catalog_item){
+				if (field == 'person'){ // default member catalog
+					if (membershipRec){
+						var pp = Sp.ui.data.getPersonProfile(membershipRec, this.locationRec);
+						if (pp.catalog_item){
 							undo_values.item = null;
-							edit_values.item = this.locationRec.data.lmanager_default_catalog_item;
-							var item = this.locationRec.LocationCatalogItems().getById(this.locationRec.data.lmanager_default_catalog_item);
+							edit_values.item = pp.catalog_item;
+							var item = this.locationRec.LocationCatalogItems().getById(pp.catalog_item);
 							if (item && item.data.jump_type){
 								if (Ext.isObject(item.data.jump_type)){
 									var jump_type = item.data.jump_type.uuid;
@@ -1760,22 +1755,49 @@ Ext.define('Sp.views.lmanager.Planner', {
 								}
 								undo_values.jump_type = event.record.data.jump_type;
 								edit_values.jump_type = jump_type;
-								// set the element if the item has one and only one element
-								if (item.LocationCatalogElements().getCount() == 1){
-									undo_values.element = null;
-									edit_values.element = item.LocationCatalogElements().getAt(0).data.uuid;
-								}
-								// set paid and ready to false for phantoms
-								undo_values.is_paid = event.record.data.is_paid;
-								edit_values.is_paid = false;
-								undo_values.is_ready = event.record.data.is_ready;
-								edit_values.is_ready = false;
 							}
 						}
-						if (this.locationRec.data.lmanager_default_catalog_price){
-							undo_values.price = null;
-							edit_values.price = this.locationRec.data.lmanager_default_catalog_price;
+						if (pp.catalog_element){
+							undo_values.element = null;
+							edit_values.element = pp.catalog_element;
 						}
+						if (pp.catalog_price){
+							undo_values.price = null;
+							edit_values.price = pp.catalog_price;
+						}
+						if (pp.bill_person_data){
+							undo_values.payer = null;
+							edit_values.payer = pp.bill_person_data;
+						}
+					}
+				} else if (field == 'phantom'){ // default phantom catalog
+					if (this.locationRec.data.lmanager_default_catalog_item){
+						undo_values.item = null;
+						edit_values.item = this.locationRec.data.lmanager_default_catalog_item;
+						var item = this.locationRec.LocationCatalogItems().getById(this.locationRec.data.lmanager_default_catalog_item);
+						if (item && item.data.jump_type){
+							if (Ext.isObject(item.data.jump_type)){
+								var jump_type = item.data.jump_type.uuid;
+							} else {
+								var jump_type = item.data.jump_type;
+							}
+							undo_values.jump_type = event.record.data.jump_type;
+							edit_values.jump_type = jump_type;
+							// set the element if the item has one and only one element
+							if (item.LocationCatalogElements().getCount() == 1){
+								undo_values.element = null;
+								edit_values.element = item.LocationCatalogElements().getAt(0).data.uuid;
+							}
+							// set paid and ready to false for phantoms
+							undo_values.is_paid = event.record.data.is_paid;
+							edit_values.is_paid = false;
+							undo_values.is_ready = event.record.data.is_ready;
+							edit_values.is_ready = false;
+						}
+					}
+					if (this.locationRec.data.lmanager_default_catalog_price){
+						undo_values.price = null;
+						edit_values.price = this.locationRec.data.lmanager_default_catalog_price;
 					}
 				}
 				// check if enought slots are available
@@ -1789,42 +1811,25 @@ Ext.define('Sp.views.lmanager.Planner', {
 					if (event.record.data.person || event.record.data.phantom || event.record.data.worker){
 						needed -= 1;
 					}
-					// no enough free slots
+					
+					// FIXME: rewrite this code to check for slots availability before storing values
+					// no enough free slots 
 					if (needed > load_infos.free){
 						delete edit_values.item;
 						delete edit_values.element;
 						delete edit_values.jump_type;
 						delete edit_values.price;
 						delete edit_values.payer;
-					}/* else {
-						update_related = true;
-					}*/
-				}
-				// update jumpmaster combo store
-				var jumpmasterCbx = this.slots_grids[loadRec.data.uuid].down('#jumpmasterCbx');
-				var jm_store = jumpmasterCbx.getStore();
-				if (jumpmasterCbx.getValue() == event.record.data.uuid){
-					jumpmasterCbx.clearValue();
-					loadRec.set('jumpmaster_slot', null);
-					this.actionOperation(loadRec, 'save');
-				}
-				jm_store.removeAt(jm_store.find('uuid', event.record.data.uuid));
-				if (field == 'person'){
-					jm_store.add({
-						uuid: event.record.data.uuid,
-						name: Sp.ui.misc.formatFullname({data:event.value}, Data.me.data.name_order, true),
-					});
-				} else if (field == 'worker'){
-					var worker = this.locationRec.Workers().getById(event.value);
-					if (worker){
-						jm_store.add({
-							uuid: event.record.data.uuid,
-							name: worker.data.name,
-						});	
+						delete undo_values.item;
+						delete undo_values.element;
+						delete undo_values.jump_type;
+						delete undo_values.price;
+						delete undo_values.payer;
 					}
 				}
 			}
 			event.record.set(edit_values);
+			this.handleJumpmaster(loadRec, event.record, 'update');
 		} else if (!event.field){
 			return;
 		}
@@ -1837,7 +1842,11 @@ Ext.define('Sp.views.lmanager.Planner', {
 		// update related slots (if any)
 		var have_related = this.handleRelatedSlots(event.record, 'update');
 		
+		// sort
 		event.record.store.sort({sorterFn: Sp.lmanager.slotsSorter});
+		
+		// after edit
+		this.afterSlotEdit(event.record);
 		
 		// save
 		this.actionOperation(event.record, 'save', have_related);
@@ -1851,9 +1860,31 @@ Ext.define('Sp.views.lmanager.Planner', {
 		});
 	},
 	
+	afterSlotEdit: function(slotRec, loadRec){
+		// this function is called at the slot level
+		// but it acts on the whole load
+		loadRec = loadRec || this.locationRec.Loads().getById(slotRec.data.load);
+		if (!loadRec){
+			return;
+		}
+		
+		// update load display
+		loadRec.afterCommit();
+		
+		// validate
+		this.validateLoad(loadRec);
+		
+		// update ui parts
+		if (this.slots_grids[loadRec.data.uuid]){
+			var infos = this.getSlotsInfos(loadRec);
+			this.handleAutoAddSlot(loadRec, infos);
+			this.updateJumpersHeader(loadRec, infos);
+		}
+	},
+	
 	onSlotDataChange: function(store){
 		// get Load uuid
-		var load_uuid;
+		/*var load_uuid;
 		store.filters.each(function(f){
 			if (f.property == 'load'){
 				load_uuid = f.value;
@@ -1871,7 +1902,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 		var infos = this.getSlotsInfos(loadRec);
 		this.handleAutoAddSlot(loadRec, infos);
 		this.updateJumpersHeader(loadRec, infos);
-		this.validateLoad(loadRec);
+		this.validateLoad(loadRec);*/
 	},
 	
 	onJumpMasterCbxSelect: function(cbx, recs){
@@ -1902,9 +1933,85 @@ Ext.define('Sp.views.lmanager.Planner', {
 	},
 	
 	onSlotMouseLeave: function(view, rec){
-		if (rec.data.problematic && rec.data.problem){
+		var loadRec = this.locationRec.Loads().getById(rec.data.load);
+		if (loadRec.data.problematic && loadRec.data.problem){
+			this.statusBarText({
+				text: loadRec.data.problem,
+				iconCls: 'x-status-error',
+			});
+		} else if (rec.data.problematic && rec.data.problem){
 			this.statusBarClear();
 		}
+	},
+	
+	onSlotContextMenu: function(grid, record, el, idx, ev){
+		if (!record.data.person && !record.data.phantom){
+			ev.preventDefault();
+			return;
+		}
+		var menu_items = [];
+		if (record.data.person){
+			menu_items.push({
+				slotRec: record,
+		        text: TR("Edit Member"),
+		        icon: '/static/images/icons/member.png',
+		        handler: function(me){
+		        	if (!me.slotRec.membershipRec){
+		        		if (me.slotRec.data.membership_uuid){
+		        			var grid = this.slots_grids[me.slotRec.data.load];
+		        			if (grid){
+		        				grid.body.mask(TR("Please wait"));
+		        			}
+		        			Data.load('LocationMembership', me.slotRec.data.membership_uuid, function(membershipRec){
+		        				if (grid){
+			        				grid.body.unmask();
+			        			}
+		        				me.slotRec.membershipRec = membershipRec;
+		        				Ext.create('Sp.views.locations.EditMember', {
+									locationRec: this.locationRec,
+									membershipRec: membershipRec,
+									instantSave: true,
+									slotRec: me.slotRec,
+									afterSlotEdit: Ext.bind(this.afterSlotEdit, this),
+								}).show();
+		        			}, this);
+		        		} else {
+		        			Sp.ui.misc.warnMsg(TR("Failed to retrieve membership data"), TR("Data error"));
+		        		}
+		        		return;
+		        	}
+		        	Ext.create('Sp.views.locations.EditMember', {
+						locationRec: this.locationRec,
+						membershipRec: me.slotRec.membershipRec,
+						instantSave: true,
+						slotRec: me.slotRec,
+						afterSlotEdit: Ext.bind(this.afterSlotEdit, this),
+					}).show();
+		        },
+		        scope: this,
+		    });
+		} else if (record.data.phantom){
+			menu_items.push({
+		        text: TR("Create Member"),
+		        icon: '/static/images/icons/nomember.png',
+		        handler: function(){
+		        	Ext.create('Sp.views.locations.AddMember', {
+						locationRec: this.locationRec,
+						phantomName: record.data.phantom.name,
+						slotRec: record,
+						afterSlotEdit: Ext.bind(this.afterSlotEdit, this),
+						updateRelatedSlotsData: Ext.bind(this.updateRelatedSlotsData, this),
+					}).show();
+		        },
+		        scope: this,
+		    });
+		}
+    	var menu = Ext.create('Ext.menu.Menu', {
+    		items: menu_items,
+		});
+    	// show context menu
+    	ev.preventDefault();
+    	menu.showAt(ev.getXY());
 	},
 	
 	getSlotsInfos: function(loadRec){
@@ -1930,14 +2037,7 @@ Ext.define('Sp.views.lmanager.Planner', {
 		var store = loadRec.Slots();
 		var have_related = this.handleRelatedSlots(slotRec, 'destroy');
 		// delete the jumper from jumpmaster combo
-		var jumpmasterCbx = this.slots_grids[loadRec.data.uuid].down('#jumpmasterCbx');
-		var jm_store = jumpmasterCbx.getStore();
-		if (jumpmasterCbx.getValue() == slotRec.data.uuid){
-			jumpmasterCbx.clearValue();
-			loadRec.set('jumpmaster_slot', null);
-			this.actionOperation(loadRec, 'save');
-		}
-		jm_store.remove(jm_store.findRecord('uuid', slotRec.data.uuid));
+		this.handleJumpmaster(loadRec, slotRec, 'destroy');
 		// if one slot left, reset it
 		if (store.getCount() == 1){
 			var previous_values = slotRec.getData();
@@ -1987,16 +2087,9 @@ Ext.define('Sp.views.lmanager.Planner', {
 		var related = this.getRelatedSlots(slotRec);
 		if (related.length > 0){
 			var loadRec = this.locationRec.Loads().getById(slotRec.data.load);
-			var jumpmasterCbx = this.slots_grids[loadRec.data.uuid].down('#jumpmasterCbx');
-			var jm_store = jumpmasterCbx.getStore();
-			var jm = jumpmasterCbx.getValue();
-			// delete related slots from jumpmaster combo
+			// jumpmaster
 			Ext.each(related, function(r){
-				jm_store.remove(jm_store.findRecord('uuid', r.data.uuid));
-				if (jm == r.data.uuid){
-					loadRec.set('jumpmaster_slot', null);
-					this.actionOperation(loadRec, 'save');
-				}
+				this.handleJumpmaster(loadRec, r, 'destroy');
 			}, this);
 			// delete related
 			slotRec.store.remove(related);
@@ -2017,6 +2110,13 @@ Ext.define('Sp.views.lmanager.Planner', {
 		}
 		relatedSlot.set(changes);
 		return true;
+	},
+	
+	updateRelatedSlotsData: function(slotRec){
+		var related = this.getRelatedSlots(slotRec);
+		for (var i=0,r ; r=related[i] ; i++){
+			this.updateRelatedSlotData(slotRec, r);
+		}
 	},
 	
 	updateRelatedSlots: function(slotRec){
@@ -2211,6 +2311,51 @@ Ext.define('Sp.views.lmanager.Planner', {
 			var header_text = TR("No Jumpers");
 		}
 		this.slots_grids[loadRec.data.uuid].down('#jumper').setText(header_text);
+	},
+	
+	deleteJumpmasterItem: function(loadRec, slotRec){
+		var jumpmasterCbx = this.slots_grids[loadRec.data.uuid].down('#jumpmasterCbx');
+		var jm_store = jumpmasterCbx.getStore();
+		if (jumpmasterCbx.getValue() == slotRec.data.uuid){
+			jumpmasterCbx.clearValue();
+			loadRec.set('jumpmaster_slot', null);
+			this.actionOperation(loadRec, 'save');
+		}
+		jm_store.remove(jm_store.findRecord('uuid', slotRec.data.uuid));
+	},
+	
+	addJumpmasterItem: function(loadRec, slotRec){
+		var jumpmasterCbx = this.slots_grids[loadRec.data.uuid].down('#jumpmasterCbx');
+		var jm_store = jumpmasterCbx.getStore();
+		if (slotRec.data.person){
+			jm_store.add({
+				uuid: slotRec.data.uuid,
+				name: Sp.ui.misc.formatFullname({data:slotRec.data.person}, Data.me.data.name_order, true),
+			});
+		} else if (slotRec.data.worker){
+			var worker = this.locationRec.Workers().getById(slotRec.data.worker);
+			if (worker){
+				jm_store.add({
+					uuid: slotRec.data.uuid,
+					name: worker.data.name,
+				});	
+			}
+		}
+	},
+	
+	handleJumpmaster: function(loadRec, slotRec, operation){
+		if (!this.slots_grids[loadRec.data.uuid]){
+			return;
+		}
+		if (operation == 'create'){
+			this.addJumpmasterItem(loadRec, slotRec);
+		} else if (operation == 'destroy'){
+			this.deleteJumpmasterItem(loadRec, slotRec);
+		} else if (operation == 'update'){
+			// FIXME: edit name instead of destroy/create
+			this.deleteJumpmasterItem(loadRec, slotRec);
+			this.addJumpmasterItem(loadRec, slotRec);
+		}
 	},
 	
 	adjustExitOrders: function(loadRec){

@@ -48,3 +48,14 @@ Sp.utils.isUuid = function(uuid){
 	r2 = /^[a-f0-9]{32}$/i
 	return (r1.test(uuid) || r2.test(uuid));
 }
+
+Sp.utils.findLoad = function(load_uuid){
+	var load;
+	Data.locations.each(function(location){
+		load = location.Loads().getById(load_uuid);
+		if (load){
+			return false;
+		}
+	});
+	return load;
+}
