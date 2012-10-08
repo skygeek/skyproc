@@ -21,80 +21,80 @@ Ext.define('Sp.views.lmanager.ArchiveLoad', {
     extend: 'Ext.window.Window',
     
     initComponent: function() {
-    	
+        
         Ext.apply(this, {
-        	width: 400,
-        	height: 200,
-        	modal: true,
-        	resizable: false,
-        	title: TR("Archving confirmation"),
-        	icon: '/static/images/icons/archive.png',
-        	layout: {
-        		type: 'vbox',
-        		align: 'stretch',
-        	},
+            width: 400,
+            height: 200,
+            modal: true,
+            resizable: false,
+            title: TR("Archving confirmation"),
+            icon: '/static/images/icons/archive.png',
+            layout: {
+                type: 'vbox',
+                align: 'stretch',
+            },
             items: [
-            	{
-            		xtype: 'container',
-            		margin: '10 0 10 15',
-            		layout: {
-            			type: 'hbox',
-            			align: 'middle',
-            		},
-            		items: [
-            			{
-            				xtype: 'image',
-            				width: 32,
-            				height: 32,
-            				src: '/static/images/icons/icon-question.gif',
-							margin: '5 10 0 0',
-            			},
-            			{
-		            		xtype: 'label',
-		            		text: Ext.String.format(TR("Confirm archiving operation of load n°{0} ?"), this.loadRec.data.number),
-		            		flex: 1,
-		            	},
-            		],
-            	},
-            	{
-					xtype: 'container',
-					margin: '0 10 10 10',
-					flex: 1,
-					layout: 'fit',
-					items: [
-						{
-							xtype: 'textarea',
-							itemId: 'note',
-							emptyText: TR("Enter here an optional private note about this load"),
-						},
-					],
-				},
+                {
+                    xtype: 'container',
+                    margin: '10 0 10 15',
+                    layout: {
+                        type: 'hbox',
+                        align: 'middle',
+                    },
+                    items: [
+                        {
+                            xtype: 'image',
+                            width: 32,
+                            height: 32,
+                            src: '/static/images/icons/icon-question.gif',
+                            margin: '5 10 0 0',
+                        },
+                        {
+                            xtype: 'label',
+                            text: Ext.String.format(TR("Confirm archiving operation of load n°{0} ?"), this.loadRec.data.number),
+                            flex: 1,
+                        },
+                    ],
+                },
+                {
+                    xtype: 'container',
+                    margin: '0 10 10 10',
+                    flex: 1,
+                    layout: 'fit',
+                    items: [
+                        {
+                            xtype: 'textarea',
+                            itemId: 'note',
+                            emptyText: TR("Enter here an optional private note about this load"),
+                        },
+                    ],
+                },
             ],
             buttons: [
-				{
-					text: TR("Archive"),
-					icon: '/static/images/icons/save.png',
-					handler: this.archive,
-					scope: this,
-				},
-				{
-					text: TR("Cancel"),
-					icon: '/static/images/icons/cancel.png',
-					handler: this.close,
-					scope: this,
-				},
-			],
+                {
+                    text: TR("Archive"),
+                    icon: '/static/images/icons/save.png',
+                    handler: this.archive,
+                    scope: this,
+                },
+                {
+                    text: TR("Cancel"),
+                    icon: '/static/images/icons/cancel.png',
+                    handler: this.close,
+                    scope: this,
+                },
+            ],
         });
  
- 		this.callParent(arguments);
+        this.callParent(arguments);
     },
     
     
     
     archive: function(){
-    	Sp.utils.rpc('lmanager.archive_load', [this.loadRec.data.uuid, this.down('#note').getValue()]);
-    	this.loadRec.store.remove(this.loadRec, true);
-    	this.close();
+        Sp.utils.rpc('lmanager.archive_load', [this.loadRec.data.uuid, this.down('#note').getValue()]);
+        this.loadRec.store.remove(this.loadRec, true);
+        this.close();
     },
                 
 });

@@ -38,7 +38,7 @@ Sp.core.comet.connect = function(){
     });
 
     Sp.core.comet.socket.on('message', function(message) {
-    	Comet.processMessage(Ext.decode(message));
+        Comet.processMessage(Ext.decode(message));
     });
 
     Sp.core.comet.socket.on('disconnect', function() {

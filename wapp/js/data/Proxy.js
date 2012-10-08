@@ -23,7 +23,7 @@ Ext.define('Sp.data.Proxy', {
     
     constructor: function(config){
         Ext.applyIf(config, {
-        	reader: {
+            reader: {
                 root: 'data',
             },
             timeout: Sp.core.Globals.AJAX_REQUEST_TIMEOUT,
@@ -32,7 +32,7 @@ Ext.define('Sp.data.Proxy', {
             },
             limitParam: undefined,
             listeners: {
-            	exception: Sp.ui.misc.reportException,
+                exception: Sp.ui.misc.reportException,
             },
         });        
         this.callParent(arguments);

@@ -27,9 +27,9 @@ Sp.utils.log = function(msg){
 }
 Ext.ns('Log');
 if (Sp.core.Globals.DEBUG === true){
-	Log = Sp.utils.log;	
+    Log = Sp.utils.log; 
 } else {
-	Log = Ext.emptyFn;
+    Log = Ext.emptyFn;
 }
 
 Sp.utils.logError = function(msg){
@@ -41,21 +41,21 @@ Ext.ns('logError');
 logError = Sp.utils.logError;
 
 Sp.utils.isUuid = function(uuid){
-	if (!Ext.isString(uuid)){
-		return false;
-	}
-	r1 = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i
-	r2 = /^[a-f0-9]{32}$/i
-	return (r1.test(uuid) || r2.test(uuid));
+    if (!Ext.isString(uuid)){
+        return false;
+    }
+    r1 = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i
+    r2 = /^[a-f0-9]{32}$/i
+    return (r1.test(uuid) || r2.test(uuid));
 }
 
 Sp.utils.findLoad = function(load_uuid){
-	var load;
-	Data.locations.each(function(location){
-		load = location.Loads().getById(load_uuid);
-		if (load){
-			return false;
-		}
-	});
-	return load;
+    var load;
+    Data.locations.each(function(location){
+        load = location.Loads().getById(load_uuid);
+        if (load){
+            return false;
+        }
+    });
+    return load;
 }

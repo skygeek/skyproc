@@ -19,11 +19,11 @@ License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
 Ext.override(Ext.data.writer.Writer, {
 
-	// write only the changes	
-	writeAllFields: false,
-	
-	// use dateFormat to format dates
-	getRecordData: function(record, operation) {
+    // write only the changes   
+    writeAllFields: false,
+    
+    // use dateFormat to format dates
+    getRecordData: function(record, operation) {
         var isPhantom = record.phantom === true,
             writeAll = this.writeAllFields || isPhantom,
             nameProperty = this.nameProperty,
@@ -48,7 +48,7 @@ Ext.override(Ext.data.writer.Writer, {
                     data[name] = record.get(field.name);
                     // added 3 lignes
                     if (field.dateFormat && Ext.isDate(data[name])){
-                    	data[name] = Ext.Date.format(data[name], field.dateFormat);
+                        data[name] = Ext.Date.format(data[name], field.dateFormat);
                     }
                 }
             }
@@ -62,7 +62,7 @@ Ext.override(Ext.data.writer.Writer, {
                     data[name] = changes[key];
                     // added 3 lignes
                     if (field.dateFormat && Ext.isDate(data[name])){
-                    	data[name] = Ext.Date.format(data[name], field.dateFormat);
+                        data[name] = Ext.Date.format(data[name], field.dateFormat);
                     }
                 }
             }
@@ -87,104 +87,104 @@ Ext.override(Ext.data.writer.Writer, {
 
 // decode html chars in text fields
 Ext.override(Ext.form.field.Text, {
-	
-	setValue: function(value) {
-		if (Ext.isDefined(value) && Ext.isString(value)){
-			arguments[0] = Ext.String.htmlDecode(value);
-		}
-		return this.callParent(arguments);
-    },	
-	
-});	
+    
+    setValue: function(value) {
+        if (Ext.isDefined(value) && Ext.isString(value)){
+            arguments[0] = Ext.String.htmlDecode(value);
+        }
+        return this.callParent(arguments);
+    },  
+    
+}); 
 
 
 // decode html chars in htmleditor fields
 Ext.override(Ext.form.field.HtmlEditor, {
-	
-	setValue: function(value) {
-		if (Ext.isDefined(value) && Ext.isString(value)){
-			arguments[0] = Ext.String.htmlDecode(value);
-		}
-		return this.callParent(arguments);
-    },	
-	
+    
+    setValue: function(value) {
+        if (Ext.isDefined(value) && Ext.isString(value)){
+            arguments[0] = Ext.String.htmlDecode(value);
+        }
+        return this.callParent(arguments);
+    },  
+    
 });
 
 // html encode form values
 Ext.override(Ext.form.Basic, {
-	
-	updateRecord: function(record) {
-		var ret = this.callParent(arguments);
+    
+    updateRecord: function(record) {
+        var ret = this.callParent(arguments);
         record = record || this._record;
         record.setDirty();
         return ret;
     },
-	
-	getFieldValues: function(){
-		return Data.htmlEncodeValues(this.callParent(arguments));
-	},
-	
+    
+    getFieldValues: function(){
+        return Data.htmlEncodeValues(this.callParent(arguments));
+    },
+    
 });
 
 // combobox: read uuid value from an object
 Ext.override(Ext.form.field.ComboBox, {
-	
-	setValue: function() {
-		var value = arguments[0];
-		if (Ext.isObject(value) && Ext.isDefined(value.uuid)){
-			arguments[0] = value.uuid;
-		}
-		return this.callParent(arguments);
-	}
-	
+    
+    setValue: function() {
+        var value = arguments[0];
+        if (Ext.isObject(value) && Ext.isDefined(value.uuid)){
+            arguments[0] = value.uuid;
+        }
+        return this.callParent(arguments);
+    }
+    
 });
 
 // return true instead of "on"
 Ext.override(Ext.form.field.Checkbox, {
-	inputValue: true,
+    inputValue: true,
 });
 
 // set fields msgTarget to 'side' by default
 Ext.override(Ext.form.Panel, {
-	fieldDefaults: {
-		msgTarget: 'side',	
-	},
+    fieldDefaults: {
+        msgTarget: 'side',  
+    },
 });
 
 
 
 
 Ext.override(Ext.view.AbstractView, {
-	deferEmptyText: false,
-	
-	onAdd : function(ds, records, index) {
-		// don't know why index is set to -1
-		// this happend when dropping a slot at the top of the view
-		if (index < 0){
-			index = 0;
-		}
-		this.callParent([ds, records, index]);
-	}
-	
+    deferEmptyText: false,
+    
+    onAdd : function(ds, records, index) {
+        // don't know why index is set to -1
+        // this happend when dropping a slot at the top of the view
+        if (index < 0){
+            index = 0;
+        }
+        this.callParent([ds, records, index]);
+    }
+    
 });
 
 Ext.override(Ext.AbstractManager, {
-	register: function(item) {
-		this.callParent(arguments);
-		Sp.utils.help.setupWhatsThis(item);
+    register: function(item) {
+        this.callParent(arguments);
+        Sp.utils.help.setupWhatsThis(item);
     },
 });
 
 Ext.override(Ext.window.Window, {
-	addTools: function() {
-		this.callParent();
-		this.addTool({
+    addTools: function() {
+        this.callParent();
+        this.addTool({
             type: 'help',
             handler: Sp.utils.help.startWhatsThis,
             overCls: 'help-cursor',
         });
-		
-	},
+        
+    },
 });
 
 //Ext.override(, {
@@ -192,6 +192,6 @@ Ext.override(Ext.window.Window, {
 
 
 /*Ext.require('', function(){
-	Ext.override(, {
-	});
+    Ext.override(, {
+    });
 });*/

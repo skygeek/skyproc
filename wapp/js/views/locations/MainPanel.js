@@ -22,131 +22,131 @@ Ext.define('Sp.views.locations.MainPanel', {
     extend: 'Ext.container.Container',
     
     initComponent: function() {
-    	
-    	var create_button;
-    	if (Sp.app.isOp()){
-    		if (Sp.app.isDzOp() && Sp.app.isTnOp()){
-    			var create_button = {
-		            xtype: 'splitbutton',
-		            text : TR("Create"),
-		            icon: '/static/images/icons/new_yellow.png',
-		            margin: '0 10 0 20',
-		            width: 90,
-		            menu: new Ext.menu.Menu({
-				        items: [
-							{
-								itemId: 'D',
-								text: TR("New Dropzone"), 
-								icon: '/static/images/icons/windsock.png', 
-				            	handler: Ext.bind(this.addLocation, this),
-				            },
-				            {
-				            	itemId: 'T',
-				            	text: TR("New Tunnel"), 
-				            	icon: '/static/images/icons/fan_small.png',
-				            	handler: Ext.bind(this.addLocation, this),
-				            	disabled: true,
-				            },
-				        ],
-				    }),
-				    handler: function(bt){
-				    	bt.showMenu();
-			        },
-		        };
-    		} else if (Sp.app.isDzOp()){
-    			var create_button = {
-		            xtype: 'button',
-		            itemId: 'D',
-		            text : TR("Create Dropzone"),
-		            icon: '/static/images/icons/new_yellow.png',
-		            margin: '0 10 0 20',
-				    handler: this.addLocation,
-				    scope: this,
-		        };
-    		} else if (Sp.app.isTnOp()){
-    			var create_button = {
-		            xtype: 'button',
-		            itemId: 'T',
-		            text : TR("Create Tunnel"),
-		            icon: '/static/images/icons/new_yellow.png',
-		            margin: '0 10 0 20',
-				    handler: this.addLocation,
-				    scope: this,
-				    disabled: true,
-		        };
-    		}
-    	}
-    	
+        
+        var create_button;
+        if (Sp.app.isOp()){
+            if (Sp.app.isDzOp() && Sp.app.isTnOp()){
+                var create_button = {
+                    xtype: 'splitbutton',
+                    text : TR("Create"),
+                    icon: '/static/images/icons/new_yellow.png',
+                    margin: '0 10 0 20',
+                    width: 90,
+                    menu: new Ext.menu.Menu({
+                        items: [
+                            {
+                                itemId: 'D',
+                                text: TR("New Dropzone"), 
+                                icon: '/static/images/icons/windsock.png', 
+                                handler: Ext.bind(this.addLocation, this),
+                            },
+                            {
+                                itemId: 'T',
+                                text: TR("New Tunnel"), 
+                                icon: '/static/images/icons/fan_small.png',
+                                handler: Ext.bind(this.addLocation, this),
+                                disabled: true,
+                            },
+                        ],
+                    }),
+                    handler: function(bt){
+                        bt.showMenu();
+                    },
+                };
+            } else if (Sp.app.isDzOp()){
+                var create_button = {
+                    xtype: 'button',
+                    itemId: 'D',
+                    text : TR("Create Dropzone"),
+                    icon: '/static/images/icons/new_yellow.png',
+                    margin: '0 10 0 20',
+                    handler: this.addLocation,
+                    scope: this,
+                };
+            } else if (Sp.app.isTnOp()){
+                var create_button = {
+                    xtype: 'button',
+                    itemId: 'T',
+                    text : TR("Create Tunnel"),
+                    icon: '/static/images/icons/new_yellow.png',
+                    margin: '0 10 0 20',
+                    handler: this.addLocation,
+                    scope: this,
+                    disabled: true,
+                };
+            }
+        }
+        
         Ext.apply(this, {
-        	padding: Sp.core.Globals.MAIN_CTX_PADDING,
-        	layout: {
-		    	type: 'border',
-		    },
-		    listeners: {
-		    	render: function(me){
-					me.showModule({id:'Locator'});
-		    	},
-		    },
+            padding: Sp.core.Globals.MAIN_CTX_PADDING,
+            layout: {
+                type: 'border',
+            },
+            listeners: {
+                render: function(me){
+                    me.showModule({id:'Locator'});
+                },
+            },
             items: [
-            	{
-            		region: 'north',
-            		xtype: 'container',
-            		itemId: 'northContainer',
-            		layout: {
-            			type: 'hbox',
-            			align: 'middle',
-            		},
-            		margins: '0 0 15 0',
-            		items: [
-            			{
-				    		xtype: 'toolbar',
-				    		itemId: 'navigationTb',
-				    		padding: 5,
-				    		flex: 1,
-				    		items: [
-				    			{
-				    				xtype: 'button',
-				    				itemId: 'Locator',
-				    				text: TR("Locator"),
-				    				icon: '/static/images/icons/glyphicons/map_marker.png',
-				    				handler: function(bt){
-				    					this.showModule({id:'Locator'});
-				    				},
-				    				scope: this,
-				    			},
-				    		],
-				    	},
-				    	create_button,
-            		],
-            	},
-		    	{
-		    		region: 'center',
-		    		xtype: 'cardcontainer',
-		    		itemId: 'mainContainer',
-		    		modulesNs: 'Sp.views.locations.#',
-		    		getTbFunction: Ext.bind(this.getNavigationToolbar, this),
-		    	},
-		    ],
-			
+                {
+                    region: 'north',
+                    xtype: 'container',
+                    itemId: 'northContainer',
+                    layout: {
+                        type: 'hbox',
+                        align: 'middle',
+                    },
+                    margins: '0 0 15 0',
+                    items: [
+                        {
+                            xtype: 'toolbar',
+                            itemId: 'navigationTb',
+                            padding: 5,
+                            flex: 1,
+                            items: [
+                                {
+                                    xtype: 'button',
+                                    itemId: 'Locator',
+                                    text: TR("Locator"),
+                                    icon: '/static/images/icons/glyphicons/map_marker.png',
+                                    handler: function(bt){
+                                        this.showModule({id:'Locator'});
+                                    },
+                                    scope: this,
+                                },
+                            ],
+                        },
+                        create_button,
+                    ],
+                },
+                {
+                    region: 'center',
+                    xtype: 'cardcontainer',
+                    itemId: 'mainContainer',
+                    modulesNs: 'Sp.views.locations.#',
+                    getTbFunction: Ext.bind(this.getNavigationToolbar, this),
+                },
+            ],
+            
         });
  
- 		this.callParent(arguments);
+        this.callParent(arguments);
     },
     
     getNavigationToolbar: function(){
-    	return this.getComponent('northContainer').getComponent('navigationTb');
+        return this.getComponent('northContainer').getComponent('navigationTb');
     },
     
     showModule: function(config){
-    	this.getComponent('mainContainer').showModule(config);
+        this.getComponent('mainContainer').showModule(config);
     },
     
     addLocation: function(bt){
-    	var w = Ext.create('Sp.views.locations.AddLocation', {
-    		locationType: bt.itemId,
-    		showModuleFunction: Ext.bind(this.showModule, this),
-    	});
-    	w.show();
+        var w = Ext.create('Sp.views.locations.AddLocation', {
+            locationType: bt.itemId,
+            showModuleFunction: Ext.bind(this.showModule, this),
+        });
+        w.show();
     },
 
 });

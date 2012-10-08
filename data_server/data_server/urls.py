@@ -16,6 +16,9 @@ urlpatterns = patterns('',
     url(r'^rpc/(?P<rpc_path>.*$)', 'rpc.__dispatcher__.dispatch'), # rpc dispatcher
     url(r'^data/(?P<data_path>.*$)', 'data.__dispatcher__.dispatch'), # data dispatcher
     
+    # mapp
+    url(r'^mobile/$', 'ui.views.mobile'),
+    
     # SRP urls
     (r'^register/salt/$', srp.views.register_salt),
     (r'^register/user/$', srp.views.register_user),

@@ -22,88 +22,88 @@ Ext.define('Sp.views.locations.EditMembersProfile', {
     extend: 'Ext.window.Window',
     
     initComponent: function() {
-    	
+        
         Ext.apply(this, {
-        	width: 360,
-        	height: 160,
-        	modal: true,
-        	//resizable: false,
-        	title: TR("Set members profile"),
-        	icon: '/static/images/icons/membership.png',
-        	layout: 'fit',
+            width: 360,
+            height: 160,
+            modal: true,
+            //resizable: false,
+            title: TR("Set members profile"),
+            icon: '/static/images/icons/membership.png',
+            layout: 'fit',
             items: [
-            	{
-            		xtype: 'fieldset',
-            		margin: 10,
-            		defaults: {
-            			anchor: '100%',
-            		},
-            		layout: 'form',
-            		items: [
-            			{
-					    	itemId: 'profile',
-							xtype: 'combobox',
-							fieldLabel: TR("Profile"),
-							labelWidth: 60,
-							anchor: '100%',
-							store: this.locationRec.MembershipProfiles(),
-							queryMode: 'local',
-							displayField: 'name',
-							valueField: 'uuid',
-							forceSelection: true,
-							lastQuery: '',
-							allowBlank: false,
-							listeners: {
-								afterrender: function(me){
-									var default_profile = me.getStore().findRecord('default', true);
-									if (default_profile){
-										me.setValue(default_profile);
-									}
-								},
-							},
-						},
-						{
-							itemId: 'disable_overrides',
-							xtype: 'checkbox',
-							boxLabel: TR("Disable members overrides")
-						},
-            		],
-            	}
+                {
+                    xtype: 'fieldset',
+                    margin: 10,
+                    defaults: {
+                        anchor: '100%',
+                    },
+                    layout: 'form',
+                    items: [
+                        {
+                            itemId: 'profile',
+                            xtype: 'combobox',
+                            fieldLabel: TR("Profile"),
+                            labelWidth: 60,
+                            anchor: '100%',
+                            store: this.locationRec.MembershipProfiles(),
+                            queryMode: 'local',
+                            displayField: 'name',
+                            valueField: 'uuid',
+                            forceSelection: true,
+                            lastQuery: '',
+                            allowBlank: false,
+                            listeners: {
+                                afterrender: function(me){
+                                    var default_profile = me.getStore().findRecord('default', true);
+                                    if (default_profile){
+                                        me.setValue(default_profile);
+                                    }
+                                },
+                            },
+                        },
+                        {
+                            itemId: 'disable_overrides',
+                            xtype: 'checkbox',
+                            boxLabel: TR("Disable members overrides")
+                        },
+                    ],
+                }
             ],
             buttons: [
-				{
-					text: TR("Apply"),
-					icon: '/static/images/icons/save.png',
-					handler: this.setProfile,
-					scope: this,
-				},
-				{
-					text: TR("Cancel"),
-					icon: '/static/images/icons/cancel.png',
-					handler: this.close,
-					scope: this,
-				},
-			],
+                {
+                    text: TR("Apply"),
+                    icon: '/static/images/icons/save.png',
+                    handler: this.setProfile,
+                    scope: this,
+                },
+                {
+                    text: TR("Cancel"),
+                    icon: '/static/images/icons/cancel.png',
+                    handler: this.close,
+                    scope: this,
+                },
+            ],
         });
  
- 		this.callParent(arguments);
+        this.callParent(arguments);
     },
     
     setProfile: function(){
-    	var profile_uuid = this.down('#profile').getValue();
-    	var disable_overrides = this.down('#disable_overrides').getValue();
-    	if (!profile_uuid){
-    		return;
-    	}
-    	for (var i=0,r ; r = this.members[i] ; i++){
-    		r.beginEdit();
-    		r.set('profile', profile_uuid);
-    		if (disable_overrides){
-    			r.set('override_profile', false);
-    		}
-    		r.endEdit();
-    	}
-    	this.close();
+        var profile_uuid = this.down('#profile').getValue();
+        var disable_overrides = this.down('#disable_overrides').getValue();
+        if (!profile_uuid){
+            return;
+        }
+        for (var i=0,r ; r = this.members[i] ; i++){
+            r.beginEdit();
+            r.set('profile', profile_uuid);
+            if (disable_overrides){
+                r.set('override_profile', false);
+            }
+            r.endEdit();
+        }
+        this.close();
     },
     
 });

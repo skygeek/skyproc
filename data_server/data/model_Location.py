@@ -32,6 +32,11 @@ class Location(base.Model):
     airport_name = models.CharField(max_length=128, blank=True, null=True)
     airport_icao = models.CharField(max_length=4, blank=True, null=True)
     
+    map_type = models.CharField(max_length=16, default='hybrid')
+    map_zoom = models.SmallIntegerField(default=12)
+    map_latitude  = models.CharField(max_length=32, blank=True, null=True)
+    map_longitude  = models.CharField(max_length=32, blank=True, null=True)
+    
     currencies = models.ManyToManyField('Currency')
     default_currency = models.ForeignKey('Currency', blank=True, null=True, related_name='+')
     payment_accept_cash = models.BooleanField(default=True)
@@ -71,15 +76,10 @@ class Location(base.Model):
     def __unicode__(self):
         return self.name
 
-class MapMarker(base.Model):
-        
+class MapObject(base.Model):
     location = models.ForeignKey('Location')
     type = models.ForeignKey('AreaType')
-    name = models.CharField(max_length=128)
-    description = models.CharField(max_length=500)
-    latitude  = models.CharField(max_length=32)
-    longitude  = models.CharField(max_length=32)
+    name = models.CharField(max_length=128, blank=True, null=True)
+    description = models.CharField(max_length=500, blank=True, null=True)
+    mapdata = models.TextField()
     
-    def __unicode__(self):
-        return self.name
-

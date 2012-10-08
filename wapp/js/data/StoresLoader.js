@@ -22,42 +22,42 @@ Ext.define('Sp.data.StoresLoader', {
     constructor: function(stores){
         this.stores = stores || [];
         this.waitMsgBox = Ext.create('Ext.window.MessageBox', {
-        	maxHeight: 68,
-        	cls: 'stores-load-progress-bar',
+            maxHeight: 68,
+            cls: 'stores-load-progress-bar',
         });
     },
     
     add: function(store){
-    	this.stores.push(store);
+        this.stores.push(store);
     },
     
     load: function(callback){
-    	this.waitMsgBox.show({
-        	progressText: TR("<span class='spfont'>Loading Data, Please Wait...</span>"),
-        	progress: true,
-        	closable: false,
-       	});
-    	this.callback = callback;
-    	this.current = 0;
-    	this.loadNext();	
+        this.waitMsgBox.show({
+            progressText: TR("<span class='spfont'>Loading Data, Please Wait...</span>"),
+            progress: true,
+            closable: false,
+        });
+        this.callback = callback;
+        this.current = 0;
+        this.loadNext();    
     },
     
     loadNext: function(){
-    	if (this.current >= this.stores.length){
-    		Ext.defer(function(){
-    			this.waitMsgBox.close();
-    		}, 100, this);
-    		this.callback.apply();
-    		return;
-    	}
-    	var store = this.stores[this.current];
-    	store.load(Ext.bind(this.onStoreLoad, this));
-    	this.current++;
+        if (this.current >= this.stores.length){
+            Ext.defer(function(){
+                this.waitMsgBox.close();
+            }, 100, this);
+            this.callback.apply();
+            return;
+        }
+        var store = this.stores[this.current];
+        store.load(Ext.bind(this.onStoreLoad, this));
+        this.current++;
     },
     
     onStoreLoad: function(){
-    	this.waitMsgBox.updateProgress(this.current/this.stores.length);
-    	this.loadNext();
+        this.waitMsgBox.updateProgress(this.current/this.stores.length);
+        this.loadNext();
     },
     
 });

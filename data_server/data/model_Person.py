@@ -40,6 +40,18 @@ class Person(base.Model):
     birthday = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True, null=True)
     
+    height_ft = models.SmallIntegerField(blank=True, null=True)
+    height_in = models.SmallIntegerField(blank=True, null=True)
+    height_cm = models.SmallIntegerField(blank=True, null=True)
+    weight_kg = models.SmallIntegerField(blank=True, null=True)
+    weight_lb = models.SmallIntegerField(blank=True, null=True)
+    
+    past_jumps = models.IntegerField(blank=True, null=True)
+    jumper_level = models.CharField(max_length=1, choices=JUMPER_LEVEL, blank=True, null=True)
+    
+    default_jump_type = models.ForeignKey('JumpType', blank=True, null=True, related_name='+')
+    default_currency = models.ForeignKey('Currency', blank=True, null=True, related_name='+')
+    
     country = models.ForeignKey('Country', blank=True, null=True)
     city = models.ForeignKey('City', blank=True, null=True)
     custom_city = models.CharField(max_length=128, blank=True, null=True)

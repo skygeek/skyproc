@@ -46,6 +46,21 @@ def home(req):
 def prod(req):
     return __home(req, True)
 
+def mobile(req):
+    if req.user.is_authenticated():
+        u = Person.objects.getOwn(req.user)
+        t = 'mapp_prod.html' if prod else 'mapp_dev.html'
+        r = render_to_response(t)
+        r.set_cookie('csrftoken', csrf.get_token(req))
+        r.set_cookie('sp_user', req.user.username)
+        r.set_cookie('sp_cookie', req.COOKIES['sessionid'])
+        r.set_cookie('sp_id', u.uuid)
+        return r
+    else:
+        c = {}
+        c.update(context_processors.csrf(req))
+        return render_to_response('home_mobile.html', c)
+
 def logout(req):
     auth.logout(req)
     r = HttpResponseRedirect('/')

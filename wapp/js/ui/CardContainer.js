@@ -23,78 +23,78 @@ Ext.define('Sp.ui.CardContainer', {
     
     initComponent: function() {
         Ext.apply(this, {
-        	layout: 'card',
+            layout: 'card',
         });
         Sp.ui.CardContainer.superclass.initComponent.apply(this, arguments);
         
         if (Ext.isFunction(this.getTbFunction)){
-        	this.on('add', this.moduleAdded, this);
-        	this.on('remove', this.moduleRemoved, this);
-        	this.on('afterlayout', this.viewChanged, this);        	
+            this.on('add', this.moduleAdded, this);
+            this.on('remove', this.moduleRemoved, this);
+            this.on('afterlayout', this.viewChanged, this);         
         }
         
     },
     
     showModule: function(config){
-    	var module = this.getComponent(config.id);
-    	if (!module){
-    		var klass = (Ext.isString(config.moduleClass)) ? config.moduleClass : config.id;
-    		klass = this.modulesNs.replace('#', klass); 
-    		module = Ext.create(klass, {
-    			itemId: config.id, 
-    			title:config.title, 
-    			moduleData: config.data,
-    			showModuleFunction: Ext.bind(this.showModule, this),
-    			getTbFunction: this.getTbFunction,
-    		});
-    		this.add(module);
-    	}
-    	this.getLayout().setActiveItem(module);
+        var module = this.getComponent(config.id);
+        if (!module){
+            var klass = (Ext.isString(config.moduleClass)) ? config.moduleClass : config.id;
+            klass = this.modulesNs.replace('#', klass); 
+            module = Ext.create(klass, {
+                itemId: config.id, 
+                title:config.title, 
+                moduleData: config.data,
+                showModuleFunction: Ext.bind(this.showModule, this),
+                getTbFunction: this.getTbFunction,
+            });
+            this.add(module);
+        }
+        this.getLayout().setActiveItem(module);
     },
         
     moduleAdded: function(me, module){
-    	if (!module.title || !module.itemId){
-    		return;
-    	}
-    	var tb = this.getTbFunction();
-    	tb.add([
-    		{
-    			xtype: 'tbseparator',
-    			itemId: module.itemId + 'Separator',
-    		},
-    		{
-	    		xtype: 'button',
-	    		itemId: module.itemId, 
-	    		text: module.title,
-	    		handler: function(bt){
-	    			this.showModule({id:bt.itemId});    			
-	    		},
-	    		scope: this,
-	    	},
-    	]);
-    	
+        if (!module.title || !module.itemId){
+            return;
+        }
+        var tb = this.getTbFunction();
+        tb.add([
+            {
+                xtype: 'tbseparator',
+                itemId: module.itemId + 'Separator',
+            },
+            {
+                xtype: 'button',
+                itemId: module.itemId, 
+                text: module.title,
+                handler: function(bt){
+                    this.showModule({id:bt.itemId});                
+                },
+                scope: this,
+            },
+        ]);
+        
     },
     
     moduleRemoved: function(me, module){
-    	var tb = this.getTbFunction();
-    	if (!module.itemId || !tb.getComponent(module.itemId)){
-    		return;
-    	}
-    	tb.remove(module.itemId);
-    	tb.remove(module.itemId + 'Separator');
+        var tb = this.getTbFunction();
+        if (!module.itemId || !tb.getComponent(module.itemId)){
+            return;
+        }
+        tb.remove(module.itemId);
+        tb.remove(module.itemId + 'Separator');
     },
     
     viewChanged: function(me, layout){
-    	var tb = this.getTbFunction();
-    	var active = layout.getActiveItem();
-    	if (!active){
-    		active = {itemId:null};
-    	}
-    	tb.cascade(function(i){
-    		if (i.xtype == 'button'){
-    			i.setDisabled(i.itemId == active.itemId);
-    		}
-    	});    	
+        var tb = this.getTbFunction();
+        var active = layout.getActiveItem();
+        if (!active){
+            active = {itemId:null};
+        }
+        tb.cascade(function(i){
+            if (i.xtype == 'button'){
+                i.setDisabled(i.itemId == active.itemId);
+            }
+        });     
     },
 
 });

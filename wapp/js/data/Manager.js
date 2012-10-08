@@ -34,19 +34,19 @@ Ext.define('Sp.data.Manager', {
     },
     
     loadAllModels: function(){
-    	this.setModelsDef(Sp.utils.rpc('models.getAll'));
+        this.setModelsDef(Sp.utils.rpc('models.getAll'));
     },
     
     getModelName: function(modelName){
-    	return this.getModelsNs() + modelName;
+        return this.getModelsNs() + modelName;
     },
     
     getSpModelName: function(model){
-    	return model.modelName.replace(this.getModelsNs(), '');
+        return model.modelName.replace(this.getModelsNs(), '');
     },
     
     getModelUrl: function(modelName){
-    	return Sp.app.getBaseUrl() + this.getDataBaseUrl() + modelName;
+        return Sp.app.getBaseUrl() + this.getDataBaseUrl() + modelName;
     },
         
     define: function(modelName){
@@ -109,14 +109,14 @@ Ext.define('Sp.data.Manager', {
             hasMany: associations.hasMany,
             hasOne: associations.hasOne,
             proxy: {
-            	type: 'spproxy',
+                type: 'spproxy',
                 url: this.getModelUrl(modelName),
             },
         });
         
         // define related models
         for (var i = 0,m ; m = models[i] ; i++){
-        	this.define(m);
+            this.define(m);
         }
         
         return true;
@@ -140,15 +140,15 @@ Ext.define('Sp.data.Manager', {
         if (Ext.isFunction(callback)){
             var opt = {
                 success: function(r){
-                	if (scope){
-                		Ext.bind(callback, scope)(r);
-                	} else {
-                		callback(r);                		
-                	}
+                    if (scope){
+                        Ext.bind(callback, scope)(r);
+                    } else {
+                        callback(r);                        
+                    }
                 },
                 failure: function(r, op){
-                	logError("Failed to load " + modelName + "/" + recordId);
-                	logError(op);
+                    logError("Failed to load " + modelName + "/" + recordId);
+                    logError(op);
                 },
             };
             var m = Ext.ModelManager.getModel(this.getModelName(modelName));
@@ -157,7 +157,7 @@ Ext.define('Sp.data.Manager', {
             var url = this.getModelUrl(modelName) + '/' + recordId;
             var ret = Sp.utils.request('GET', url);
             if (ret){
-            	return Ext.create(this.getModelName(modelName), Ext.decode(ret).data[0].fields);
+                return Ext.create(this.getModelName(modelName), Ext.decode(ret).data[0].fields);
             }
         }
     },
@@ -169,70 +169,70 @@ Ext.define('Sp.data.Manager', {
         storeConfig = storeConfig || {};
         storeConfig.model = this.getModelName(modelName);
         if (!storeConfig.storeId){
-        	storeConfig.storeId = Ext.data.IdGenerator.get('uuid').generate();
+            storeConfig.storeId = Ext.data.IdGenerator.get('uuid').generate();
         }
         if (storeConfig.pageSize && !storeConfig.proxy){
-        	storeConfig.proxy = {};
+            storeConfig.proxy = {};
         }
         if (storeConfig.proxy){
-        	storeConfig.proxy.type = 'spproxy';
-        	storeConfig.proxy.url = this.getModelUrl(modelName);
-        	if (storeConfig.pageSize){
-        		storeConfig.proxy.limitParam = 'limit';
-        	}
+            storeConfig.proxy.type = 'spproxy';
+            storeConfig.proxy.url = this.getModelUrl(modelName);
+            if (storeConfig.pageSize){
+                storeConfig.proxy.limitParam = 'limit';
+            }
         }
         return Ext.create('Ext.data.Store', storeConfig);
     },
     
     translateStore: function(store, fields){
-    	store.each(function(r){
-    		for (var i=0,f ; f = fields[i] ; i++){
-    			r.set(f, TR(r.get(f)));
-    		}
-    	});
+        store.each(function(r){
+            for (var i=0,f ; f = fields[i] ; i++){
+                r.set(f, TR(r.get(f)));
+            }
+        });
     },
     
     getRawValues: function(records){
-    	var raw_values = [];
-    	for (var i=0,r ; r = records[i] ; i++){
-    		raw_values.push(Ext.clone(r.data));
-    	}
-    	return raw_values;
+        var raw_values = [];
+        for (var i=0,r ; r = records[i] ; i++){
+            raw_values.push(Ext.clone(r.data));
+        }
+        return raw_values;
     },
     
     getCopies: function(records){
-    	var copies = [], c;
-    	for (var i=0,r ; r = records[i] ; i++){
-    		c = r.copy();
-    		c.setDirty();
-    		copies.push(c);
-    	}
-    	return copies;
+        var copies = [], c;
+        for (var i=0,r ; r = records[i] ; i++){
+            c = r.copy();
+            c.setDirty();
+            copies.push(c);
+        }
+        return copies;
     },
     
     htmlEncodeValues: function(values){
-    	Ext.Object.each(values, function(k,v,o){
-    		if (Ext.isString(v)){
-    			o[k] = Ext.String.htmlEncode(v);
-    		}
-    	});
-    	return values;
+        Ext.Object.each(values, function(k,v,o){
+            if (Ext.isString(v)){
+                o[k] = Ext.String.htmlEncode(v);
+            }
+        });
+        return values;
     },
     
     copy: function(record, values, model){
-    	values = values || {};
-    	if (!model) {
-    		model = record.modelName.replace(this.getModelsNs(), '');	
-    	}
-    	var copy = this.create(model);
-		copy.copyFrom(record);
-		copy.beginEdit();
-		copy.setId(Ext.data.IdGenerator.get('uuid').generate());
-		copy.set(values);
-		copy.endEdit();
-		copy.setDirty();
-		copy.phantom = true;
-		return copy;
+        values = values || {};
+        if (!model) {
+            model = record.modelName.replace(this.getModelsNs(), '');   
+        }
+        var copy = this.create(model);
+        copy.copyFrom(record);
+        copy.beginEdit();
+        copy.setId(Ext.data.IdGenerator.get('uuid').generate());
+        copy.set(values);
+        copy.endEdit();
+        copy.setDirty();
+        copy.phantom = true;
+        return copy;
     },
         
 });

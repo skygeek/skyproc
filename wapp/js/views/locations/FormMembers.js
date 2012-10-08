@@ -21,442 +21,442 @@ Ext.define('Sp.views.locations.FormMembers', {
     extend: 'Ext.panel.Panel',
     
     initComponent: function() {
-    	
-    	var rec = this.locationRec;
-    	
+        
+        var rec = this.locationRec;
+        
         Ext.apply(this, {
-        	header: false,
-        	layout: {
-		    	type: 'fit',
-		    },
+            header: false,
+            layout: {
+                type: 'fit',
+            },
             items: [
-            	{
-            		xtype: 'container',
-            		padding: '10 10 5 10',
-            		layout: {
-				    	type: 'vbox',
-				    	align: 'stretch',
-				    },
-				    autoScroll: true,
-            		items: [
-		            	{
-		        			xtype: 'label',
-		        			text: this.title,
-		        			cls: 'page-top-title',
-		        		},
-		        		{
-		        			xtype: 'grid',
-		        			itemId: 'membersGrid',
-		        			flex: 1,
-		        			store: Data.createStore('LocationMembership', {
-		        				autoLoad: true,
-		        				buffered: true,
-		        				pageSize: 100,
-		        				remoteSort: true,
-								sorters: [
-									{
-							            property: 'person__last_name',
-							            direction: 'ASC'
-							        },
-							        {
-							            property: 'person__first_name',
-							            direction: 'ASC'
-							        }
-						        ],
-		        				remoteFilter: true,
-		        				filters: [
-		        					{
-		        						property: 'location',
-		        						value: rec.data.uuid,
-		        					},
-		        				],
-		        			}),
-		        			selModel: Ext.create('Ext.selection.CheckboxModel', {
-		        				pruneRemoved: false,
-		        			}),
-		        			viewConfig: {
-					            trackOver: false,
-					        },
-		        			sortableColumns: false,
-		        			enableColumnHide: false,
-		        			enableColumnResize: false,
-		        			emptyText: TR("No members !"),
-		        			columns: [
-		        				{
-		        					header: TR("Members"),
-		        					flex: 1,
-		        					renderer: function(v,o,r){
-		        						var person = r.getPerson();
-		        						return Sp.ui.misc.formatFullname(person, Data.me.data.name_order, true);
-		        					},
-		        				},
-		        				{
-		        					header: TR("From"),
-		        					flex: 1,
-		        					renderer: function(v,o,r){
-		        						return Sp.ui.misc.getCountryCity(r.getPerson());
-		        					},
-		        				},
-		        				{
-		        					header: TR("Profile"),
-		        					renderer: function(v,o,r){
-		        						if (r.data.profile){
-		        							var profile = this.locationRec.MembershipProfiles().getById(r.data.profile);
-		        							if (profile){
-		        								return profile.data.name;
-		        							}
-		        						}
-		        					},
-		        					scope: this,
-		        				},
-		        				{
-		        					header: TR("Status"),
-		        					renderer: function(v,o,r){
-		        						if (r.data.approved){
-		        							return "<table><tr><td><img src='/static/images/icons/active.png'/></td><td>&nbsp;" + 
-		        									TR("Active") + "</td></tr></table>";
-		        						} else {
-		        							return "<table><tr><td><img src='/static/images/icons/pending.png'/></td><td>&nbsp;" + 
-		        									TR("Pending") + "</td></tr></table>";
-		        						}
-		        					},
-		        				},
-		        			],
-		        			tbar: [
-		        				{
-									xtype: 'textfield',
-									itemId: 'searchField',
-									width: 250, 
-									emptyText: TR("Search for members"),
-									enableKeyEvents: true,
-									listeners: {
-										keypress: Ext.bind(function(me, e){
-											if (e.getKey() == 13){
-												this.doSearch();
-											}
-										}, this),
-									},
-								},
-								{
-						            xtype: 'button',
-						            icon: '/static/images/icons/search.png',
-						            tooltip: TR("Search"),
-						            handler: this.doSearch,
-						            scope: this,
-						        },
-		        				'->',
-		        				{
-		        					text: TR("Membership Options"),
-		        					icon: '/static/images/icons/membership.png',
-		        					handler: function(){
-		        						Ext.create('Sp.views.locations.MembershipOpt', {
-        									locationRec: this.locationRec,
-        								}).show();
-        							},
-        							scope: this,
-		        				},
-		        				'-',
-		        				{
-		        					text: TR("Add member"),
-		        					icon: '/static/images/icons/new_green.png',
-		        					menu: [
-		        						{
-		        							text: TR("Create New"),
-		        							icon: '/static/images/icons/new_yellow.png',
-		        							handler: function(){
-		        								Ext.create('Sp.views.locations.AddMember', {
-		        									locationRec: this.locationRec,
-		        									membersStore: this.down('#membersGrid').getStore(),		        									
-		        								}).show();
-		        							},
-		        							scope: this,
-		        						},
-		        						{
-		        							text: TR("Invite"),
-		        							icon: '/static/images/icons/invite.png',
-		        							handler: function(){
-		        								Ext.create('Sp.views.locations.InviteMember', {
-		        									locationRec: this.locationRec,
-		        									membersStore: this.down('#membersGrid').getStore(),		        									
-		        								}).show();
-		        							},
-		        							scope: this,
-		        						},
-		        					],
-		        				},
-		        				{
-		        					itemId: 'actionBt',
-		        					text: TR("With selected"),
-		        					icon: '/static/images/icons/action.png',
-		        					disabled: true,
-		        					menu: [
-		        						{
-		        							itemId: 'edit',
-		        							text: TR("Edit"),
-		        							icon: '/static/images/icons/edit.png',
-		        							handler: this.editSelectedMember,
-		        							scope: this,
-		        						},
-		        						{
-		        							itemId: 'setprofile',
-		        							text: TR("Set Profile"),
-		        							icon: '/static/images/icons/membership.png',
-		        							handler: this.setMembersProfile,
-		        							scope: this,
-		        						},
-		        						'-',
-		        						{
-		        							itemId: 'delete',
-		        							text: TR("Remove"),
-		        							icon: '/static/images/icons/ban.png',
-		        							handler: this.banSelectedMembers,
-		        							scope: this,
-		        						},
-		        					],
-		        				}
-		        			],
-		        			listeners: {
-		        				itemdblclick: this.onMemberDblClick,
-		        				itemcontextmenu: this.onMemberContextMenu,
-		        				scope: this,
-		        			},
-		        		},
-		            ],
-            	},
+                {
+                    xtype: 'container',
+                    padding: '10 10 5 10',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch',
+                    },
+                    autoScroll: true,
+                    items: [
+                        {
+                            xtype: 'label',
+                            text: this.title,
+                            cls: 'page-top-title',
+                        },
+                        {
+                            xtype: 'grid',
+                            itemId: 'membersGrid',
+                            flex: 1,
+                            store: Data.createStore('LocationMembership', {
+                                autoLoad: true,
+                                buffered: true,
+                                pageSize: 100,
+                                remoteSort: true,
+                                sorters: [
+                                    {
+                                        property: 'person__last_name',
+                                        direction: 'ASC'
+                                    },
+                                    {
+                                        property: 'person__first_name',
+                                        direction: 'ASC'
+                                    }
+                                ],
+                                remoteFilter: true,
+                                filters: [
+                                    {
+                                        property: 'location',
+                                        value: rec.data.uuid,
+                                    },
+                                ],
+                            }),
+                            selModel: Ext.create('Ext.selection.CheckboxModel', {
+                                pruneRemoved: false,
+                            }),
+                            viewConfig: {
+                                trackOver: false,
+                            },
+                            sortableColumns: false,
+                            enableColumnHide: false,
+                            enableColumnResize: false,
+                            emptyText: TR("No members !"),
+                            columns: [
+                                {
+                                    header: TR("Members"),
+                                    flex: 1,
+                                    renderer: function(v,o,r){
+                                        var person = r.getPerson();
+                                        return Sp.ui.misc.formatFullname(person, Data.me.data.name_order, true);
+                                    },
+                                },
+                                {
+                                    header: TR("From"),
+                                    flex: 1,
+                                    renderer: function(v,o,r){
+                                        return Sp.ui.misc.getCountryCity(r.getPerson());
+                                    },
+                                },
+                                {
+                                    header: TR("Profile"),
+                                    renderer: function(v,o,r){
+                                        if (r.data.profile){
+                                            var profile = this.locationRec.MembershipProfiles().getById(r.data.profile);
+                                            if (profile){
+                                                return profile.data.name;
+                                            }
+                                        }
+                                    },
+                                    scope: this,
+                                },
+                                {
+                                    header: TR("Status"),
+                                    renderer: function(v,o,r){
+                                        if (r.data.approved){
+                                            return "<table><tr><td><img src='/static/images/icons/active.png'/></td><td>&nbsp;" + 
+                                                    TR("Active") + "</td></tr></table>";
+                                        } else {
+                                            return "<table><tr><td><img src='/static/images/icons/pending.png'/></td><td>&nbsp;" + 
+                                                    TR("Pending") + "</td></tr></table>";
+                                        }
+                                    },
+                                },
+                            ],
+                            tbar: [
+                                {
+                                    xtype: 'textfield',
+                                    itemId: 'searchField',
+                                    width: 250, 
+                                    emptyText: TR("Search for members"),
+                                    enableKeyEvents: true,
+                                    listeners: {
+                                        keypress: Ext.bind(function(me, e){
+                                            if (e.getKey() == 13){
+                                                this.doSearch();
+                                            }
+                                        }, this),
+                                    },
+                                },
+                                {
+                                    xtype: 'button',
+                                    icon: '/static/images/icons/search.png',
+                                    tooltip: TR("Search"),
+                                    handler: this.doSearch,
+                                    scope: this,
+                                },
+                                '->',
+                                {
+                                    text: TR("Membership Options"),
+                                    icon: '/static/images/icons/membership.png',
+                                    handler: function(){
+                                        Ext.create('Sp.views.locations.MembershipOpt', {
+                                            locationRec: this.locationRec,
+                                        }).show();
+                                    },
+                                    scope: this,
+                                },
+                                '-',
+                                {
+                                    text: TR("Add member"),
+                                    icon: '/static/images/icons/new_green.png',
+                                    menu: [
+                                        {
+                                            text: TR("Create New"),
+                                            icon: '/static/images/icons/new_yellow.png',
+                                            handler: function(){
+                                                Ext.create('Sp.views.locations.AddMember', {
+                                                    locationRec: this.locationRec,
+                                                    membersStore: this.down('#membersGrid').getStore(),                                                 
+                                                }).show();
+                                            },
+                                            scope: this,
+                                        },
+                                        {
+                                            text: TR("Invite"),
+                                            icon: '/static/images/icons/invite.png',
+                                            handler: function(){
+                                                Ext.create('Sp.views.locations.InviteMember', {
+                                                    locationRec: this.locationRec,
+                                                    membersStore: this.down('#membersGrid').getStore(),                                                 
+                                                }).show();
+                                            },
+                                            scope: this,
+                                        },
+                                    ],
+                                },
+                                {
+                                    itemId: 'actionBt',
+                                    text: TR("With selected"),
+                                    icon: '/static/images/icons/action.png',
+                                    disabled: true,
+                                    menu: [
+                                        {
+                                            itemId: 'edit',
+                                            text: TR("Edit"),
+                                            icon: '/static/images/icons/edit.png',
+                                            handler: this.editSelectedMember,
+                                            scope: this,
+                                        },
+                                        {
+                                            itemId: 'setprofile',
+                                            text: TR("Set Profile"),
+                                            icon: '/static/images/icons/membership.png',
+                                            handler: this.setMembersProfile,
+                                            scope: this,
+                                        },
+                                        '-',
+                                        {
+                                            itemId: 'delete',
+                                            text: TR("Remove"),
+                                            icon: '/static/images/icons/ban.png',
+                                            handler: this.banSelectedMembers,
+                                            scope: this,
+                                        },
+                                    ],
+                                }
+                            ],
+                            listeners: {
+                                itemdblclick: this.onMemberDblClick,
+                                itemcontextmenu: this.onMemberContextMenu,
+                                scope: this,
+                            },
+                        },
+                    ],
+                },
             ], 
-			
+            
         });
  
- 		this.callParent(arguments);
- 		
- 		// events
- 		var membersGrid = this.down('#membersGrid');
- 		membersGrid.getSelectionModel().on('selectionchange', Ext.bind(this.memberSelectionChanged, this));
- 		membersGrid.getStore().on('datachanged', Ext.bind(this.memberStoreChanged, this));
- 		
+        this.callParent(arguments);
+        
+        // events
+        var membersGrid = this.down('#membersGrid');
+        membersGrid.getSelectionModel().on('selectionchange', Ext.bind(this.memberSelectionChanged, this));
+        membersGrid.getStore().on('datachanged', Ext.bind(this.memberStoreChanged, this));
+        
     },
     
     memberSelectionChanged: function(sm, selected){
-    	var action_bt = this.down('#actionBt');
-    	action_bt.setDisabled((selected.length == 0));
-    	action_bt.menu.getComponent('edit').setDisabled((selected.length != 1));
+        var action_bt = this.down('#actionBt');
+        action_bt.setDisabled((selected.length == 0));
+        action_bt.menu.getComponent('edit').setDisabled((selected.length != 1));
     },
     
     memberStoreChanged: function(store){
-    	if (store.getCount() == 0){
-    		var bt = this.down('#actionBt');
-    		if (bt){
-    			bt.disable();
-    		}
-    	}
+        if (store.getCount() == 0){
+            var bt = this.down('#actionBt');
+            if (bt){
+                bt.disable();
+            }
+        }
     },
     
     editMember: function(membership){
-    	Ext.create('Sp.views.locations.EditMember', {
-			locationRec: this.locationRec,
-			membershipRec: membership,
-		}).show();
+        Ext.create('Sp.views.locations.EditMember', {
+            locationRec: this.locationRec,
+            membershipRec: membership,
+        }).show();
     },
     
     banMembers: function(members){
-    	var msg;
-    	if (members.length == 0){
-    		return;
-    	} else if (members.length == 1){
-    		msg = Ext.String.format(
-				TR("Are you sure you want to remove '{0}' from the club members ?"), 
-				Sp.ui.misc.formatFullname(members[0].getPerson(), Data.me.data.name_order, true));
-    	} else {
-    		msg = Ext.String.format(
-				TR("Are you sure you want to remove the {0} selected members ?"), 
-				members.length);
-    	}
-    	//var membersStore = this.down('#membersGrid').getStore();
-    	Ext.MessageBox.confirm( TR("Confirmation"), msg,
-			function(btn){
-				if (btn == 'yes'){
-					Ext.MessageBox.confirm( TR("Confirmation"), TR("This action is permanent and cannot be undone.<br/>Continue ?"),
-						function(btn){
-							if (btn == 'yes'){
-								for (var i=0,r ; r = members[i] ; i++){
-									r.destroy();
-									//membersStore.remove(r);
-								}								
-							}
-							this.down('#membersGrid').getStore().remove(members);
-						}, this
-					);
-				}
-			}, this
-		);
+        var msg;
+        if (members.length == 0){
+            return;
+        } else if (members.length == 1){
+            msg = Ext.String.format(
+                TR("Are you sure you want to remove '{0}' from the club members ?"), 
+                Sp.ui.misc.formatFullname(members[0].getPerson(), Data.me.data.name_order, true));
+        } else {
+            msg = Ext.String.format(
+                TR("Are you sure you want to remove the {0} selected members ?"), 
+                members.length);
+        }
+        //var membersStore = this.down('#membersGrid').getStore();
+        Ext.MessageBox.confirm( TR("Confirmation"), msg,
+            function(btn){
+                if (btn == 'yes'){
+                    Ext.MessageBox.confirm( TR("Confirmation"), TR("This action is permanent and cannot be undone.<br/>Continue ?"),
+                        function(btn){
+                            if (btn == 'yes'){
+                                for (var i=0,r ; r = members[i] ; i++){
+                                    r.destroy();
+                                    //membersStore.remove(r);
+                                }                               
+                            }
+                            this.down('#membersGrid').getStore().remove(members);
+                        }, this
+                    );
+                }
+            }, this
+        );
     },
     
     banSelectedMembers: function(){
-    	this.banMembers(this.down('#membersGrid').getSelectionModel().getSelection());
+        this.banMembers(this.down('#membersGrid').getSelectionModel().getSelection());
     },
     
     editSelectedMember: function(){
-    	this.editMember(this.down('#membersGrid').getSelectionModel().getSelection()[0]);
+        this.editMember(this.down('#membersGrid').getSelectionModel().getSelection()[0]);
     },
     
     setMembersProfile: function(){
-    	Ext.create('Sp.views.locations.EditMembersProfile', {
-    		locationRec: this.locationRec,
-			members: this.down('#membersGrid').getSelectionModel().getSelection(),
-		}).show();
-    	
+        Ext.create('Sp.views.locations.EditMembersProfile', {
+            locationRec: this.locationRec,
+            members: this.down('#membersGrid').getSelectionModel().getSelection(),
+        }).show();
+        
     },
     
     onMemberDblClick: function(me, r, el){
-    	this.editMember(r);
+        this.editMember(r);
     },
     
     onMemberContextMenu: function(grid, record, el, idx, ev){
-    	var items = [];
-    	var is_member = true;
-    	if (record.data.approved == false && record.data.join_type == 'R'){
-    		is_member = false;
-    		items.push({
-		        text: TR("Accept"),
-		        icon: '/static/images/icons/save.png',
-		        handler: function(){
-		        	this.acceptMember(record);
-		        },
-		        scope: this,
-		    });
-		    items.push({
-		        text: TR("Decline"),
-		        icon: '/static/images/icons/ban.png',
-		        handler: function(){
-		        	this.rejectMember(record);
-		        },
-		        scope: this,
-		    });
-		    items.push('-');
-    	}
-    	items.push({
-	        text: TR("Edit"),
-	        icon: '/static/images/icons/edit.png',
-	        handler: function(){
-	        	this.editMember(record);
-	        },
-	        scope: this,
-	    });
-	    if (is_member){
-		    items.push('-');
-	    	items.push({
-		        text: TR("Remove"),
-		        icon: '/static/images/icons/ban.png',
-		        handler: function(){
-		        	this.banMembers([record]);			        	
-		        },
-		        scope: this,
-		    });	
-	    }
-    	
-    	var menu = Ext.create('Ext.menu.Menu', {
-		    items: items,
-		});
-    	// show context menu
-    	ev.preventDefault();
-    	menu.showAt(ev.getXY());
+        var items = [];
+        var is_member = true;
+        if (record.data.approved == false && record.data.join_type == 'R'){
+            is_member = false;
+            items.push({
+                text: TR("Accept"),
+                icon: '/static/images/icons/save.png',
+                handler: function(){
+                    this.acceptMember(record);
+                },
+                scope: this,
+            });
+            items.push({
+                text: TR("Decline"),
+                icon: '/static/images/icons/ban.png',
+                handler: function(){
+                    this.rejectMember(record);
+                },
+                scope: this,
+            });
+            items.push('-');
+        }
+        items.push({
+            text: TR("Edit"),
+            icon: '/static/images/icons/edit.png',
+            handler: function(){
+                this.editMember(record);
+            },
+            scope: this,
+        });
+        if (is_member){
+            items.push('-');
+            items.push({
+                text: TR("Remove"),
+                icon: '/static/images/icons/ban.png',
+                handler: function(){
+                    this.banMembers([record]);                      
+                },
+                scope: this,
+            }); 
+        }
+        
+        var menu = Ext.create('Ext.menu.Menu', {
+            items: items,
+        });
+        // show context menu
+        ev.preventDefault();
+        menu.showAt(ev.getXY());
     },
     
     clearRequestStores: function(membership_uuid){
-    	var r = Data.newRequests.getById(membership_uuid);
-    	if (r){
-    		Data.newRequests.remove(r);
-    	}
-    	var idx = Data.newRequestsList.findExact('uuid', membership_uuid);
-    	if (idx != -1){
-    		Data.newRequestsList.removeAt(idx);
-    	}
+        var r = Data.newRequests.getById(membership_uuid);
+        if (r){
+            Data.newRequests.remove(r);
+        }
+        var idx = Data.newRequestsList.findExact('uuid', membership_uuid);
+        if (idx != -1){
+            Data.newRequestsList.removeAt(idx);
+        }
     },
     
     acceptMember: function(membership){
-    	var grid = this.down('#membersGrid');
-    	grid.disable();
-    	membership.beginEdit();
-		membership.set('approved', true);
-		membership.endEdit();
-		membership.save({
-			callback: function(){
-				this.clearRequestStores(membership.data.uuid);
-				grid.enable();
-			},
-			scope: this,
-		});    	
+        var grid = this.down('#membersGrid');
+        grid.disable();
+        membership.beginEdit();
+        membership.set('approved', true);
+        membership.endEdit();
+        membership.save({
+            callback: function(){
+                this.clearRequestStores(membership.data.uuid);
+                grid.enable();
+            },
+            scope: this,
+        });     
     },
     
     rejectMember: function(membership){
-    	var name = Sp.ui.misc.formatFullname(membership.getPerson(), Data.me.data.name_order, true);
-    	Ext.MessageBox.confirm(
-    		TR("Join request"),
-    		Ext.String.format(TR("Decline the join request from {0} ?"), name),
-    		function(btn){
-    			if (btn == 'yes'){
-    				membership.destroy();
-					this.down('#membersGrid').getStore().remove(membership);
-					this.clearRequestStores(membership.data.uuid);
-    			}
-    		},
-    		this
-    	);
+        var name = Sp.ui.misc.formatFullname(membership.getPerson(), Data.me.data.name_order, true);
+        Ext.MessageBox.confirm(
+            TR("Join request"),
+            Ext.String.format(TR("Decline the join request from {0} ?"), name),
+            function(btn){
+                if (btn == 'yes'){
+                    membership.destroy();
+                    this.down('#membersGrid').getStore().remove(membership);
+                    this.clearRequestStores(membership.data.uuid);
+                }
+            },
+            this
+        );
     },
     
     doSearch: function(){
-    	var re = new RegExp(this.down('#searchField').getValue(), 'i')
-    	this.down('#membersGrid').getStore().filterBy(function(r){
-    		var p = r.getPerson();
-    		return re.test(p.data.first_name + ' ' + p.data.last_name);    		
-    	});
+        var re = new RegExp(this.down('#searchField').getValue(), 'i')
+        this.down('#membersGrid').getStore().filterBy(function(r){
+            var p = r.getPerson();
+            return re.test(p.data.first_name + ' ' + p.data.last_name);         
+        });
     },
     
     account_save: function(store){
-    	store.each(function(m){
-    		var account_store = m.Accounts();
-    		if (account_store.getModifiedRecords().length > 0 || account_store.getRemovedRecords().length > 0){
-    			account_store.sync({
-					success: function(){
-						account_store.each(function(a){
-							a.AccountOperations().sync();
-						});
-						m.BuyedItems().sync();
-					},
-				});
-    		} else {
-    			account_store.each(function(a){
-					a.AccountOperations().sync();
-				});
-				m.BuyedItems().sync();
-    		}
-		});
+        store.each(function(m){
+            var account_store = m.Accounts();
+            if (account_store.getModifiedRecords().length > 0 || account_store.getRemovedRecords().length > 0){
+                account_store.sync({
+                    success: function(){
+                        account_store.each(function(a){
+                            a.AccountOperations().sync();
+                        });
+                        m.BuyedItems().sync();
+                    },
+                });
+            } else {
+                account_store.each(function(a){
+                    a.AccountOperations().sync();
+                });
+                m.BuyedItems().sync();
+            }
+        });
     },
     
     post_save: function(){
-    	this.locationRec.MembershipProfiles().sync();
-    	var membersGrid = this.down('#membersGrid');
-    	if (membersGrid){
-    		var store = membersGrid.getStore();
-    		if (store.getModifiedRecords().length > 0 || store.getRemovedRecords().length > 0){
-    			store.sync({
-	    			success: function(){
-	    				this.account_save(store);
-	    			},
-	    			scope: this,
-	    		});
-    		} else {
-    			this.account_save(store);
-    		}
-    	}
+        this.locationRec.MembershipProfiles().sync();
+        var membersGrid = this.down('#membersGrid');
+        if (membersGrid){
+            var store = membersGrid.getStore();
+            if (store.getModifiedRecords().length > 0 || store.getRemovedRecords().length > 0){
+                store.sync({
+                    success: function(){
+                        this.account_save(store);
+                    },
+                    scope: this,
+                });
+            } else {
+                this.account_save(store);
+            }
+        }
     },
     
     reject: function(){
-    	this.locationRec.MembershipProfiles().rejectChanges();
-    	var membersGrid = this.down('#membersGrid');
-    	if (membersGrid){
-    		membersGrid.getStore().rejectChanges();
-    	}
+        this.locationRec.MembershipProfiles().rejectChanges();
+        var membersGrid = this.down('#membersGrid');
+        if (membersGrid){
+            membersGrid.getStore().rejectChanges();
+        }
     },
     
 });

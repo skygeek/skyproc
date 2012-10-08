@@ -22,13 +22,13 @@ Ext.define('Sp.ui.BigButton', {
     alias: 'widget.bigbutton',
     
     initComponent: function() {
-    	    	    	
+                        
         Ext.apply(this, {
-			ui: 'big-button',
-			scale: 'large',
-			padding: '100 0 0 0',
-			width: 150,
-			height: 150,		    
+            ui: 'big-button',
+            scale: 'large',
+            padding: '100 0 0 0',
+            width: 150,
+            height: 150,            
         });
  
         Sp.ui.BigButton.superclass.initComponent.apply(this, arguments);

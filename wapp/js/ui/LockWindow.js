@@ -21,48 +21,48 @@ Ext.define('Sp.ui.LockWindow', {
     extend: 'Ext.window.Window',
     
     initComponent: function() {
-    	    	
+                
         Ext.apply(this, {
-        	width: 380,
-        	height: 130,
-        	modal: true,
-        	resizable: false,
-        	closable: false,
-        	title: TR("Session Locked"),
-        	icon: '/static/images/icons/locked.png',
-        	layout: 'fit',
-        	
+            width: 380,
+            height: 130,
+            modal: true,
+            resizable: false,
+            closable: false,
+            title: TR("Session Locked"),
+            icon: '/static/images/icons/locked.png',
+            layout: 'fit',
+            
             items: [
-            	{
-            		xtype: 'form',
-            		items: [
-            			{
-            				xtype: 'textfield',
-            				inputType: 'password',
-            				emptyText: TR("Type your password to unlock"),
-            				anchor: '100%',
-            				margin: '20 10 0 10',
-            			}
-            		],
-            	}
+                {
+                    xtype: 'form',
+                    items: [
+                        {
+                            xtype: 'textfield',
+                            inputType: 'password',
+                            emptyText: TR("Type your password to unlock"),
+                            anchor: '100%',
+                            margin: '20 10 0 10',
+                        }
+                    ],
+                }
             ],
             
             buttons: [
-				{
-					text: TR("Unlock"),
-					icon: '/static/images/icons/unlock.png',
-					handler: this.unlock,
-					scope: this,
-				},
-			],
+                {
+                    text: TR("Unlock"),
+                    icon: '/static/images/icons/unlock.png',
+                    handler: this.unlock,
+                    scope: this,
+                },
+            ],
         });
  
- 		this.callParent(arguments);
- 		
+        this.callParent(arguments);
+        
     },
         
     unlock: function(){
-    	this.close();	
+        this.close();   
     },
     
 });

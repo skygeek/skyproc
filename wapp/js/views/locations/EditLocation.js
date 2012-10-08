@@ -22,28 +22,31 @@ Ext.define('Sp.views.locations.EditLocation', {
     extend: 'Ext.form.Panel',
     
     getMenuStore: function(){
-    	
-    	var store = Ext.create('Ext.data.Store', {
-		    fields:['id', 'label', 'icon'],
-		    data: [
-		        {id: 'General', label:TR("General Informations"), icon: '/static/images/icons/general.png'},
-		        {id: 'Members', label:TR("Club Members"), icon: '/static/images/icons/members.png'},
-		        {id: 'Description', label:TR("Logo & Descriptions"), icon: '/static/images/icons/profile.png'},
-		        {id: 'GeoLocation', label:TR("Map & Locations"), icon: '/static/images/icons/map.png'},
-		        {id: 'Payment', label:TR("Payment Informations"), icon: '/static/images/icons/payment_card.png'},
-		        {id: 'Aircrafts', label:TR("Aircrafts"), icon: '/static/images/icons/plane_small.png'},
-		        {id: 'Workers', label:TR("Staff"), icon: '/static/images/icons/staff.png'},
-		        {id: 'Parachutes', label:TR("Parachutes"), icon: '/static/images/icons/parachute_small.png'},
-		        //{id: 'Services', label:TR("Services"), icon: '/static/images/icons/star.png'},
-		        {id: 'Catalog', label:TR("Catalog"), icon: '/static/images/icons/cart.png'},
-		        {id: 'Options', label:TR("Options"), icon: '/static/images/icons/options.png'},
-		        {id: 'Permissions', label:TR("Permissions"), icon: '/static/images/icons/key.png'},
-		        {id: 'Privacy', label:TR("Privacy"), icon: '/static/images/icons/privacy.png'},
-		        {id: 'Delete', label:TR("Delete"), icon: '/static/images/icons/trash.png'},
-		    ],
-		});
-		return store;
-		
+        
+        var store = Ext.create('Ext.data.Store', {
+            fields:['id', 'label', 'icon'],
+            data: [
+                {id: 'General', label:TR("General Informations"), icon: '/static/images/icons/general.png'},
+                {id: 'Members', label:TR("Club Members"), icon: '/static/images/icons/members.png'},
+                {id: 'Description', label:TR("Logo & Descriptions"), icon: '/static/images/icons/profile.png'},
+                {id: 'GeoLocation', label:TR("Map & Locations"), icon: '/static/images/icons/map.png'},
+                {id: 'Payment', label:TR("Payment Informations"), icon: '/static/images/icons/payment_card.png'},
+                {id: 'Aircrafts', label:TR("Aircrafts"), icon: '/static/images/icons/plane_small.png'},
+                {id: 'Workers', label:TR("Staff"), icon: '/static/images/icons/staff.png'},
+                //{id: 'Parachutes', label:TR("Parachutes"), icon: '/static/images/icons/parachute_small.png'},
+                //{id: 'Services', label:TR("Services"), icon: '/static/images/icons/star.png'},
+                {id: 'Catalog', label:TR("Catalog"), icon: '/static/images/icons/cart.png'},
+                {id: 'Options', label:TR("Options"), icon: '/static/images/icons/options.png'},
+                //{id: 'Permissions', label:TR("Permissions"), icon: '/static/images/icons/key.png'},
+                {id: 'Privacy', label:TR("Privacy"), icon: '/static/images/icons/privacy.png'},
+                {id: 'Delete', label:TR("Delete"), icon: '/static/images/icons/trash.png'},
+            ],
+        });
+        if (Sp.core.Globals.GOOGLE_MAPS_API_KEY === null){
+            store.removeAt(store.find('id', 'GeoLocation'));
+        }
+        return store;
+        
     },
     
     constructor: function(config) {
@@ -54,240 +57,215 @@ Ext.define('Sp.views.locations.EditLocation', {
     },
     
     initComponent: function() {
-    	
-    	this.save_close = false;
-    	
-    	// ensure all countries will be visible
+        
+        this.save_close = false;
+        
+        // ensure all countries will be visible
         Data.countries.clearFilter();
-    	
-    	var rec = this.locationRec;
-    	var menu_store = this.getMenuStore();
-    	this.main_ctx_items = [];
-    	this.main_ctx_items.push({
-			xtype: 'container',
-		});
-    	menu_store.each(function(r){
-    		/////////////////////////////////////////////////////////////////////////
-    		/////////////////////////////////////////////////////////////////////////
-    		if (r.data.id != 'General' && r.data.id != 'GeoLocation' && r.data.id != 'Delete' && r.data.id != 'Workers' 
-    		&& r.data.id != 'Aircrafts' && r.data.id != 'Payment' && r.data.id != 'Catalog' && r.data.id != 'Description'
-    		&& r.data.id != 'Members' && r.data.id != 'Options'
-    		){
-    			this.main_ctx_items.push({
-    				xtype: 'container',
-    				itemId: r.data.id,
-    				layout: {
-    					type: 'vbox',
-    					align: 'center',
-    				},
-    				items: [
-    					{
-							xtype: 'image',
-							src: "/static/images/comingsoon.png",
-							width: 290,
-							maxWidth: 290,
-							height: 292,
-							maxHeight: 292,
-							margin: 20,
-		    			}
-    				],
-    			});
-    			return;
-    		}
-    		/////////////////////////////////////////////////////////////////////////
-    		/////////////////////////////////////////////////////////////////////////
-    		this.main_ctx_items.push(
-    			Ext.create('Sp.views.locations.Form' + r.data.id, {
-    				locationRec: this.locationRec, 
-    				title: r.data.label, 
-    				itemId: r.data.id,
-    				autoScroll: true,
-    			})
-    		);
-    	}, this);
-    	    		
+        
+        var rec = this.locationRec;
+        var menu_store = this.getMenuStore();
+        this.main_ctx_items = [];
+        this.main_ctx_items.push({
+            xtype: 'container',
+        });
+        menu_store.each(function(r){
+            this.main_ctx_items.push(
+                Ext.create('Sp.views.locations.Form' + r.data.id, {
+                    locationRec: this.locationRec, 
+                    title: r.data.label, 
+                    itemId: r.data.id,
+                    autoScroll: true,
+                })
+            );
+        }, this);
+                    
         Ext.apply(this, {
-        	layout: {
-        		type: 'hbox',
-        		align: 'stretch',
-        	},
-        	padding: '10 10 10 10',
-        	border: 0,
+            layout: {
+                type: 'hbox',
+                align: 'stretch',
+            },
+            padding: '10 10 10 10',
+            border: 0,
             items: [
-            	{
-            		xtype: 'grid',
-            		width: 180,
-            		padding: '0 5 0 0',
-            		store: menu_store,
-            		header: false,
-            		hideHeaders: true,
-            		columnLines: false,
-            		rowLines: false,
-            		border: 1,
-            		columns: [
-            			{
-            				dataIndex: 'icon',
-            				width: 22, 
-            				renderer: function(v, data, r){
-            					return "<img src='" + r.data.icon + "'/>";
-            				},
-            			},
-				    	{
-				    		dataIndex: 'label',
-				    		flex: 1,
-				    	},
-				    ],
-				    listeners: {
-				    	render: function(me){
-				    		me.getSelectionModel().select(0);
-				    	},
-            			itemmouseenter: function(me, r, el){
-            				var domEl = new Ext.dom.Element(el);
-    						domEl.setStyle('cursor', 'pointer');
-            			},
-            			itemmouseleave: function(me, r, el){
-            				var domEl = new Ext.dom.Element(el);
-    						domEl.setStyle('cursor', 'default');
-            			},
-            			itemclick: Ext.bind(this.onMenuClick, this),
-            		},
-            	},
-            	{
-            		xtype: 'container',
-            		itemId: 'mainContainer',
-            		layout: {
-            			type: 'card'
-            		},
-            		flex: 1,
-            		items: this.main_ctx_items,
-            	}
+                {
+                    xtype: 'grid',
+                    width: 180,
+                    padding: '0 5 0 0',
+                    store: menu_store,
+                    header: false,
+                    hideHeaders: true,
+                    columnLines: false,
+                    rowLines: false,
+                    border: 1,
+                    viewConfig: {
+                        stripeRows: false,
+                    },
+                    columns: [
+                        {
+                            dataIndex: 'icon',
+                            width: 22, 
+                            renderer: function(v, data, r){
+                                return "<img src='" + r.data.icon + "'/>";
+                            },
+                        },
+                        {
+                            dataIndex: 'label',
+                            flex: 1,
+                        },
+                    ],
+                    listeners: {
+                        render: function(me){
+                            me.getSelectionModel().select(0);
+                        },
+                        itemmouseenter: function(me, r, el){
+                            var domEl = new Ext.dom.Element(el);
+                            domEl.setStyle('cursor', 'pointer');
+                        },
+                        itemmouseleave: function(me, r, el){
+                            var domEl = new Ext.dom.Element(el);
+                            domEl.setStyle('cursor', 'default');
+                        },
+                        itemclick: Ext.bind(this.onMenuClick, this),
+                    },
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'mainContainer',
+                    layout: {
+                        type: 'card'
+                    },
+                    flex: 1,
+                    items: this.main_ctx_items,
+                }
             ],
             buttons: [
-            	/*{
-			        text: TR("Save & Close"),
-			        itemId: 'saveAndCloseBt',
-			        icon: '/static/images/icons/save_exit.png',
-			        formBind: true,
-			        disabled: true,
-			        handler: function(){
-			        	this.save(true);
-			        },
-			        scope: this,
-				},
-				' ',*/
-		    	{
-			        text: TR("Save"),
-			        itemId: 'saveBt',
-			        icon: '/static/images/icons/save.png',
-			        formBind: true,
-			        disabled: true,
-			        handler: function(){
-			        	this.save();
-			        },
-			        scope: this,
-				},
-				{
-			        text: TR("Cancel"),
-			        itemId: 'cancelBt',
-			        icon: '/static/images/icons/cancel.png',
-			        handler: this.close,
-			        scope: this,
-			   },
-			],
-			listeners: {
-				close: Ext.bind(this.onClose, this),
-			},
+                /*{
+                    text: TR("Save & Close"),
+                    itemId: 'saveAndCloseBt',
+                    icon: '/static/images/icons/save_exit.png',
+                    formBind: true,
+                    disabled: true,
+                    handler: function(){
+                        this.save(true);
+                    },
+                    scope: this,
+                },
+                ' ',*/
+                {
+                    text: TR("Save"),
+                    itemId: 'saveBt',
+                    icon: '/static/images/icons/save.png',
+                    formBind: true,
+                    disabled: true,
+                    handler: function(){
+                        this.save();
+                    },
+                    scope: this,
+                },
+                {
+                    text: TR("Cancel"),
+                    itemId: 'cancelBt',
+                    icon: '/static/images/icons/cancel.png',
+                    handler: this.close,
+                    scope: this,
+               },
+            ],
+            listeners: {
+                close: Ext.bind(this.onClose, this),
+            },
         });
  
- 		this.callParent(arguments);
- 		
- 		// load form
+        this.callParent(arguments);
+        
+        // load form
         this.loadRecord(rec);
         
         // set initial values
         for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
-        	if (p.initValues){
-        		p.initValues();	
-        	}
+            if (p.initValues){
+                p.initValues(); 
+            }
         }
             
     },
     
     onMenuClick: function(me, r){
-    	var ctx = this.getComponent('mainContainer');
-    	var form = ctx.getComponent(r.data.id);
-    	if (form){
-    		ctx.getLayout().setActiveItem(form);
-    	}
+        var ctx = this.getComponent('mainContainer');
+        var form = ctx.getComponent(r.data.id);
+        if (form){
+            ctx.getLayout().setActiveItem(form);
+        }
     },
     
     save: function(close){
-    	
-    	// validation
-    	if (!Sp.ui.data.validateForm(this)){
-    		return;
-    	}
-    	
-    	// update record
-    	this.form.updateRecord();
-    	
-    	// form panels specific actions
-    	for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
-        	if (p.pre_save){
-        		p.pre_save();	
-        	}
+        
+        // validation
+        if (!Sp.ui.data.validateForm(this)){
+            return;
         }
         
-    	// save record if changed
-    	if (Ext.Object.getSize(this.locationRec.getChanges()) > 0){
-    		this.locationRec.save({callback: Ext.bind(this.onLocationSaved, this)});	
-    	} else {
-    		this.onLocationSaved();
-    	}
-    	
-    	// update location view
-    	this.ownerCt.updateView(true, true);
-    	
-    	// update nav tb button
-    	this.getTbFunction().getComponent(this.locationRec.data.uuid).setText(this.locationRec.data.name);
-    	
-    	// update display store
-    	var store = Ext.data.StoreManager.lookup('mainLocationsStore');
-    	store.remove(store.getById(this.locationRec.data.uuid));
-    	store.add(this.locationRec.copy());
-    	
-    	if (close){
-    		this.save_close = true;
-    		this.close();
-    		return;
-    	}
-    	
-    	// change cancel boutton label
-    	this.down('#cancelBt').setText(TR("Close"));
+        // update record
+        this.form.updateRecord();
+        
+        // form panels specific actions
+        for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
+            if (p.pre_save){
+                p.pre_save();   
+            }
+        }
+        
+        // save record if changed
+        if (Ext.Object.getSize(this.locationRec.getChanges()) > 0){
+            this.locationRec.save({callback: Ext.bind(this.onLocationSaved, this)});    
+        } else {
+            this.onLocationSaved();
+        }
+        
+        // update location view
+        this.ownerCt.updateView(true, true);
+        
+        // update nav tb button
+        this.getTbFunction().getComponent(this.locationRec.data.uuid).setText(this.locationRec.data.name);
+        
+        // update display store
+        var store = Ext.data.StoreManager.lookup('mainLocationsStore');
+        store.remove(store.getById(this.locationRec.data.uuid));
+        store.add(this.locationRec.copy());
+        
+        if (close){
+            this.save_close = true;
+            this.close();
+            return;
+        }
+        
+        // change cancel boutton label
+        this.down('#cancelBt').setText(TR("Close"));
     },
     
     onLocationSaved: function(){
-    	for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
-        	if (p.post_save){
-        		p.post_save();	
-        	}
+        for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
+            if (p.post_save){
+                p.post_save();  
+            }
         }
     },
         
     onClose: function(){
-    	if (!this.save_close){
-    		this.locationRec.reject();
-    		for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
-	        	if (p.reject){
-	        		p.reject();	
-	        	}
-	        }
-    	}
-    	this.ownerCt.getLayout().prev();
-    	this.ownerCt.down('#editBt').show();
-    	this.ownerCt.down('#viewBt').hide();
-    	this.ownerCt.down('#makeReservationBt').show();
-    	this.ownerCt.down('#clearancesBt').show();
+        if (!this.save_close){
+            this.locationRec.reject();
+            for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
+                if (p.reject){
+                    p.reject(); 
+                }
+            }
+        }
+        this.ownerCt.getLayout().prev();
+        this.ownerCt.down('#editBt').show();
+        this.ownerCt.down('#closeBt').show();
+        this.ownerCt.down('#viewBt').hide();
+        this.ownerCt.down('#makeReservationBt').show();
+        this.ownerCt.down('#clearancesBt').show();
     },
     
 });

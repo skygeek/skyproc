@@ -23,7 +23,7 @@ import pprint
 
 import logging
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core import serializers
 from django.http import HttpResponse, Http404, HttpResponseServerError, \
     HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseBadRequest         
@@ -636,9 +636,21 @@ def __POST(req, data_path):
     if isinstance(config, HttpResponse):
         return config
     
-    # send data to database
+    # save data into database
     try:
-        config['rec'] = config['model'].objects.create(**config['rec_data'])
+        # create record
+        config['rec'] = config['model'](**config['rec_data'])
+        # validate
+        try: config['rec'].full_clean()
+        except ValidationError, e:
+            if settings.DEBUG:
+                msg = 'VALIDATION ERROR'
+                msg += ': %s' % e.message_dict
+                logging.debug(msg)
+            return HttpResponseBadRequest("Bad Request")
+        # save
+        config['rec'].save(force_insert=True)
+        
         # add this record to a a related record
         if config.has_key('related_field'):
             config['related_field'].add(config['rec'])
@@ -649,6 +661,7 @@ def __POST(req, data_path):
         if hasattr(config['rec'], 'post_save'):
             getattr(config['rec'], 'post_save')()
     except Exception, e:
+        raise
         msg = 'POST ERROR'
         if settings.DEBUG:
             msg += ': %s' % e
@@ -687,6 +700,15 @@ def __PUT(req, data_path):
         if config['rec_data']:
             for k, v in config['rec_data'].iteritems():
                 setattr(config['rec'], k, v)
+            # validate record
+            try: config['rec'].full_clean()
+            except ValidationError, e:
+                if settings.DEBUG:
+                    msg = 'VALIDATION ERROR'
+                    msg += ': %s' % e.message_dict
+                    logging.debug(msg)
+                return HttpResponseBadRequest("Bad Request")
+            # save
             config['rec'].save(force_update=True)
         # add m2m fields
         __handle_m2m_fields(config)
@@ -759,6 +781,7 @@ def dispatch(req, data_path):
     except Http404:
         raise
     except Exception, e:
+        raise
         msg = 'HDLR ERROR: %s %s' % (req.method, data_path)
         if settings.DEBUG:
             msg += ': %s' % e

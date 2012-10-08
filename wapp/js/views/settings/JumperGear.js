@@ -21,39 +21,39 @@ Ext.define('Sp.views.settings.JumperGear', {
     extend: 'Ext.panel.Panel',
         
     initComponent: function() {
-    	
+        
         Ext.apply(this, {
-        	
-        	header: false,
-        	border: 0,
-        	layout: {
-        		type: 'vbox',
-        		align: 'center',
-        	},
+            
+            header: false,
+            border: 0,
+            layout: {
+                type: 'vbox',
+                align: 'center',
+            },
             items: [
-            	{
-    				xtype: 'image',
-    				src: "/static/images/comingsoon.png",
-    				width: 290,
-    				maxWidth: 290,
-    				height: 292,
-    				maxHeight: 292,
-    				margin: 50,
-    			},
+                {
+                    xtype: 'image',
+                    src: "/static/images/comingsoon.png",
+                    width: 290,
+                    maxWidth: 290,
+                    height: 292,
+                    maxHeight: 292,
+                    margin: 50,
+                },
             ],
-        	buttons: [
-				{
-			        text: TR("Close"),
-			        icon: '/static/images/icons/cancel.png',
-			        handler: function() {
-			        	this.ownerCt.getLayout().prev();
-				        this.ownerCt.remove(this);
-				        Ext.destroy(this);
-			        },
-			        scope: this,
-			    }
-			],
-        	
+            buttons: [
+                {
+                    text: TR("Close"),
+                    icon: '/static/images/icons/cancel.png',
+                    handler: function() {
+                        this.ownerCt.getLayout().prev();
+                        this.ownerCt.remove(this);
+                        Ext.destroy(this);
+                    },
+                    scope: this,
+                }
+            ],
+            
         });
         
         this.callParent(arguments);        

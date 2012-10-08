@@ -17,46 +17,43 @@ You should have received a copy of the GNU Affero General Public
 License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 */
 
-Ext.define('Sp.views.settings.Regulation', {
+
+Ext.define('Sp.views.locations.FormPrivacy', {
     extend: 'Ext.panel.Panel',
-        
+    
     initComponent: function() {
         
+        this.currenciesGridRendered = false;
+        
+        var rec = this.locationRec;
+                
         Ext.apply(this, {
-            
             header: false,
-            border: 0,
             layout: {
-                type: 'vbox',
-                align: 'center',
+                type: 'anchor',
             },
             items: [
                 {
-                    xtype: 'image',
-                    src: "/static/images/comingsoon.png",
-                    width: 290,
-                    maxWidth: 290,
-                    height: 292,
-                    maxHeight: 292,
-                    margin: 50,
+                    xtype: 'container',
+                    itemId: 'ctx',
+                    padding: '10 10 5 10',
+                    items: [
+                        {
+                            xtype: 'label',
+                            text: this.title,
+                            cls: 'page-top-title',
+                        },
+                        
+                        
+                        
+                    ],
                 },
-            ],
-            buttons: [
-                {
-                    text: TR("Close"),
-                    icon: '/static/images/icons/cancel.png',
-                    handler: function() {
-                        this.ownerCt.getLayout().prev();
-                        this.ownerCt.remove(this);
-                        Ext.destroy(this);
-                    },
-                    scope: this,
-                }
-            ],
+            ], 
             
         });
+ 
+        this.callParent(arguments);
         
-        this.callParent(arguments);        
     },
     
 });

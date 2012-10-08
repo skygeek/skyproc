@@ -148,3 +148,11 @@ LOAD_STATES = (
     ('L','Landed'),
     ('I','Incident'),
 )
+
+JUMPER_LEVEL = (
+    ('S','Student'),
+    ('B','Beginner'),
+    ('I','Intermediate'),
+    ('C','Confirmed'),
+    ('E','Expert'),
+)

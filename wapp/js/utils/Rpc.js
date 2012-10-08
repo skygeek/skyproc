@@ -80,8 +80,8 @@ Sp.utils.rpc = function(){
             config.callback = arguments[2];
             config.async = true;
             if (arguments.length == 4){
-	        	config.scope = arguments[3];
-	        }
+                config.scope = arguments[3];
+            }
         } else if (Ext.isObject(arguments[2])){
             Ext.apply(config, arguments[2]);
         } else {
@@ -138,9 +138,9 @@ Sp.utils.rpc = function(){
                     return;
                 }
                 if (config.scope){
-                	Ext.bind(config.callback, config.scope)(rpc_response);
+                    Ext.bind(config.callback, config.scope)(rpc_response);
                 } else {
-                	config.callback(rpc_response);
+                    config.callback(rpc_response);
                 }
             },
             scope: config.scope,

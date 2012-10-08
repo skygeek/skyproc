@@ -21,63 +21,63 @@ Ext.define('Sp.views.reports.MainPanel', {
     extend: 'Ext.panel.Panel',
     
     initComponent: function() {
-    	
+        
         Ext.apply(this, {
-        	border: 0,
-        	layout: 'card',
-        	dockedItems: [{
-			    xtype: 'toolbar',
-			    dock: 'top',
-			    margin: '5 0 0 0',
-			    defaults: {
-			    	iconAlign: 'top',
-	        		scale: 'large',
-	        		width: 80,
-	        		margin: '0 12 0 0',
-	        		handler: function(me){
-        				this.showModule(me.moduleClass);
-        			},
-        			scope: this,
-			    },
-			    items: [
-			    
-			        {
-	        			text: TR("Dashboard"),
-	        			icon: '/static/images/icons/dashboard.png',
-	        			moduleClass: 'Dashboard',
-	        		},
-	        		{
-	        			text: TR("Loads"),
-	        			icon: '/static/images/icons/loads_log.png',
-	        			moduleClass: 'LoadsReport',
-	        		},
-	        		{
-	        			text: TR("Accounts"),
-	        			icon: '/static/images/icons/balances.png',
-	        			moduleClass: 'AccountsReport',
-	        		},
-	        		'->',
-	        		{
-	        			text: TR("Clear Data"),
-	        			icon: '/static/images/icons/purge.png',
-	        			moduleClass: 'ClearData',
-	        			margin: '0 7 0 0',
-	        		},
-			    ]
-			}],
+            border: 0,
+            layout: 'card',
+            dockedItems: [{
+                xtype: 'toolbar',
+                dock: 'top',
+                margin: '5 0 0 0',
+                defaults: {
+                    iconAlign: 'top',
+                    scale: 'large',
+                    width: 80,
+                    margin: '0 12 0 0',
+                    handler: function(me){
+                        this.showModule(me.moduleClass);
+                    },
+                    scope: this,
+                },
+                items: [
+                
+                    {
+                        text: TR("Dashboard"),
+                        icon: '/static/images/icons/dashboard.png',
+                        moduleClass: 'Dashboard',
+                    },
+                    {
+                        text: TR("Loads"),
+                        icon: '/static/images/icons/loads_log.png',
+                        moduleClass: 'LoadsReport',
+                    },
+                    {
+                        text: TR("Accounts"),
+                        icon: '/static/images/icons/balances.png',
+                        moduleClass: 'AccountsReport',
+                    },
+                    '->',
+                    {
+                        text: TR("Clear Data"),
+                        icon: '/static/images/icons/purge.png',
+                        moduleClass: 'ClearData',
+                        margin: '0 7 0 0',
+                    },
+                ]
+            }],
         });
- 		this.callParent(arguments);
+        this.callParent(arguments);
     },
     
-	showModule: function(module){
-		var m = this.down('#' + module);
-		if (!m){
-			m = Ext.create('Sp.views.reports.' + module, {
-				itemId: module,
-			});
-			this.add(m);
-		}
-		this.getLayout().setActiveItem(m);
-	},
+    showModule: function(module){
+        var m = this.down('#' + module);
+        if (!m){
+            m = Ext.create('Sp.views.reports.' + module, {
+                itemId: module,
+            });
+            this.add(m);
+        }
+        this.getLayout().setActiveItem(m);
+    },
     
 });
