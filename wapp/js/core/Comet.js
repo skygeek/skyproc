@@ -34,7 +34,7 @@ Sp.core.comet.connect = function(){
     });
     
     Sp.core.comet.socket.on('connect', function() {
-        Sp.core.comet.socket.send('sp:'+Ext.util.Cookies.get('sp_cookie'));
+        Sp.core.comet.socket.send('sp:'+Ext.util.Cookies.get('sp_session'));
     });
 
     Sp.core.comet.socket.on('message', function(message) {

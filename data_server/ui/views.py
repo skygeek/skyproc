@@ -15,57 +15,62 @@
 # You should have received a copy of the GNU Affero General Public 
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponseRedirect
+import django.contrib.auth 
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.middleware import csrf
 from django.core import context_processors
-from django.contrib import auth
 from django.db import models
 from django.conf import settings
 
+from utils import auth
+
 Person = models.get_model(settings.DATA_APP, 'Person')
 
-def __home(req, prod):
+def login(req, prod=None):
     if req.user.is_authenticated():
+        if prod is None:
+            prod = not settings.DEBUG
         u = Person.objects.getOwn(req.user)
         t = 'wapp_prod.html' if prod else 'wapp_dev.html'
         r = render_to_response(t)
-        r.set_cookie('csrftoken', csrf.get_token(req))
-        r.set_cookie('sp_user', req.user.username)
-        r.set_cookie('sp_cookie', req.COOKIES['sessionid'])
-        r.set_cookie('sp_id', u.uuid)
+        r.set_cookie('sp_user', req.user.username, secure=True)
+        r.set_cookie('sp_session', req.COOKIES['sessionid'], secure=True)
+        r.set_cookie('sp_id', u.uuid, secure=True)
         return r
     else:
-        c = {}
-        c.update(context_processors.csrf(req))
-        return render_to_response('home.html', c)
+        return render_to_response('login.html', context_processors.csrf(req))
 
-def home(req):
-    return __home(req, False)
-    
 def prod(req):
-    return __home(req, True)
-
-def mobile(req):
-    if req.user.is_authenticated():
-        u = Person.objects.getOwn(req.user)
-        t = 'mapp_prod.html' if prod else 'mapp_dev.html'
-        r = render_to_response(t)
-        r.set_cookie('csrftoken', csrf.get_token(req))
-        r.set_cookie('sp_user', req.user.username)
-        r.set_cookie('sp_cookie', req.COOKIES['sessionid'])
-        r.set_cookie('sp_id', u.uuid)
-        return r
-    else:
-        c = {}
-        c.update(context_processors.csrf(req))
-        return render_to_response('home_mobile.html', c)
+    return login(req, True)
 
 def logout(req):
-    auth.logout(req)
+    django.contrib.auth.logout(req)
     r = HttpResponseRedirect('/')
     r.delete_cookie('sessionid')
-    r.delete_cookie('csrftoken')
-    r.delete_cookie('sp_cookie')
     r.delete_cookie('sp_user')
+    r.delete_cookie('sp_session')
+    r.delete_cookie('sp_id')
     return r
+
+def registration_succeeded(req):
+    c = {}
+    c['title'] = "Registration succeeded !"
+    c['msg'] = "Check your email inbox, you will have received an email containing the link to activate your account."
+    return render_to_response('login_msg.html', c)
+
+def password_reset_succeeded(req):
+    c = {}
+    c['title'] = "Mail sent !"
+    c['msg'] = "Check your email inbox, you will have received an email containing the link to reset your password."
+    return render_to_response('login_msg.html', c)
+    
+def validate_registration(req):
+    # FIXME: complete validation and error notification
+        
+    result = auth.validate_captcha(req.POST['challenge'], req.POST['response'], req.META['REMOTE_ADDR'])
+    if result.is_valid:
+        return HttpResponse()
+    else:
+        return HttpResponse(result.error_code)
+

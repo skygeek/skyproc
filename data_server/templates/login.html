@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" class="login_page">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Skyproc.com - Login Page</title>
+    
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css" />
+        <link rel="stylesheet" href="/static/css/jquery.qtip.min.css" />
+        <link rel="stylesheet" href="/static/css/login_style.css" />
+        <link rel="stylesheet" href="/static/css/login.css" />
+        
+        <script src="/static/js/lib/jquery.min.js"> </script>
+        <script src="/static/js/lib/jquery.actual.min.js"> </script>
+        <script src="/static/js/lib/jquery.validate.min.js"> </script>
+        <script src="/static/js/lib/bootstrap.min.js"> </script>
+        
+        <script src='/static/js/login/srp.js'> </script>
+        <script src='/static/js/login/srp_register.js'> </script>
+        <script src='/static/js/login/login.js'> </script>
+        
+        <script type="text/javascript" src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"> </script>
+        
+    </head>
+    
+    <body>
+
+		<div class="login_box">
+			
+			
+			<form action="#" method="POST" id="login" onsubmit="return login()">{% csrf_token %}
+				<div class="top_b">Log in to Skyproc <sup>(beta)</sup></div>    
+				<div class="cnt_b">
+					<div class="formRow">
+                        <div class="input-prepend">
+                            <span class="add-on"><i class="icon-user"></i></span><input type="text" id="email" name="email" placeholder="Email address" autocorrect="off" autocapitalize="off" />
+                        </div>
+                    </div>
+					<div class="formRow">
+						<div class="input-prepend">
+							<span class="add-on"><i class="icon-lock"></i></span><input type="password" id="password" name="password" placeholder="Password" />
+						</div>
+					</div>
+					<div class="formRow clearfix">
+						<label class="checkbox"><input type="checkbox" id="remember" name="remember" /> Remember me</label>
+					</div>
+				</div>
+				<div class="btm_b clearfix">
+					<button class="btn btn-inverse pull-right" type="submit">Log in</button>
+					<span class="link_reg">Not registered? <a href="#register">Sign up here</a></span>
+				</div>  
+			</form>
+			
+			
+			<form action="/password-reset-succeeded/" method="post" id="reset_password" style="display:none">
+				<div class="top_b">Can't sign in?</div>    
+					<div class="alert alert-info alert-login">
+					Please enter your email address. You will receive a link to create a new password via email.
+				</div>
+				<div class="cnt_b">
+					<div class="formRow clearfix">
+						<div class="input-prepend">
+							<span class="add-on">@</span>
+                            <input type="text" name="s_email" id="s_email" placeholder="Your email address" autocorrect="off" autocapitalize="off" />
+						</div>
+					</div>
+				</div>
+				<div class="btm_b tac">
+					<button class="btn btn-inverse" type="submit">Request New Password</button>
+				</div>  
+			</form>
+			
+			
+			<form action="#" method="post" id="register" onsubmit="return register()" style="display:none">
+				<div class="top_b">Sign up to Skyproc.com</div>
+				<div class="cnt_b">
+				    <div class="formRow">
+                        <div class="input-prepend">
+                            <span class="add-on"><i class="icon-user"></i></span>
+                            <input type="text" name="r_fullname" id="r_fullname" placeholder="Full name" autocorrect="off" autocapitalize="off" />
+                        </div>
+                    </div>
+				    <div class="formRow">
+                        <div class="input-prepend">
+                            <span class="add-on">@</span>
+                            <input type="text" name="r_email" id="r_email" placeholder="Your email address" autocorrect="off" autocapitalize="off" />
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="input-prepend">
+                            <span class="add-on"><i class="icon-lock"></i></span>
+                            <input type="password" name="r_password" id="r_password" placeholder="Password" />
+                        </div>
+                    </div>
+                    <div class="formRow">
+                        <div class="input-prepend">
+                            <span class="add-on"><i class="icon-lock"></i></span>
+                            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" />
+                        </div>
+                    </div>
+				</div>
+				
+				<div id="captcha" style="height: 139px; padding-left: 31px"> </div>
+				
+				<div class="btm_b tac">
+					<button class="btn btn-inverse" type="submit">Sign Up</button>
+				</div>  
+			</form>
+			
+			<div class="links_b links_btm clearfix">
+				<span class="linkform"><a href="#reset_password">Forgot password?</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="?v=mobile">Mobile login</a></span>
+				<span class="linkform" style="display:none">Never mind, <a href="#login">send me back to the log in screen</a></span>
+			</div>
+		</div>
+		
+    </body>
+</html>

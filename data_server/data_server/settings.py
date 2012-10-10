@@ -95,20 +95,32 @@ SECRET_KEY = '0123456789'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
+    'django_mobile.loader.Loader',
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+    'django_mobile.context_processors.flavour',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_mobile.middleware.MobileDetectionMiddleware',
+    'django_mobile.middleware.SetFlavourMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware', 
+    'django.middleware.clickjacking.XFrameOptionsMiddleware', 
 )
 
 ROOT_URLCONF = 'data_server.urls'
@@ -137,6 +149,7 @@ INSTALLED_APPS = (
     'srp', 
     'data',
     'ui',
+    'django_mobile',
     'south', 
 )
 
@@ -182,6 +195,9 @@ INTERNAL_IPS = ('127.0.0.1',)
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# 3th party settings
+FLAVOURS_GET_PARAMETER = 'v'
 
 # skyproc settings
 DATA_APP = 'data'

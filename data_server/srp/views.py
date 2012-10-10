@@ -1,6 +1,9 @@
+import hashlib
+import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate
 import utils.auth
 
 
@@ -116,12 +119,13 @@ def handshake(request):
 
 # Step 2: The client sends its proof of S. The server confirms, and sends its proof of S.    
 def verify(request):
-    import hashlib
-    from django.contrib.auth import login, authenticate
     user = authenticate(username=request.session["srp_I"], M=(request.POST["M"], request.session["srp_M"]))
     if user:
         response = "<M>%s</M>" % hashlib.sha256("%s%s%s" % (request.session["srp_A"], request.session["srp_M"], request.session["srp_S"])).hexdigest()
         login(request, user)
+        # remember user login for 10 days
+        if request.POST.has_key('r') and request.POST['r'] == '1':
+            request.session.set_expiry(datetime.timedelta(days=10))
     else:
         response = "<error>Invalid username or password.</error>"
 

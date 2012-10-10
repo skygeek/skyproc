@@ -18,11 +18,14 @@
 import datetime
 import logging
 import cjson
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseServerError
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.exceptions import ObjectDoesNotExist
+
+from recaptcha.client import captcha
+
 from data import models
 
 def is_user_authenticated(req):
@@ -58,3 +61,8 @@ def register_sp_user(req, user):
         first_name = last_name = ''
     # create Person record owned by the associated django user
     models.Person(first_name=first_name, last_name=last_name, email=req.session["srp_name"], owner=user).save(self_create=True)
+
+def validate_captcha(challenge, response, remoteip):
+    pk = "6LeUg9cSAAAAAKcG0s5mYSXd_oS3brfZITYxT32f"
+    return captcha.submit(challenge, response, pk, remoteip)
+ 
