@@ -27,6 +27,9 @@ class Load(base.Model):
     
     relations = 'Slot'
     
+    related_fields = '+all'
+    related_relations = 'Slot'
+    
     location = models.ForeignKey('Location')
     aircraft = models.ForeignKey('Aircraft')
     pilot = models.ForeignKey('Worker')
@@ -52,6 +55,9 @@ class Slot(base.Model):
     show_created = True
     
     relations = 'Person Phantom'
+    
+    related_fields = '+all -is_paid -payer -price'
+    related_relations = 'Person Phantom'
     
     load = models.ForeignKey('Load')
     person = models.ForeignKey('Person', blank=True, null=True)

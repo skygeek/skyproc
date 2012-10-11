@@ -12,8 +12,8 @@ class Location(base.Model):
     public_fields = '+all'
     public_relations = 'Country City Aircraft Worker'
     
-    related_fields = 'name type country city custom_city picture reservation_interval'
-    related_relations = 'Country City Aircraft Worker'
+    related_fields = '+all'
+    related_relations = 'Country City Aircraft Worker Load'
     
     name = models.CharField(max_length=128)
     type = models.CharField(max_length=1, choices=LOCATIONS_TYPE, default='D')

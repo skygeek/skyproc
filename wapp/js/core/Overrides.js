@@ -178,12 +178,13 @@ Ext.override(Ext.AbstractManager, {
 Ext.override(Ext.window.Window, {
     addTools: function() {
         this.callParent();
-        this.addTool({
-            type: 'help',
-            handler: Sp.utils.help.startWhatsThis,
-            overCls: 'help-cursor',
-        });
-        
+        if (!this.disableWhatsThis){
+            this.addTool({
+                type: 'help',
+                handler: Sp.utils.help.startWhatsThis,
+                overCls: 'help-cursor',
+            });    
+        }
     },
 });
 

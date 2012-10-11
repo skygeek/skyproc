@@ -27,7 +27,7 @@ from django.core import serializers
 
 class Notifier:
     
-    def __init__(self, req=None, record=None, operation=None):
+    def __init__(self, req=None, record=None, operation=None, notify_owner=False):
         self.req = req
         self.record = record
         self.operation = operation
@@ -36,7 +36,9 @@ class Notifier:
             model_handler = 'on' + record._meta.object_name + 'Change'
             if hasattr(self, custom_handler): getattr(self, custom_handler)()
             elif hasattr(self, model_handler): getattr(self, model_handler)()
-            else: self.notify() 
+            else: self.notify()
+        elif notify_owner:
+            self.notifyOwner()
         
     def postMessage(self, message):
         try:
@@ -59,6 +61,15 @@ class Notifier:
         message['uuid'] = self.record.uuid
         message['user'] = self.req.user.username
         message['session'] = self.req.COOKIES['sessionid']
+        self.postMessage(message)
+        
+    def notifyOwner(self):
+        message = {}
+        message['model'] = self.record._meta.object_name
+        message['operation'] = self.operation
+        message['uuid'] = self.record.uuid
+        message['user'] = self.record.owner.username
+        message['session'] = None
         self.postMessage(message)
         
     def onLocationMembershipChange(self):

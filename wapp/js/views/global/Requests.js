@@ -32,6 +32,7 @@ Ext.define('Sp.views.global.Requests', {
             draggable: false,
             closable: false,
             layout: 'fit',
+            disableWhatsThis: true,
             items: [
                 {
                     xtype: 'grid',

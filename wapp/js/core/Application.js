@@ -214,7 +214,7 @@ Ext.define('Sp.core.Application', {
             },
             {
                 id: 'reservations',
-                label: TR("Reservations"),
+                label: "<span class='disabled-text'>" + TR("Reservations") + "</span>",
                 icon: '/static/images/icons/calendar.png',
             },
             {

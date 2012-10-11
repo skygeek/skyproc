@@ -25,6 +25,9 @@ class Person(base.Model):
     }
     
     public_fields = 'first_name last_name gender picture'
+    
+    related_fields = 'first_name last_name'
+    
         
     is_consumer = models.BooleanField(default=True)
     is_pro_jumper = models.BooleanField(default=False)
@@ -34,8 +37,8 @@ class Person(base.Model):
     
     email = models.EmailField()
     
-    first_name = models.CharField(max_length=64)
-    last_name = models.CharField(max_length=64)
+    first_name = models.CharField(max_length=64, blank=True, null=True)
+    last_name = models.CharField(max_length=64, blank=True, null=True)
     name_order = models.CharField(max_length=2, choices=NAME_ORDER, default='FL')
     birthday = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True, null=True)
@@ -87,8 +90,8 @@ class Person(base.Model):
 class Phantom(base.Model):
     isolated = True
     auto_create_related = True
+    public_fields = related_fields = '+all'
     
     name = models.CharField(max_length=128)
     phone = models.CharField(max_length=32, blank=True, null=True)
     weight = models.IntegerField(default=100)
-    

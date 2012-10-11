@@ -24,11 +24,14 @@ from django.conf import settings
 from django.db.models import Max
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseForbidden
+from django.core import serializers
 
+from data import comet
 from utils import misc
 
 Person = models.get_model(settings.DATA_APP, 'Person')
 Load = models.get_model(settings.DATA_APP, 'Load')
+Slot = models.get_model(settings.DATA_APP, 'Slot')
 LoadLog = models.get_model(settings.DATA_APP, 'LoadLog')
 SlotLog = models.get_model(settings.DATA_APP, 'SlotLog')
 JumpLog = models.get_model(settings.DATA_APP, 'JumpLog')
@@ -36,6 +39,7 @@ LocationMembership = models.get_model(settings.DATA_APP, 'LocationMembership')
 Account = models.get_model(settings.DATA_APP, 'Account')
 AccountOperation = models.get_model(settings.DATA_APP, 'AccountOperation')
 BuyedItem = models.get_model(settings.DATA_APP, 'BuyedItem')
+JumpType = models.get_model(settings.DATA_APP, 'JumpType')
 
 def __get_item_total_slots(item):
     total_slots = 0
@@ -233,3 +237,53 @@ def archive_load(load_uuid, note, del_options={}):
 
 def delete_load(load_uuid, del_options):
     archive_load(load_uuid, None, del_options)
+
+# members functions
+# FIXME: security checks
+
+def take_slot(person_uuid, load_uuid, user_data):
+    
+    slot_data = {}
+    slot_data['load'] = Load.objects.get_by_natural_key(load_uuid)
+    slot_data['owner'] = slot_data['load'].owner
+    slot_data['person'] = Person.objects.getOwn(req.user)
+    membership = LocationMembership.objects.get(location=slot_data['load'].location, person=slot_data['person'], deleted=False)
+    slot_data['membership_uuid'] = membership.uuid
+    
+    # FIXME: fill those fields
+    slot_data['item'] = None
+    slot_data['element'] = None
+    slot_data['price'] = None
+    slot_data['payer'] = None
+    
+    if isinstance(user_data, dict) and user_data.has_key('jump_type') and user_data['jump_type']:
+        slot_data['jump_type'] = JumpType.objects.get_by_natural_key(user_data['jump_type'])
+    else:
+        slot_data['jump_type'] = None
+    
+    max_exit_order = Slot.objects.filter(load__uuid=load_uuid, deleted=False).aggregate(Max('exit_order'))['exit_order__max']
+    if max_exit_order is None: slot_data['exit_order'] = 1
+    else: slot_data['exit_order'] = max_exit_order+1 
+    
+    s = Slot.objects.create(**slot_data)
+    comet.Notifier(None, s, 'create', True)
+    return serializers.serialize("json", [s],
+        use_natural_keys=True, 
+        fields=['uuid', 'created', 'load', 'person', 'membership_uuid', 'item', 'element', 'jump_type', 'exit_order'], 
+        relations={
+            'person': {'fields': ['uuid', 'first_name', 'last_name'], 'use_natural_keys': True},
+        }
+    )
+
+def cancel_slot(person_uuid, load_uuid):
+    removed_slots = []
+    for s in Slot.objects.filter(person__uuid=person_uuid, load__uuid=load_uuid, deleted=False):
+        for r in Slot.objects.filter(load__uuid=load_uuid, related_slot=s, deleted=False):
+            comet.Notifier(None, r, 'delete', True)
+            removed_slots.append(r.uuid)
+            r.delete()
+        comet.Notifier(None, s, 'delete', True)
+        removed_slots.append(s.uuid)
+        s.delete()
+    return removed_slots
+

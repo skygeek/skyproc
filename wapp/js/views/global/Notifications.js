@@ -75,6 +75,7 @@ Ext.define('Sp.views.global.Notifications', {
             draggable: false,
             closable: false,
             layout: 'fit',
+            disableWhatsThis: true,
             items: [
                 {
                     xtype: 'grid',

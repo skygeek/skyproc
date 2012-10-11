@@ -294,7 +294,15 @@ GNU Affero General Public License for more details.",
 		    "name": "BuyItem.js",
 		    "path": "/static/js/views/locations/"
 		},
-		
+		{
+            "name": "TakeSlot.js",
+            "path": "/static/js/views/locations/"
+        },
+        {
+            "name": "MemberBoard.js",
+            "path": "/static/js/views/locations/"
+        },
+        
 		
 		{
 		    "name": "MainPanel.js",

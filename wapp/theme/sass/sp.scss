@@ -24,6 +24,10 @@ Misc
   text-decoration: line-through;
 }
 
+.placeholder-color { 
+  color: #a9a9a9; 
+}
+
 .pointer-cursor {
   cursor: pointer !important;
 }
@@ -98,14 +102,9 @@ table.combobox-table td {
   padding-right: 8px; 
 }
 
-.placeholder-color { 
-  color: #a9a9a9; 
-}
-
 .stores-load-progress-bar .x-progress-text {
   font-weight: normal !important;
 }
-
 
 /*=====================================
 Load manager

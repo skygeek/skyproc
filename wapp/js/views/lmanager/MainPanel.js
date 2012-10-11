@@ -260,14 +260,14 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                             flex: 1,
                             margin: '2 0 0 0',
                             items: [
-                                {
+                                /*{
                                     tabConfig: {
                                         title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
                                         tooltip: TR("Reservations"),
                                         icon: '/static/images/icons/calendar_small.png',
                                         iconAlign: 'top',
                                     },
-                                },
+                                },*/
                                 {
                                     tabConfig: {
                                         title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',

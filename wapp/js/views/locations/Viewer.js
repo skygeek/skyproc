@@ -23,9 +23,13 @@ Ext.define('Sp.views.locations.Viewer', {
     
     initComponent: function() {
                 
+        this.next_loads_filter = null;
         this.locationRec = this.moduleData;
-        
         this.getRelationship();
+        
+        if (this.has_clearance){
+            this.applyNextLoadsFilter();
+        }
         
         Ext.apply(this, {
             layout: {
@@ -108,6 +112,7 @@ Ext.define('Sp.views.locations.Viewer', {
                     itemId: 'makeReservationBt',
                     text: TR("Make Reservation"),
                     icon: '/static/images/icons/datetime.png',
+                    hidden: true,
                 },
                 {xtype: 'tbseparator', itemId: 'actionSep'},
                 {
@@ -234,7 +239,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                     xtype: 'panel',
                                     itemId: 'ressources',
                                     title: TR("Ressources"),
-                                    padding: '0 0 5 0',
+                                    padding: '0 0 0 0',
                                     flex: 1,
                                     layout: 'fit',
                                     items: [
@@ -274,11 +279,6 @@ Ext.define('Sp.views.locations.Viewer', {
                                         },
                                     ],
                                 },
-                                /*{
-                                    xtype: 'panel',
-                                    title: TR("Services"),
-                                    flex: 1,
-                                },*/
                             ],
                         },
                         {
@@ -292,20 +292,278 @@ Ext.define('Sp.views.locations.Viewer', {
                             padding: '0 5 0 5',
                             items: [
                                 {
-                                    xtype: 'panel',
-                                    height: 280,
-                                    padding: '0 0 5 0',
+                                    xtype: 'toolbar',
+                                    margin: '0 0 8 0',
+                                    items: [
+                                        {
+                                            text: TR("Dropzone infos"),
+                                            icon: '/static/images/icons/info_blue.png',
+                                            toggleGroup: 'locationSubMenu',
+                                            pressed: true,
+                                            handler: function(){
+                                                this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzInfosPage'));
+                                            },
+                                            scope: this,
+                                        },
+                                        '-',
+                                        {
+                                            text: TR("Loads"),
+                                            icon: '/static/images/icons/plane_small.png',
+                                            toggleGroup: 'locationSubMenu',
+                                            handler: function(){
+                                                this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzLoadsPage'));
+                                            },
+                                            scope: this,
+                                        },
+                                        '-',
+                                        {
+                                            text: TR("Account"),
+                                            icon: '/static/images/icons/bank.png',
+                                            toggleGroup: 'locationSubMenu',
+                                            handler: function(){
+                                                this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzAccountPage'));
+                                            },
+                                            scope: this,
+                                        },
+                                        
+                                    ],
                                 },
                                 {
-                                    xtype: 'panel',
-                                    title: TR("Availability"),
-                                    padding: '0 0 5 0',
+                                    xtype: 'container',
+                                    itemId: 'dzPagesCtx',
+                                    layout: 'card',
                                     flex: 1,
-                                },
-                                {
-                                    xtype: 'panel',
-                                    title: TR("Current Activity"),
-                                    flex: 1,
+                                    items: [
+                                        {
+                                            xtype: 'container',
+                                            itemId: 'dzInfosPage',
+                                        },
+                                        {
+                                            xtype: 'container',
+                                            itemId: 'dzLoadsPage',
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch',
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: TR("Clearance status"),
+                                                    margin: '2 0 12 0',
+                                                    padding: '4 6 8 6',
+                                                    items: [
+                                                        {
+                                                            xtype: 'label',
+                                                            itemId: 'clrLabel',
+                                                        },
+                                                    ],
+                                                },
+                                                {
+                                                    xtype: 'panel',
+                                                    itemId: 'nextLoadsPanel',
+                                                    title: TR("Next available loads"),
+                                                    flex: 1,
+                                                    layout: 'fit',
+                                                    hidden: !this.has_clearance,
+                                                    items: [
+                                                        {
+                                                            xtype: 'grid',
+                                                            itemId: 'nextLoadsGrid',
+                                                            store: this.locationRec.Loads(),
+                                                            sortableColumns: false,
+                                                            enableColumnMove: false,
+                                                            enableColumnHide: false,
+                                                            enableColumnResize: false,
+                                                            columns: [
+                                                                {
+                                                                    dataIndex: 'number',
+                                                                    header: TR("N°"),
+                                                                    width: 30,
+                                                                    align: 'center',
+                                                                },
+                                                                {
+                                                                    dataIndex: 'state',
+                                                                    header: TR("State"),
+                                                                    flex: 1,
+                                                                    renderer: function(v,o,r){
+                                                                        if (v == 'P'){
+                                                                            return TR("Planned");
+                                                                        }
+                                                                        if (v == 'B'){
+                                                                            var label = TR("Boarding");
+                                                                            if (Ext.isNumber(r.data.timer) && r.data.timer>0){
+                                                                                label += Ext.String.format(" {0} {1}", TR("in"), 
+                                                                                                Sp.lmanager.getTimerLabel(r.data.timer));
+                                                                            }
+                                                                            return label;
+                                                                        }
+                                                                    },
+                                                                    scope: this,
+                                                                },
+                                                                {
+                                                                    dataIndex: 'aircraft',
+                                                                    header: TR("Aircraft"),
+                                                                    width: 60,
+                                                                    renderer: function(v,o,r){
+                                                                        var aircraft = this.locationRec.Aircrafts().getById(v);
+                                                                        if (aircraft){
+                                                                            return aircraft.data.registration;
+                                                                        }
+                                                                    },
+                                                                    scope: this,
+                                                                },
+                                                                {
+                                                                    dataIndex: 'pilot',
+                                                                    header: TR("Pilot"),
+                                                                    width: 100,
+                                                                    renderer: function(v,o,r){
+                                                                        var pilot = this.locationRec.Workers().getById(v);
+                                                                        if (pilot){
+                                                                            return pilot.data.name;
+                                                                        }
+                                                                    },
+                                                                    scope: this,
+                                                                },
+                                                                {
+                                                                    header: TR("Free"),
+                                                                    width: 50,
+                                                                    align: 'center',
+                                                                    renderer: function(v,o,r){
+                                                                        return "<span class='bold'>" + this.getLoadFreeSlots(r) + "</span>";
+                                                                    },
+                                                                    scope: this,
+                                                                },
+                                                                {
+                                                                    xtype: 'actioncolumn',
+                                                                    itemId: 'takeSlotCol',
+                                                                    width: 20,
+                                                                    sortable: false,
+                                                                    align: 'center',
+                                                                    items: [
+                                                                        {
+                                                                            icon: '/static/images/icons/join_load.png',
+                                                                            tooltip: TR("Take slot"),
+                                                                            handler: function(grid, rowIndex, colIndex) {
+                                                                                this.takeSlot(grid.getStore().getAt(rowIndex));
+                                                                            },
+                                                                            scope: this,
+                                                                        }
+                                                                    ],
+                                                                    listeners: {
+                                                                        mouseover: function(view, el, row, col, e, rec){
+                                                                            var domEl = new Ext.dom.Element(el);
+                                                                            domEl.setStyle('cursor', 'pointer');
+                                                                        },
+                                                                    },
+                                                                },
+                                                                {
+                                                                    xtype: 'actioncolumn',
+                                                                    itemId: 'cancelSlotCol',
+                                                                    width: 20,
+                                                                    sortable: false,
+                                                                    align: 'center',
+                                                                    hidden: true,
+                                                                    items: [
+                                                                        {
+                                                                            icon: '/static/images/icons/ban.png',
+                                                                            tooltip: TR("Cancel slot"),
+                                                                            handler: function(grid, rowIndex, colIndex) {
+                                                                                this.cancelSlot(grid.getStore().getAt(rowIndex));
+                                                                            },
+                                                                            scope: this,
+                                                                            getClass: function(v,o,r){
+                                                                            },
+                                                                        }
+                                                                    ],
+                                                                    listeners: {
+                                                                        mouseover: function(view, el, row, col, e, rec){
+                                                                            var domEl = new Ext.dom.Element(el);
+                                                                            domEl.setStyle('cursor', 'pointer');
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ],
+                                                            bbar: [
+                                                                {
+                                                                    xtype: 'label',
+                                                                    text: TR("Show") + ':',
+                                                                    cls: 'x-toolbar-text',
+                                                                },
+                                                                {
+                                                                    xtype: 'combobox',
+                                                                    itemId: 'nextLoadsFilter',
+                                                                    store: Ext.create('store.store', {
+                                                                        fields: ['filter', 'label', 'icon'],
+                                                                        data: [
+                                                                            {filter: 'available', label: TR("Available loads"), icon: 'available_load.png'},
+                                                                            {filter: 'in', label: TR("Loads I'm in"), icon: 'loads_in.png'},
+                                                                        ],
+                                                                    }),
+                                                                    valueField: 'filter',
+                                                                    displayField: 'label',
+                                                                    queryMode: 'local',
+                                                                    forceSelection: true,
+                                                                    editable: false,
+                                                                    width: 125,
+                                                                    tpl: Ext.create('Ext.XTemplate',
+                                                                        '<tpl for=".">',
+                                                                            '<div class="x-boundlist-item">',
+                                                                            "<img src='/static/images/icons/{icon}'/>&nbsp;{label}",
+                                                                            '</div>',
+                                                                        '</tpl>'
+                                                                    ),
+                                                                    listeners: {
+                                                                        afterrender: function(me){
+                                                                            me.setValue(me.getStore().findRecord('filter', 'available'));
+                                                                        },
+                                                                        select: function(me, recs){
+                                                                            this.next_loads_filter = recs[0].data.filter;
+                                                                            this.applyNextLoadsFilter();
+                                                                            var nextLoadsPanel = this.down('#nextLoadsPanel');
+                                                                            if (this.next_loads_filter == 'in'){
+                                                                                nextLoadsPanel.setTitle(TR("Next loads I'm in"));
+                                                                                this.down('#cancelSlotCol').show();
+                                                                                this.down('#takeSlotCol').hide();
+                                                                            } else {
+                                                                                nextLoadsPanel.setTitle(TR("Next available loads"));
+                                                                                this.down('#cancelSlotCol').hide();
+                                                                                this.down('#takeSlotCol').show();
+                                                                            }
+                                                                        },
+                                                                        scope: this,
+                                                                    },
+                                                                },
+                                                                '-',
+                                                                {
+                                                                    text: TR("Boarding panel"),
+                                                                    icon: '/static/images/icons/display.png',
+                                                                    handler: function(){
+                                                                        Ext.create('Sp.views.locations.MemberBoard', {
+                                                                            locationRec: this.locationRec,
+                                                                        }).show();
+                                                                    },
+                                                                    scope: this,
+                                                                },
+                                                                '-',
+                                                                {
+                                                                    text: TR("Refresh"),
+                                                                    icon: '/static/images/icons/reload.png',
+                                                                    handler: function(){
+                                                                        this.reloadMembership();
+                                                                    },
+                                                                    scope: this,
+                                                                },
+                                                            ],
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            xtype: 'container',
+                                            itemId: 'dzAccountPage',
+                                        },
+                                    ],
                                 },
                             ],
                         },
@@ -334,15 +592,20 @@ Ext.define('Sp.views.locations.Viewer', {
                                 },
                                 {
                                     xtype: 'panel',
-                                    title: TR("My Reservations"),
-                                    flex: 1,
-                                    padding: '0 0 5 0',
-                                    hidden: this.is_member === false,
-                                },
-                                {
-                                    xtype: 'panel',
                                     title: TR("Events"),
                                     flex: 1,
+                                    layout: {
+                                        type: 'hbox',
+                                        align: 'middle',
+                                        pack: 'center',
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'label',
+                                            text: TR("Events feature is not yet available"),
+                                            cls: 'placeholder-color',
+                                        },
+                                    ],
                                 },
                             ],
                         },
@@ -400,6 +663,8 @@ Ext.define('Sp.views.locations.Viewer', {
             if (clr){
                 if (clr.data.approved){
                     this.has_clearance = true;
+                    this.clearance_period = Sp.ui.misc.getClearancePeriod(clr);
+                    
                 } else {
                     this.has_pending_clearance = true;
                 }
@@ -421,7 +686,7 @@ Ext.define('Sp.views.locations.Viewer', {
             this.add(form); 
         }
         this.getLayout().setActiveItem(form);
-        this.down('#makeReservationBt').hide();
+        //this.down('#makeReservationBt').hide();
         this.down('#clearancesBt').hide();
         this.down('#editBt').hide();
         this.down('#manageSep').hide();
@@ -431,7 +696,7 @@ Ext.define('Sp.views.locations.Viewer', {
     
     viewLocation: function(){
         this.getLayout().setActiveItem(0);
-        this.down('#makeReservationBt').show();
+        //this.down('#makeReservationBt').show();
         this.down('#clearancesBt').show();
         this.down('#editBt').show();
         this.down('#manageSep').show();
@@ -503,7 +768,7 @@ Ext.define('Sp.views.locations.Viewer', {
         this.down('#joinSep').hide();
         this.down('#reqClrBt').hide();
         this.down('#cancelClrBt').hide();
-        this.down('#makeReservationBt').hide();
+        //this.down('#makeReservationBt').hide();
         this.down('#actionSep').hide();
         this.down('#clearancesBt').hide();
         this.down('#adminSep').hide();
@@ -513,13 +778,13 @@ Ext.define('Sp.views.locations.Viewer', {
         this.down('#leaveBt').hide();
         this.down('#leaveSep').hide();
         if (this.is_mine){
-            this.down('#makeReservationBt').show();
+            //this.down('#makeReservationBt').show();
             this.down('#clearancesBt').show();
             this.down('#adminSep').show();
             this.down('#editBt').show();
             this.down('#manageSep').show();
         } else if (this.is_member){
-            this.down('#makeReservationBt').show();
+            //this.down('#makeReservationBt').show();
             this.down('#actionSep').show();
             this.down('#leaveBt').show();
             this.down('#leaveSep').show();
@@ -545,7 +810,7 @@ Ext.define('Sp.views.locations.Viewer', {
     updateView: function(init, dont_update_buttons, dont_update_infos){
         
         if (!init){
-            this.getRelationship();         
+            this.getRelationship();
         }
         
         // update buttons visibility
@@ -557,8 +822,9 @@ Ext.define('Sp.views.locations.Viewer', {
             return;
         }
         
-        // country
         var rec = this.locationRec;
+        
+        // country
         var country = null;
         if (rec.data.country){
             var country = rec.getCountry();
@@ -604,6 +870,18 @@ Ext.define('Sp.views.locations.Viewer', {
         
         // ressources
         this.buildRessourcesStore();
+        
+        // clearance label
+        var clr_label = "<span class='bold'>" + TR("No valid clearance") + "</span>";
+        if (this.has_clearance){
+            var tpl = "<span class='bold'>{0}</span>&nbsp;&nbsp;(expires on {1})";
+            clr_label = Ext.String.format(tpl, TR("VALID"), 
+                        Ext.Date.format(this.clearance_period.end_date, Data.me.data.date_format));
+        } else if (this.has_pending_clearance){
+            clr_label = "<span class='bold'>" + TR("Clearance is pending") + "...</span>";
+        }
+        this.down('#clrLabel').setText(clr_label, false);
+        
     },
     
     getMembership: function(){
@@ -636,6 +914,7 @@ Ext.define('Sp.views.locations.Viewer', {
         var r = Data.create('LocationMembership', {
             location: this.locationRec.data.uuid,
             person: Data.me.data.uuid,
+            join_type: 'R',
         });
         r.save({
             callback: function(){
@@ -766,6 +1045,93 @@ Ext.define('Sp.views.locations.Viewer', {
             cancelBt.enable();
             cancelBt.setText(TR("Cancel clearance request"));
             this.updateButtons();
+        }, this);
+    },
+    
+    getLoadFreeSlots: function(loadRec){
+        var used = 0;
+        var slots_store = loadRec.Slots();
+        var aircraft = this.locationRec.Aircrafts().getById(loadRec.data.aircraft);
+        slots_store.each(function(s){
+            if (s.data.related_slot || s.data.person || s.data.phantom || s.data.worker || s.data.item){
+                used += 1;
+            } else if (slots_store.find('related_slot', s.data.uuid) != -1){
+                used += 1;
+            }
+        });
+        return aircraft.data.max_slots-used;
+    },
+    
+    amiInLoad: function(loadRec){
+        var im_in = false;
+        loadRec.Slots().each(function(s){
+            if (s.data.person && s.data.person.uuid == Data.me.data.uuid){
+                im_in = true;
+                return false;
+            }
+        });
+        return im_in;
+    },
+    
+    filterNextLoads: function(loadRec){
+        // show only planned and boarding
+        if (['P','B'].indexOf(loadRec.data.state) == -1){
+            return false;
+        }
+        var filter = this.next_loads_filter || 'available';
+        if (filter == 'in'){
+            return this.amiInLoad(loadRec);
+        } else {
+            return this.getLoadFreeSlots(loadRec) > 0 && !this.amiInLoad(loadRec);
+        }
+    },
+    
+    applyNextLoadsFilter: function(){
+        this.locationRec.Loads().filterBy(this.filterNextLoads, this);
+    },
+    
+    reloadMembership: function(){
+        var m = this.getMembership();
+        if (!m){
+            return;
+        }
+        var grid = this.down('#nextLoadsGrid');
+        grid.body.mask(TR("Refreshing"));
+        Data.load('LocationMembership_R', m.data.uuid, function(membership){
+            Data.memberships.remove(m);
+            Data.memberships.add(membership);
+            this.locationRec = membership.getLocation();
+            var loads_store = this.locationRec.Loads();
+            this.applyNextLoadsFilter();
+            grid.getView().bindStore(loads_store);
+            grid.body.unmask();
+        }, this);
+    },
+    
+    takeSlot: function(loadRec){
+        Ext.create('Sp.views.locations.TakeSlot', {
+            locationRec: this.locationRec,
+            loadRec: loadRec,
+            applyNextLoadsFilter: Ext.bind(this.applyNextLoadsFilter, this),
+        }).show();
+    },
+    
+    cancelSlot: function(loadRec){
+        Ext.MessageBox.confirm( TR("Confirmation"),
+            Ext.String.format(TR("Cancel your slot in load n° {0} ?"), loadRec.data.number),
+            function(btn){
+                if (btn == 'yes'){
+                    var slots_store = loadRec.Slots();
+                    var grid = this.down('#nextLoadsGrid');
+                    grid.body.mask(TR("Please wait"));
+                    Sp.utils.rpc('lmanager.cancel_slot', [Data.me.data.uuid, loadRec.data.uuid], function(slots){
+                        Ext.each(slots, function(s){
+                            slots_store.remove(slots_store.getById(s), true);
+                        });
+                        this.applyNextLoadsFilter();
+                        grid.body.unmask();
+                    }, this);
+                }
         }, this);
     },
     
