@@ -264,16 +264,7 @@ Ext.define('Sp.views.lmanager.Board', {
                         header: TR("Name"),
                         flex: 1,
                         renderer: function(v,o,r){
-                            var label = '';
-                            if (r.data.person){
-                                label += Sp.ui.misc.formatFullname({data:r.data.person}, Data.me.data.name_order, true);
-                            } else if (r.data.phantom){
-                                label += r.data.phantom.name;
-                            } else if (r.data.worker){
-                                var w = this.locationRec.Workers().getById(r.data.worker);
-                                label += w.data.name;
-                            }
-                            return label;
+                            return Sp.lmanager.getSlotJumperName(r, this.locationRec);
                         },
                         scope: this,
                     },
@@ -282,21 +273,7 @@ Ext.define('Sp.views.lmanager.Board', {
                         flex: 1,
                         hidden: !full_grid,
                         renderer: function(v,o,r){
-                            var label = [];
-                            if (r.data.item && r.data.element){
-                                var item = this.locationRec.LocationCatalogItems().getById(r.data.item);
-                                var element = item.LocationCatalogElements().getById(r.data.element);
-                                label.push(Ext.String.format('{0}{1}', element.data.altitude, element.data.altitude_unit));
-                            }
-                            if (r.data.worker_type){
-                                label.push(Data.workerTypes.getById(r.data.worker_type).data.label);
-                            } else if (r.data.jump_type){
-                                label.push(Data.jumpTypes.getById(r.data.jump_type).data.label);
-                            }
-                            if (load.data.jumpmaster_slot == r.data.uuid){
-                                label.push(TR("Jumpmaster"));
-                            }
-                            return label.join('&nbsp;-&nbsp;');
+                            return Sp.lmanager.getSlotJumpProgram(load, r, this.locationRec);
                         },
                         scope: this,
                     },
@@ -310,7 +287,7 @@ Ext.define('Sp.views.lmanager.Board', {
     },
     
     onLoadDataChange: function(store){
-        // FIXME: update instead of remove all/add -> this will cause a lot of screen flicker !
+        // FIXME: update instead of remove all/add -> this will cause more screen flickers !
         this.store.removeAll();
         // loop over unfiltred data     
         (store.snapshot || store.data).each(function(l){

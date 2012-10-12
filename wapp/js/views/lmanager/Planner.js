@@ -2020,22 +2020,7 @@ Ext.define('Sp.views.lmanager.Planner', {
     },
     
     getSlotsInfos: function(loadRec){
-        var slots_infos = {};
-        var aircraft = this.locationRec.Aircrafts().getById(loadRec.data.aircraft);
-        var slots_store = loadRec.Slots();
-        slots_infos.total = aircraft.data.max_slots;
-        slots_infos.min = aircraft.data.min_slots;
-        slots_infos.created = slots_store.getCount();
-        slots_infos.used = 0;
-        slots_store.each(function(s){
-            if (s.data.related_slot || s.data.person || s.data.phantom || s.data.worker){
-                slots_infos.used += 1;
-            } else if (slots_store.find('related_slot', s.data.uuid) != -1){
-                slots_infos.used += 1;
-            }
-        });
-        slots_infos.free = slots_infos.total-slots_infos.used;
-        return slots_infos;
+        return Sp.lmanager.getSlotsInfos(loadRec, this.locationRec);
     },
     
     deleteSlot: function(loadRec, slotRec){
@@ -2271,51 +2256,7 @@ Ext.define('Sp.views.lmanager.Planner', {
     },
     
     updateJumpersHeader: function(loadRec, infos){
-        infos = infos || this.getSlotsInfos(loadRec);
-        if (infos.used > 0){
-            var header_text = infos.used + ' ' + (infos.used > 1 ? TR("Jumpers") : TR("Jumper"));
-            var groups_count = 0;
-            var solo_count = 0;
-            var slots_counts = {};
-            var slots_store = loadRec.Slots();
-            slots_store.each(function(s){
-                if (s.data.related_slot){
-                    if (!Ext.isDefined(slots_counts[s.data.related_slot])){
-                        slots_counts[s.data.related_slot] = 0;
-                    }
-                    slots_counts[s.data.related_slot] += 1;
-                } else {
-                    if (!s.data.person && !s.data.phantom && !s.data.worker && slots_store.find('related_slot', s.data.uuid) == -1){
-                        return
-                    }
-                    if (!Ext.isDefined(slots_counts[s.data.uuid])){
-                        slots_counts[s.data.uuid] = 0;
-                    }
-                    slots_counts[s.data.uuid] += 1;
-                }
-            });
-            Ext.Object.each(slots_counts, function(k,v){
-                if (v > 1){
-                    groups_count += 1;
-                } else {
-                    solo_count += 1;
-                }
-            });
-            if (groups_count == 0){
-                header_text += Ext.String.format("&nbsp;&nbsp;({0})", TR("no Groups"));
-            } else {
-                if (solo_count > 0){
-                    header_text += Ext.String.format("&nbsp;&nbsp;({0} {1} - {2} {3})", solo_count,
-                                    (solo_count > 1 ? TR("Solos"): TR("Solo")), groups_count,
-                                    (groups_count > 1 ? TR("Groups") : TR("Group")));
-                } else {
-                    header_text += Ext.String.format("&nbsp;&nbsp;({0} {1})", groups_count,
-                                    (groups_count > 1 ? TR("Groups") : TR("Group")));
-                }
-            }
-        } else {
-            var header_text = TR("No Jumpers");
-        }
+        var header_text = Sp.lmanager.getLoadHeader(loadRec, this.locationRec, infos);
         this.slots_grids[loadRec.data.uuid].down('#jumper').setText(header_text);
     },
     

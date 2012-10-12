@@ -223,19 +223,19 @@ Ext.define('Sp.core.Application', {
                 icon: '/static/images/icons/plane.png',
                 dz_operator_only: true,
             },
-            {
+            /*{
                 id: 'tmanager',
                 label: "<span class='disabled-text'>" + TR("Tunnel Manager") + "</span>",
                 icon: '/static/images/icons/fan.png',
                 tn_operator_only: true,
-            },
+            },*/
             {
                 id: 'logbook',
                 label: TR("Logbook"),
                 icon: '/static/images/icons/book.png',
                 consumer_only: true,
             },
-            {
+            /*{
                 id: 'teams',
                 label: "<span class='disabled-text'>" + TR("Teams") + "</span>",
                 icon: '/static/images/icons/group.png',
@@ -249,7 +249,7 @@ Ext.define('Sp.core.Application', {
                 id: 'competitions',
                 label: "<span class='disabled-text'>" + TR("Competitions") + "</span>",
                 icon: '/static/images/icons/medal.png',
-            },
+            },*/
             {
                 id: 'reports',
                 label: TR("Reports"),

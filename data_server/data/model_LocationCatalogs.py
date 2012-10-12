@@ -8,6 +8,9 @@ class LocationCatalogItem(base.Model):
     
     relations = '+all -MembershipProfile -Location -ReservationItem -BuyedItem -Slot'
     
+    related_fields = '+all'
+    related_relations = 'LocationCatalogElement'
+    
     location = models.ForeignKey('Location')
     
     name = models.CharField(max_length=128)
@@ -47,6 +50,8 @@ class LocationCatalogPrice(base.Model):
 class LocationCatalogElement(base.Model):
     
     relations = '+all -LocationCatalogItem -ReservationItem -Slot'
+    
+    related_fields = '+all'
     
     item = models.ForeignKey('LocationCatalogItem')
     

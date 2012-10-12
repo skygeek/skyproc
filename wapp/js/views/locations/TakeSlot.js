@@ -28,7 +28,7 @@ Ext.define('Sp.views.locations.TakeSlot', {
             height: 220,
             modal: true,
             resizable: false,
-            title: TR("Take Slot"),
+            title: Ext.String.format(TR("Take a slot in load n° {0}"), this.loadRec.data.number),
             icon: '/static/images/icons/join_load.png',
             layout: 'fit',
             items: [

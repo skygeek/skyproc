@@ -251,3 +251,104 @@ Sp.lmanager.checkAccount = function(slotRec, locationRec) {
     Log('price: ' + price.data.price)
 
 }
+
+Sp.lmanager.getSlotJumperName = function(slotRec, locationRec) {
+    var name = '';
+    if (slotRec.data.person){
+        name = Sp.ui.misc.formatFullname({data:slotRec.data.person}, Data.me.data.name_order, true);
+    } else if (slotRec.data.phantom){
+        name = slotRec.data.phantom.name;
+    } else if (slotRec.data.worker){
+        var worker = locationRec.Workers().getById(slotRec.data.worker);
+        if (worker){
+            name = worker.data.name;
+        }
+    }
+    return name;
+}
+
+Sp.lmanager.getSlotJumpProgram = function(loadRec, slotRec, locationRec) {
+    var program = [];
+    if (slotRec.data.item && slotRec.data.element){
+        var item = locationRec.LocationCatalogItems().getById(slotRec.data.item);
+        var element = item.LocationCatalogElements().getById(slotRec.data.element);
+        program.push(Ext.String.format('{0}{1}', element.data.altitude, element.data.altitude_unit));
+    }
+    if (slotRec.data.worker_type){
+        program.push(Data.workerTypes.getById(slotRec.data.worker_type).data.label);
+    } else if (slotRec.data.jump_type){
+        program.push(Data.jumpTypes.getById(slotRec.data.jump_type).data.label);
+    }
+    if (loadRec && loadRec.data.jumpmaster_slot == slotRec.data.uuid){
+        program.push(TR("Jumpmaster"));
+    }
+    return program.join('&nbsp;-&nbsp;');
+}
+
+Sp.lmanager.getSlotsInfos = function(loadRec, locationRec){
+    var slots_infos = {};
+    var aircraft = locationRec.Aircrafts().getById(loadRec.data.aircraft);
+    var slots_store = loadRec.Slots();
+    slots_infos.total = aircraft.data.max_slots;
+    slots_infos.min = aircraft.data.min_slots;
+    slots_infos.created = slots_store.getCount();
+    slots_infos.used = 0;
+    slots_store.each(function(s){
+        if (s.data.related_slot || s.data.person || s.data.phantom || s.data.worker){
+            slots_infos.used += 1;
+        } else if (slots_store.find('related_slot', s.data.uuid) != -1){
+            slots_infos.used += 1;
+        }
+    });
+    slots_infos.free = slots_infos.total-slots_infos.used;
+    return slots_infos;
+}
+
+Sp.lmanager.getLoadHeader = function(loadRec, locationRec, infos){
+    infos = infos || Sp.lmanager.getSlotsInfos(loadRec, locationRec);
+    if (infos.used > 0){
+        var header_text = infos.used + ' ' + (infos.used > 1 ? TR("Jumpers") : TR("Jumper"));
+        var groups_count = 0;
+        var solo_count = 0;
+        var slots_counts = {};
+        var slots_store = loadRec.Slots();
+        slots_store.each(function(s){
+            if (s.data.related_slot){
+                if (!Ext.isDefined(slots_counts[s.data.related_slot])){
+                    slots_counts[s.data.related_slot] = 0;
+                }
+                slots_counts[s.data.related_slot] += 1;
+            } else {
+                if (!s.data.person && !s.data.phantom && !s.data.worker && slots_store.find('related_slot', s.data.uuid) == -1){
+                    return
+                }
+                if (!Ext.isDefined(slots_counts[s.data.uuid])){
+                    slots_counts[s.data.uuid] = 0;
+                }
+                slots_counts[s.data.uuid] += 1;
+            }
+        });
+        Ext.Object.each(slots_counts, function(k,v){
+            if (v > 1){
+                groups_count += 1;
+            } else {
+                solo_count += 1;
+            }
+        });
+        if (groups_count == 0){
+            header_text += Ext.String.format("&nbsp;&nbsp;({0})", TR("no Groups"));
+        } else {
+            if (solo_count > 0){
+                header_text += Ext.String.format("&nbsp;&nbsp;({0} {1} - {2} {3})", solo_count,
+                                (solo_count > 1 ? TR("Solos"): TR("Solo")), groups_count,
+                                (groups_count > 1 ? TR("Groups") : TR("Group")));
+            } else {
+                header_text += Ext.String.format("&nbsp;&nbsp;({0} {1})", groups_count,
+                                (groups_count > 1 ? TR("Groups") : TR("Group")));
+            }
+        }
+    } else {
+        var header_text = TR("No Jumpers");
+    }
+    return header_text;
+}

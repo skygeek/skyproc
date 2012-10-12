@@ -43,23 +43,23 @@ Ext.define('Sp.views.settings.Account', {
                             xtype: 'checkbox',
                             boxLabel: TR("I'm a fun skydiver"),
                         },
-                        {
+                        /*{
                             name: 'is_pro_jumper',
                             xtype: 'checkbox',
                             boxLabel: TR("I'm a professional skydiver"),
                             cls: 'disabled-text',
-                        },
+                        },*/
                         {
                             name: 'is_dz_operator',
                             xtype: 'checkbox',
                             boxLabel: TR("I'm operating a dropzone"),
                         },
-                        {
+                        /*{
                             name: 'is_tn_operator',
                             xtype: 'checkbox',
                             boxLabel: TR("I'm operating a wind tunnel"),
                             cls: 'disabled-text',
-                        },
+                        },*/
                     ],
                 },
                 {

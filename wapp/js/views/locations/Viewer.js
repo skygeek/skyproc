@@ -362,6 +362,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                                     xtype: 'panel',
                                                     itemId: 'nextLoadsPanel',
                                                     title: TR("Next available loads"),
+                                                    icon: '/static/images/icons/available_load.png',
                                                     flex: 1,
                                                     layout: 'fit',
                                                     hidden: !this.has_clearance,
@@ -522,10 +523,12 @@ Ext.define('Sp.views.locations.Viewer', {
                                                                             var nextLoadsPanel = this.down('#nextLoadsPanel');
                                                                             if (this.next_loads_filter == 'in'){
                                                                                 nextLoadsPanel.setTitle(TR("Next loads I'm in"));
+                                                                                nextLoadsPanel.setIcon('/static/images/icons/loads_in.png');
                                                                                 this.down('#cancelSlotCol').show();
                                                                                 this.down('#takeSlotCol').hide();
                                                                             } else {
                                                                                 nextLoadsPanel.setTitle(TR("Next available loads"));
+                                                                                nextLoadsPanel.setIcon('/static/images/icons/available_load.png');
                                                                                 this.down('#cancelSlotCol').hide();
                                                                                 this.down('#takeSlotCol').show();
                                                                             }

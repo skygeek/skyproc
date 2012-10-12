@@ -13,7 +13,7 @@ class Location(base.Model):
     public_relations = 'Country City Aircraft Worker'
     
     related_fields = '+all'
-    related_relations = 'Country City Aircraft Worker Load'
+    related_relations = 'Country City Aircraft Worker Load LocationCatalogItem'
     
     name = models.CharField(max_length=128)
     type = models.CharField(max_length=1, choices=LOCATIONS_TYPE, default='D')
