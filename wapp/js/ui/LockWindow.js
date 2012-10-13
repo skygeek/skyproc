@@ -28,20 +28,22 @@ Ext.define('Sp.ui.LockWindow', {
             modal: true,
             resizable: false,
             closable: false,
+            disableWhatsThis: true,
             title: TR("Session Locked"),
             icon: '/static/images/icons/locked.png',
             layout: 'fit',
-            
             items: [
                 {
                     xtype: 'form',
                     items: [
                         {
                             xtype: 'textfield',
+                            itemId: 'pwd',
                             inputType: 'password',
                             emptyText: TR("Type your password to unlock"),
                             anchor: '100%',
                             margin: '20 10 0 10',
+                            msgTarget: 'under',
                         }
                     ],
                 }
@@ -50,6 +52,7 @@ Ext.define('Sp.ui.LockWindow', {
             buttons: [
                 {
                     text: TR("Unlock"),
+                    itemId: 'unlockBt',
                     icon: '/static/images/icons/unlock.png',
                     handler: this.unlock,
                     scope: this,
@@ -58,11 +61,28 @@ Ext.define('Sp.ui.LockWindow', {
         });
  
         this.callParent(arguments);
-        
+        Sp.app.vp.down('#mainContainer').hide();
     },
         
     unlock: function(){
-        this.close();   
+        this.down('#unlockBt').disable();
+        s = new SRP(null, {
+            email: Data.me.data.email,
+            password: this.down('#pwd').getValue(),
+            csrf: Ext.util.Cookies.get('csrftoken'), 
+            callback: Ext.bind(this.onPasswordChecked, this),
+        });
+        s.identify();
+    },
+    
+    onPasswordChecked: function(verified){
+        if (verified){
+            Sp.app.vp.down('#mainContainer').show();
+            this.close();
+        } else {
+            this.down('#pwd').markInvalid(TR("Incorrect password"));
+            this.down('#unlockBt').enable();
+        }
     },
     
 });

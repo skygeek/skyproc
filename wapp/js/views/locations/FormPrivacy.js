@@ -43,9 +43,52 @@ Ext.define('Sp.views.locations.FormPrivacy', {
                             text: this.title,
                             cls: 'page-top-title',
                         },
-                        
-                        
-                        
+                        {
+                            xtype: 'fieldset',
+                            title: TR("Dropzone visibility"),
+                            margin: '10 0 0 0',
+                            items: [
+                                {
+                                    name: 'public',
+                                    xtype: 'checkbox',
+                                    boxLabel: TR("Show this dropzone in the public search"),
+                                },
+                            ],
+                        },
+                        {
+                            xtype: 'fieldset',
+                            title: TR("Club members options"),
+                            margin: '10 0 0 0',
+                            items: [
+                                {
+                                    name: 'use_clearances',
+                                    xtype: 'checkbox',
+                                    boxLabel: TR("Enforce the clearance system"),
+                                },
+                                {
+                                    name: 'enable_self_manifesting',
+                                    xtype: 'checkbox',
+                                    boxLabel: TR("Enable members self-manifesting"),
+                                },
+                                {
+                                    name: 'share_account_data',
+                                    xtype: 'checkbox',
+                                    boxLabel: TR("Share accounts data with members"),
+                                },
+                            ],
+                        },
+                        {
+                            xtype: 'fieldset',
+                            title: TR("Password protection"),
+                            margin: '10 0 0 0',
+                            items: [
+                                {
+                                    name: 'pwd_protect_manage',
+                                    xtype: 'checkbox',
+                                    boxLabel: TR("Protect the manage zone with password"),
+                                },
+                            ],
+                        },
                     ],
                 },
             ], 

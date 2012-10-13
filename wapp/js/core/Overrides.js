@@ -188,6 +188,10 @@ Ext.override(Ext.window.Window, {
     },
 });
 
+Ext.override(Ext.window.MessageBox, {
+    disableWhatsThis: true,
+});
+
 //Ext.override(, {
 //});
 

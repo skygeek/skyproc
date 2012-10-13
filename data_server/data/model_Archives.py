@@ -66,4 +66,14 @@ class JumpLog(base.ArchiveModel):
     altitude = models.CharField(max_length=32)
     note = models.CharField(max_length=100, blank=True, null=True)
     
+class AccountOperationLog(base.ArchiveModel):
+    archive = True
+    
+    location = fields.UUIDField()
+    date =  models.DateField()
+    type = models.CharField(max_length=1, choices=ACCOUNT_OPERATIONS)
+    amount = models.CharField(max_length=64)
+    currency = models.CharField(max_length=5)
+    note = models.CharField(max_length=200)
+    
     

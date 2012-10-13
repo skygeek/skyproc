@@ -228,13 +228,6 @@ Sp.ui.data.buildCalendarStore = function(location_uuid, fn, scope){
     return store;
 }
 
-Sp.ui.data.decorateCalendarEvent = function(resaRec){
-    resaRec.beginEdit();
-    resaRec.set('Title', 'TXXT');
-    resaRec.set('CalendarId', resaRec.data.confirmed ? 2 : 1);
-    resaRec.endEdit();
-}
-
 Sp.ui.data.getPersonCurrency = function(membershipRec, locationRec){
     // person override  
     if (membershipRec.data.override_profile && membershipRec.data.currency){

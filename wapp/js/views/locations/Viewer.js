@@ -293,6 +293,10 @@ Ext.define('Sp.views.locations.Viewer', {
                             items: [
                                 {
                                     xtype: 'toolbar',
+                                    hidden: (this.is_mine || !this.is_member || (
+                                        !this.locationRec.data.enable_self_manifesting &&
+                                        !this.locationRec.data.share_account_data
+                                    )),
                                     margin: '0 0 8 0',
                                     items: [
                                         {
@@ -307,13 +311,14 @@ Ext.define('Sp.views.locations.Viewer', {
                                         },
                                         '-',
                                         {
-                                            text: TR("Loads"),
+                                            text: TR("Boarding"),
                                             icon: '/static/images/icons/plane_small.png',
                                             toggleGroup: 'locationSubMenu',
                                             handler: function(){
                                                 this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzLoadsPage'));
                                             },
                                             scope: this,
+                                            hidden: !this.locationRec.data.enable_self_manifesting,
                                         },
                                         '-',
                                         {
@@ -324,6 +329,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                                 this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzAccountPage'));
                                             },
                                             scope: this,
+                                            hidden: !this.locationRec.data.share_account_data,
                                         },
                                         
                                     ],
@@ -337,6 +343,9 @@ Ext.define('Sp.views.locations.Viewer', {
                                         {
                                             xtype: 'container',
                                             itemId: 'dzInfosPage',
+                                            items: [
+                                                {xtype: 'label', text:'INFOS'},
+                                            ],
                                         },
                                         {
                                             xtype: 'container',
@@ -357,6 +366,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                                             itemId: 'clrLabel',
                                                         },
                                                     ],
+                                                    hidden: !this.locationRec.data.use_clearances,
                                                 },
                                                 {
                                                     xtype: 'panel',
@@ -375,6 +385,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                                             enableColumnMove: false,
                                                             enableColumnHide: false,
                                                             enableColumnResize: false,
+                                                            emptyText: TR("No loads"),
                                                             columns: [
                                                                 {
                                                                     dataIndex: 'number',
@@ -565,6 +576,122 @@ Ext.define('Sp.views.locations.Viewer', {
                                         {
                                             xtype: 'container',
                                             itemId: 'dzAccountPage',
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch',
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: TR("Balance"),
+                                                    margin: '2 0 12 0',
+                                                    padding: '4 6 8 6',
+                                                    items: [
+                                                        {
+                                                            xtype: 'label',
+                                                            itemId: 'balanceLabel',
+                                                        },
+                                                    ],
+                                                },
+                                                {
+                                                    xtype: 'panel',
+                                                    itemId: 'nextLoadsPanel',
+                                                    title: TR("Operations history"),
+                                                    icon: '/static/images/icons/listing.png',
+                                                    flex: 1,
+                                                    layout: 'fit',
+                                                    tbar: [
+                                                        {
+                                                            xtype: 'label',
+                                                            text: TR("From"),
+                                                            cls: 'x-toolbar-text',
+                                                        },
+                                                        {
+                                                            xtype: 'datefield',
+                                                            itemId: 'opStartDate',
+                                                            width: 130,
+                                                        },
+                                                        ' ',
+                                                        {
+                                                            xtype: 'label',
+                                                            text: TR("To"),
+                                                            cls: 'x-toolbar-text',
+                                                        },
+                                                        {
+                                                            xtype: 'datefield',
+                                                            itemId: 'opEndDate',
+                                                            width: 130,
+                                                        },
+                                                        '->',
+                                                        {
+                                                           xtype: 'button',
+                                                           text: TR("Filter"),
+                                                           icon: '/static/images/icons/filter.png',
+                                                           handler: function(){
+                                                               this.filterAccountOperations();
+                                                           },
+                                                           scope: this,
+                                                        },
+                                                    ],
+                                                    items: [
+                                                        {
+                                                            xtype: 'grid',
+                                                            itemId: 'operationsGrid',
+                                                            enableColumnMove: false,
+                                                            enableColumnHide: false,
+                                                            enableColumnResize: false,
+                                                            emptyText: TR("No operations"),
+                                                            store: Data.createStore('AccountOperationLog', {
+                                                                autoLoad: true,
+                                                                buffered: true,
+                                                                pageSize: 100,
+                                                                remoteSort: true,
+                                                                sorters: [
+                                                                    {
+                                                                        property: 'date',
+                                                                        direction: 'DESC'
+                                                                    },
+                                                                ],
+                                                                remoteFilter: true,
+                                                                filters: [
+                                                                    {
+                                                                        property: 'location',
+                                                                        value: this.locationRec.data.uuid,
+                                                                    },
+                                                                ],
+                                                            }),
+                                                            selModel: {
+                                                                pruneRemoved: false,
+                                                            },
+                                                            viewConfig: {
+                                                                trackOver: false,
+                                                            },
+                                                            columns: [
+                                                                {
+                                                                    dataIndex: 'date',
+                                                                    header: TR("Date"),
+                                                                    renderer: function(v,o,r){
+                                                                        return Ext.Date.format(v, Data.me.data.date_format);
+                                                                    },
+                                                                },
+                                                                {
+                                                                    dataIndex: 'note',
+                                                                    header: TR("Label"),
+                                                                    flex: 1,
+                                                                },
+                                                                {
+                                                                    dataIndex: 'amount',
+                                                                    header: TR("Amount"),
+                                                                    align: 'right',
+                                                                    renderer: function(v,o,r){
+                                                                        return Ext.util.Format.currency(v, ' '+r.data.currency, 0, true);
+                                                                    },
+                                                                },
+                                                            ],
+                                                        },
+                                                    ],
+                                                },
+                                            ],
                                         },
                                     ],
                                 },
@@ -676,7 +803,7 @@ Ext.define('Sp.views.locations.Viewer', {
         
     },
     
-    editLocation: function(){
+    doEditLocation: function(){
         var editor_id = this.locationRec.data.uuid + '-editor';
         var form = this.getComponent(editor_id);
         if (!form){
@@ -695,6 +822,19 @@ Ext.define('Sp.views.locations.Viewer', {
         this.down('#manageSep').hide();
         this.down('#closeBt').hide();
         this.down('#viewBt').show();
+    },
+    
+    editLocation: function(){
+        if (this.locationRec.data.pwd_protect_manage){
+            var form = this.getComponent(this.locationRec.data.uuid + '-editor');
+            if (form){
+                this.doEditLocation();
+            } else {
+                Sp.ui.misc.passwordAction(Ext.bind(this.doEditLocation, this));
+            }
+        } else {
+            this.doEditLocation();
+        }
     },
     
     viewLocation: function(){
@@ -884,6 +1024,25 @@ Ext.define('Sp.views.locations.Viewer', {
             clr_label = "<span class='bold'>" + TR("Clearance is pending") + "...</span>";
         }
         this.down('#clrLabel').setText(clr_label, false);
+        
+        // balance label
+        if (this.is_member){
+            var membership = this.getMembership();
+            var balance_label = [];
+            membership.Accounts().each(function(a){
+                if (a.data.balance != 0){
+                    var currency = Data.currencies.getById(a.data.currency);
+                    balance_label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 0, true));  
+                }
+                
+            });
+            if (balance_label.length > 0){
+                balance_label = balance_label.join(' | ');
+            } else {
+                balance_label = TR("None");
+            }
+            this.down('#balanceLabel').setText(balance_label, false);
+        }
         
     },
     
@@ -1136,6 +1295,39 @@ Ext.define('Sp.views.locations.Viewer', {
                     }, this);
                 }
         }, this);
+    },
+    
+    filterAccountOperations: function(){
+        var store = this.down('#operationsGrid').getStore();
+        var startDate = this.down('#opStartDate').getValue();
+        var endDate = this.down('#opEndDate').getValue();
+        var filters = [];
+        filters.push({
+            property: 'location',
+            value: this.locationRec.data.uuid,
+        });
+        if (startDate && endDate){
+            filters.push({
+                property: 'date__gte',
+                value: Ext.Date.format(startDate, Sp.core.Globals.DATE_FORMAT),
+            });
+            filters.push({
+                property: 'date__lte',
+                value: Ext.Date.format(endDate, Sp.core.Globals.DATE_FORMAT),
+            });
+        } else if (startDate){
+            filters.push({
+                property: 'date',
+                value: Ext.Date.format(startDate, Sp.core.Globals.DATE_FORMAT),
+            });
+        } else if (endDate){
+            filters.push({
+                property: 'date__lte',
+                value: Ext.Date.format(endDate, Sp.core.Globals.DATE_FORMAT),
+            });
+        }
+        store.clearFilter(true);
+        store.filter(filters);
     },
     
     onClose: function(){

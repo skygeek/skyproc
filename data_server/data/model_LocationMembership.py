@@ -14,7 +14,7 @@ class LocationMembership(base.Model):
     
     related_field = 'person'
     related_fields = 'location join_type approved new_approval'
-    related_relations = 'Location'
+    related_relations = 'Location Account'
     
     location = models.ForeignKey('Location')
     person = models.ForeignKey('Person')

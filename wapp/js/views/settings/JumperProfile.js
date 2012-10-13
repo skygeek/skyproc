@@ -94,11 +94,11 @@ Ext.define('Sp.views.settings.JumperProfile', {
                                     hidden: Data.me.data.distance_unit != 'us',
                                     width: 110,
                                     store: Ext.create('store.store', {
-                                        fields: ['in'],
+                                        fields: ['inch'],
                                         data: (function(){
                                             ret = [];
                                             for (var i=1 ; i<12 ; i++){
-                                               ret.push({in: i}); 
+                                               ret.push({inch: i}); 
                                             }
                                             return ret;
                                         })(),
@@ -106,17 +106,17 @@ Ext.define('Sp.views.settings.JumperProfile', {
                                     queryMode: 'local',
                                     forceSelection: true,
                                     editable: false,
-                                    valueField: 'in',
+                                    valueField: 'inch',
                                     tpl: Ext.create('Ext.XTemplate',
                                         '<tpl for=".">',
                                             '<div class="x-boundlist-item">',
-                                            '{in}"',
+                                            '{inch}"',
                                             '</div>',
                                         '</tpl>'
                                     ),
                                     displayTpl: Ext.create('Ext.XTemplate',
                                         '<tpl for=".">',
-                                            '{in}"',
+                                            '{inch}"',
                                         '</tpl>'
                                     ),
                                 },

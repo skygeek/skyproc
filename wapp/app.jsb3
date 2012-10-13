@@ -199,7 +199,7 @@ GNU Affero General Public License for more details.",
 		    "path": "/static/js/views/locations/"
 		},
 		{
-		    "name": "EditMapMarker.js",
+		    "name": "EditMapObject.js",
 		    "path": "/static/js/views/locations/"
 		},
 		{
@@ -398,11 +398,10 @@ GNU Affero General Public License for more details.",
 		    "path": "/static/js/views/global/"
 		},
 		
-		
-		
-                
+		                
             ]
         },
+        
         {
             "name": "Skyproc Prod",
             "target": "sp-all.js",
@@ -416,6 +415,22 @@ GNU Affero General Public License for more details.",
                     "path": "",
                     "name": "app.js"
                 }
+            ]
+        },
+        
+        {
+            "name": "SRP",
+            "target": "srp-all.js",
+            "compress": true,
+            "files": [
+                {
+                    "path": "/static/js/login/",
+                    "name": "srp.js"
+                },
+                {
+                    "path": "/static/js/login/",
+                    "name": "srp_register.js"
+                },
             ]
         }
     ],

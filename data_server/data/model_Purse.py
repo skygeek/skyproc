@@ -2,12 +2,15 @@
 
 from django.db import models
 from django.db.models import F
+from django.conf import settings
 import base
 from choices import *
 
 class Account(base.Model):
     
     relations = 'AccountOperation'
+    
+    related_fields = '+all'
     
     membership = models.ForeignKey('LocationMembership')
     currency = models.ForeignKey('Currency')
@@ -32,13 +35,24 @@ class AccountOperation(base.Model):
     def save(self, *args, **kwargs):
         super(AccountOperation, self).save(*args, **kwargs) 
         if kwargs.has_key('force_insert') and kwargs['force_insert']:
+            # balance update
             if self.type in ('D', 'C'):
                 self.account.balance = F('balance') + self.amount
             elif self.type == 'B':
                 self.account.balance = F('balance') - self.amount
             self.account.balance_update = True
             self.account.save()
-        
+            # person log
+            log_data = {}
+            log_data['owner'] = self.account.membership.person.uuid
+            log_data['location'] = self.account.membership.location.uuid
+            log_data['date'] = self.created
+            log_data['type'] = self.type
+            log_data['amount'] = self.amount
+            log_data['currency'] = self.account.currency.code
+            log_data['note'] = self.note
+            models.get_model(settings.DATA_APP, 'AccountOperationLog').objects.create(**log_data)
+            
 class BuyedItem(base.Model):
     show_created = True
     

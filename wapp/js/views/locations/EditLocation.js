@@ -264,7 +264,7 @@ Ext.define('Sp.views.locations.EditLocation', {
         this.ownerCt.down('#editBt').show();
         this.ownerCt.down('#closeBt').show();
         this.ownerCt.down('#viewBt').hide();
-        this.ownerCt.down('#makeReservationBt').show();
+        //this.ownerCt.down('#makeReservationBt').show();
         this.ownerCt.down('#clearancesBt').show();
     },
     

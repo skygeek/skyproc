@@ -313,3 +313,24 @@ Sp.ui.misc.getCatalogElementLabel = function(element){
     
     return label;
 }
+
+Sp.ui.misc.passwordAction = function(callback, previous_pwd){
+    var msgbox = Ext.Msg.prompt(TR("Please type your password"), '', function(btn, pwd){
+        if (btn == 'ok'){
+            s = new SRP(null, {
+                email: Data.me.data.email,
+                password: pwd,
+                csrf: Ext.util.Cookies.get('csrftoken'), 
+                callback: function(verified){
+                    if (verified){
+                        callback();
+                    } else {
+                        Sp.ui.misc.passwordAction(callback, pwd);
+                    }
+                },
+            });
+            s.identify();
+        }
+    }, window, false, previous_pwd);
+    msgbox.textField.inputEl.dom.type = 'password';
+}

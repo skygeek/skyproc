@@ -182,6 +182,7 @@ Ext.define('Sp.views.locations.MemberBoard', {
                     enableColumnMove: false,
                     enableColumnHide: false,
                     enableColumnResize: false,
+                    emptyText: TR("There is no load to show"),
                     dockedItems: [{
                         xtype: 'toolbar',
                         itemId: 'slotsTb',
@@ -230,10 +231,10 @@ Ext.define('Sp.views.locations.MemberBoard', {
         });
         
         this.callParent(arguments);
-        this.loadData();
+        this.loadData(true);
     },
     
-    loadData: function(){
+    loadData: function(init){
         var loadsCbx = this.down('#loadsCbx');
         var source_loads_store = this.locationRec.Loads();
         var source_loads_data = source_loads_store.snapshot || source_loads_store.data;
@@ -285,7 +286,9 @@ Ext.define('Sp.views.locations.MemberBoard', {
         var count = loads_store.getCount();
         
         if (count == 0){
-            Sp.ui.misc.warnMsg(TR("No matching load(s) found"), TR("No loads"));
+            if (!init){
+                Sp.ui.misc.warnMsg(TR("No matching load(s) found"), TR("No loads"));
+            }
             return;
         }
         
