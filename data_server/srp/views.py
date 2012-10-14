@@ -123,7 +123,7 @@ def verify(request):
     if user:
         response = "<M>%s</M>" % hashlib.sha256("%s%s%s" % (request.session["srp_A"], request.session["srp_M"], request.session["srp_S"])).hexdigest()
         login(request, user)
-        # remember user login for 10 days
+        # remember user login (if requested) for 10 days
         if request.POST.has_key('r') and request.POST['r'] == '1':
             request.session.set_expiry(datetime.timedelta(days=10))
     else:

@@ -38,7 +38,12 @@ Sp.ui.misc.warnMsg = function(msg, title){
     });
 }
 
-Sp.ui.misc.reportException = function(proxy, response, operation){
+Sp.ui.misc.reportProxyException = function(proxy, response, operation){
+    
+    if (response.status == 401){
+        window.location = '/logout/';
+        return;
+    }
     
     // ui notification
     Ext.MessageBox.show({

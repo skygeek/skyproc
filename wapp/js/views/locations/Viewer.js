@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public
 License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 Ext.define('Sp.views.locations.Viewer', {
     extend: 'Ext.panel.Panel',
     
@@ -210,7 +209,7 @@ Ext.define('Sp.views.locations.Viewer', {
                             region: 'west',
                             xtype: 'container',
                             itemId: 'west',
-                            width: 200,
+                            width: 180,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch',
@@ -709,15 +708,119 @@ Ext.define('Sp.views.locations.Viewer', {
                             items: [
                                 {
                                     xtype: 'panel',
-                                    height: 200,
+                                    itemId: 'weatherPanel',
+                                    height: 230,
                                     padding: '0 0 5 0',
+                                    layout: 'card',
                                     items: [
                                         {
-                                            xtype: 'image',
-                                            src: "/static/images/tmp/weather.jpeg",
-                                            width: 200,
-                                            height: 200,
-                                        }
+                                            xtype: 'container',
+                                            itemId: 'weatherInfosCtx',
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch',
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'container',
+                                                    flex: 1,
+                                                    layout: {
+                                                        type: 'hbox',
+                                                        align: 'stretch',
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'label',
+                                                            itemId: 'weatherDataLabel',
+                                                            margin: '0 0 0 8',
+                                                            flex: 1,
+                                                        },
+                                                        {
+                                                            xtype: 'container',
+                                                            width: 93,
+                                                            layout: {
+                                                                type: 'vbox',
+                                                                align: 'center',
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'image',
+                                                                    itemId: 'cloudsImg',
+                                                                    width: 93,
+                                                                    height: 93,
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'tempLabel',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'creditLabel',
+                                                                    style: {
+                                                                        'font-size': '9px',
+                                                                        'text-align': 'center',
+                                                                    },
+                                                                    margin: '10 0 0 0',
+                                                                    html: Ext.String.format(
+                                                                        "{0}<br><a href='http://www.geonames.org/' target='_blank'>GeoNames</a>",
+                                                                        TR("Data provided by")),
+                                                                },
+                                                            ],
+                                                        },
+                                                        
+                                                    ],
+                                                },
+                                                {
+                                                    xtype: 'label',
+                                                    itemId: 'weatherSrcDate',
+                                                    margin: '0 0 4 0',
+                                                    style: {
+                                                        'text-align': 'center',
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            xtype: 'container',
+                                            itemId: 'noWeatherData',
+                                            layout: {
+                                                type: 'hbox',
+                                                align: 'middle',
+                                                pack: 'center',
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'container',
+                                                    layout: {
+                                                        type: 'vbox',
+                                                        align: 'center',
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'label',
+                                                            text: TR("No weather data"),
+                                                            cls: 'placeholder-color',
+                                                            style: {
+                                                                'text-align': 'center',
+                                                            },
+                                                        },
+                                                        {
+                                                            xtype: 'button',
+                                                            itemId: 'updateWeatherBt',
+                                                            icon: '/static/images/icons/overcast.png',
+                                                            text: TR("Update weather data"),
+                                                            margin: '50 0 0 0',
+                                                            handler: function(){
+                                                                this.updateWeatherData();
+                                                            },
+                                                            scope: this,
+                                                            hidden: true,
+                                                        },
+                                                    ],
+                                                },
+                                                
+                                            ],
+                                        },
                                     ],
                                 },
                                 {
@@ -950,6 +1053,124 @@ Ext.define('Sp.views.locations.Viewer', {
         }
     },
     
+    updateWeather: function(){
+        var store = this.locationRec.WeatherObservations();
+        var panel = this.down('#weatherPanel');
+        if (store.getCount() == 0){
+            panel.getLayout().setActiveItem(this.down('#noWeatherData'));
+            this.down('#updateWeatherBt').setVisible(this.is_mine);
+        } else {
+            var infos = store.getAt(0);
+            panel.getLayout().setActiveItem(this.down('#weatherInfosCtx'));
+            
+            // data
+            var data_label = [];
+            var header_attrs = "class='header-color' style='font-size:11px;padding-top:2px'";
+            
+            // dew point
+            data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Dew point")));
+            if (infos.data.dew_point){
+                if (Data.me.data.temperature_unit == 'c'){
+                    data_label.push(Ext.String.format("<dt>{0} °C</dt>", infos.data.dew_point));
+                } else {
+                    data_label.push(Ext.String.format("<dt>{0} °F</dt>", parseInt(infos.data.dew_point)*9/5+32));
+                }
+            } else {
+                data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
+            }
+            
+            // wind speed
+            data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Wind speed")));
+            if (infos.data.wind_speed){
+                if (Data.me.data.speed_unit == 'kts'){
+                    data_label.push(Ext.String.format("<dt>{0} Knots</dt>", parseInt(infos.data.wind_speed)));
+                } else if (Data.me.data.speed_unit == 'mph'){
+                    data_label.push(Ext.String.format("<dt>{0} mph</dt>", parseInt(parseInt(infos.data.wind_speed)*1.150779)));
+                } else if (Data.me.data.speed_unit == 'ms'){
+                    data_label.push(Ext.String.format("<dt>{0} m/s</dt>", parseInt(parseInt(infos.data.wind_speed)*0.514444)));
+                } else if (Data.me.data.speed_unit == 'kmh'){
+                    data_label.push(Ext.String.format("<dt>{0} km/h</dt>", parseInt(parseInt(infos.data.wind_speed)*1.852)));
+                }
+            } else {
+                data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
+            }
+            
+            // wind direction
+            data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Wind direction")));
+            if (infos.data.wind_direction){
+                data_label.push(Ext.String.format("<dt>{0} °</dt>", infos.data.wind_direction));
+            } else if (infos.data.wind_speed){
+                data_label.push(Ext.String.format("<dt>{0}</dt>", TR("Variable")));
+            } else {
+                data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
+            }
+            
+            // humidity
+            data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Humidity")));
+            if (infos.data.humidity){
+                data_label.push(Ext.String.format("<dt>{0} %</dt>", infos.data.humidity));
+            } else {
+                data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
+            }
+            
+            // QNH
+            data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Pressure (QNH)")));
+            if (infos.data.qnh){
+                data_label.push(Ext.String.format("<dt>{0} hPa</dt>", infos.data.qnh));
+            } else {
+                data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
+            }
+
+            // set data label
+            this.down('#weatherDataLabel').setText('<dl>' + data_label.join('') + '</dl>', false);
+            
+            // clouds image
+            var clouds = infos.data.clouds || 'none';
+            this.down('#cloudsImg').setSrc(Ext.String.format("/static/images/weather/clouds_{0}.png", clouds));
+            
+            // temperature
+            var temp_label = TR("N/A");
+            if (infos.data.temperature){
+                if (Data.me.data.temperature_unit == 'c'){
+                    temp_label = Ext.String.format("{0} °C", parseInt(infos.data.temperature));
+                } else {
+                    temp_label = Ext.String.format("{0} °F", parseInt(parseInt(infos.data.temperature)*9/5+32));
+                }
+            }
+            this.down('#tempLabel').setText(Ext.String.format("<span style='font-size: 26px'>{0}</span>", temp_label), false);
+            
+            // source and datetime
+            var src_label = "<dl style='font-size: 11px'>";
+            var station = infos.data.station || TR("N/A");
+            src_label += Ext.String.format("<dt><span class='header-color'>Station:</span>&nbsp;{0}</dt>", station);
+            src_label += Ext.String.format("<dt><span class='header-color'>Last update:</span>&nbsp;{0}</dt>", 
+                            Ext.Date.format(infos.data.datetime, Data.me.data.time_format));
+            src_label += Ext.String.format("<dt><span class='header-color'>Sunset:</span>&nbsp;{0}</dt>", 
+                            Ext.Date.format(infos.data.sunset, Data.me.data.time_format));
+            src_label += '</dl>';
+            this.down('#weatherSrcDate').setText(src_label, false);
+        }
+    },
+    
+    updateWeatherData: function(){
+        var panel = this.down('#weatherPanel');
+        panel.body.mask(TR("Updating"));
+        Sp.utils.rpc('weather.update', [this.locationRec.data.uuid], function(weather_data){
+            if (weather_data){
+                weather_data = Ext.decode(weather_data);
+            }
+            if (weather_data && weather_data.length > 0){
+                var r = Data.create('WeatherObservation', weather_data[0]);
+                r.commit();
+                this.locationRec.WeatherObservations().add(r);
+                this.updateWeather();
+            } else {
+                Sp.ui.misc.warnMsg(TR("No weather data found"), TR("No data"));
+            }
+            panel.body.unmask();
+        }, this);
+    },
+    
     updateView: function(init, dont_update_buttons, dont_update_infos){
         
         if (!init){
@@ -1043,6 +1264,9 @@ Ext.define('Sp.views.locations.Viewer', {
             }
             this.down('#balanceLabel').setText(balance_label, false);
         }
+        
+        // weather infos
+        this.updateWeather();
         
     },
     

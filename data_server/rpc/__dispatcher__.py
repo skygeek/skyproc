@@ -81,10 +81,10 @@ def dispatch(req, rpc_path):
         raise
     except Exception, e:
         if settings.DEBUG:
-            msg = "%s(%s) error: %s" % (f.__name__, args, e)
-            logging.debug(msg)
+            raise
         else:
-            msg = "%s() error: %s" % (f.__name__, e)
+            msg = "%s() error" % f.__name__
+            logging.error("%s: %s" % (msg, e))
         return HttpResponseServerError(msg)
     
     if settings.DEBUG:

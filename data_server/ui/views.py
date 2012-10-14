@@ -16,7 +16,7 @@
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
 import django.contrib.auth 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.middleware import csrf
 from django.core import context_processors
@@ -24,6 +24,7 @@ from django.db import models
 from django.conf import settings
 
 from utils import auth
+from utils import weather
 
 Person = models.get_model(settings.DATA_APP, 'Person')
 
@@ -74,3 +75,10 @@ def validate_registration(req):
     else:
         return HttpResponse(result.error_code)
 
+# use urls as triggers for periodic jobs
+# those views are restricted to the localhost
+def weather_update(req):
+    if req.META['REMOTE_ADDR'] != '127.0.0.1':
+        raise Http404
+    weather.update()
+    return HttpResponse()

@@ -13,7 +13,7 @@ class Location(base.Model):
     public_relations = 'Country City Aircraft Worker'
     
     related_fields = '+all'
-    related_relations = 'Country City Aircraft Worker Load LocationCatalogItem'
+    related_relations = 'Country City Aircraft Worker Load LocationCatalogItem MapObject WeatherObservation'
     
     name = models.CharField(max_length=128)
     type = models.CharField(max_length=1, choices=LOCATIONS_TYPE, default='D')
@@ -83,9 +83,29 @@ class Location(base.Model):
         return self.name
 
 class MapObject(base.Model):
+    related_fields = '+all'
+    
     location = models.ForeignKey('Location')
+    
     type = models.ForeignKey('AreaType')
     name = models.CharField(max_length=128, blank=True, null=True)
     description = models.CharField(max_length=500, blank=True, null=True)
     mapdata = models.TextField()
+    
+class WeatherObservation(base.Model):
+    related_fields = '+all'
+    
+    location = models.ForeignKey('Location')
+    
+    station = models.CharField(max_length=64, blank=True, null=True)
+    datetime = models.DateTimeField(blank=True, null=True)
+    sunrise = models.DateTimeField(blank=True, null=True)
+    sunset = models.DateTimeField(blank=True, null=True)
+    clouds = models.CharField(max_length=16, blank=True, null=True)
+    temperature = models.CharField(max_length=16, blank=True, null=True)
+    dew_point = models.CharField(max_length=16, blank=True, null=True)
+    wind_speed = models.CharField(max_length=16, blank=True, null=True)
+    wind_direction = models.CharField(max_length=16, blank=True, null=True)
+    humidity = models.CharField(max_length=16, blank=True, null=True)
+    qnh = models.CharField(max_length=16, blank=True, null=True)
     

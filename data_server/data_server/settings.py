@@ -205,6 +205,7 @@ INTERNAL_MODEL_FIELDS = ['id', 'owner', 'deleted','created','modified']
 RESERVED_MODEL_FIELDS = INTERNAL_MODEL_FIELDS + ['uuid']
 COMET_SERVER = '127.0.0.1'
 COMET_PORT = 8080
+GEONAMES_USER = 'demo'
 
 # debug
 if DEBUG:

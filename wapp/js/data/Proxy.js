@@ -32,7 +32,7 @@ Ext.define('Sp.data.Proxy', {
             },
             limitParam: undefined,
             listeners: {
-                exception: Sp.ui.misc.reportException,
+                exception: Sp.ui.misc.reportProxyException,
             },
         });        
         this.callParent(arguments);
