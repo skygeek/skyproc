@@ -21,7 +21,7 @@ The first beta version is almost ready, it will be launched in mid November 2012
 
 - **Multi dropzones resources manager**: DZ description, aircrafts, staff members and catalogs. 
 - **Club members**: memberships, profiling and multi currencies accounts management. 
-- **Lift manager**: a real time loads manager with live informations broadcast and self manifesting capabilities.
+- **Lift manager**: a real time loads manager with live information broadcast and self manifesting capabilities.
 - **Automatic jump logbook maintainer** for members.
 - **Dropzone reporting**: detailed logs of loads and aggregated tables.
 
@@ -40,7 +40,7 @@ Another important goal of the beta period is to allow skydivers and dropzone ope
 When beta testing is complete, development of new features will resume. Here is a list of features in the bucket :
 
 1. **Finish the reservation module**, a preview will be available in the beta release but you can only use it to record reservations by hand, and those reservations cannot be used yet in loads manifesting.
-1. **Automatic lift manager**: a feature that let the software automatically create and fill loads based on members self manifesting and confirmed reservations that have checked in. This feature needs timing informations about aircrafts usage cycle, the fields to enter those informations are already present in the beta version, they are recorded but not yet used. 
+1. **Automatic lift manager**: a feature that let the software automatically create and fill loads based on members self manifesting and confirmed reservations that have checked in. This feature needs timing information about aircrafts usage cycle, the fields to enter those information are already present in the beta version, they are recorded but not yet used. 
 1. **Teams management**: let members create groups of interest (pro teams, club fellows, etc...) so they can handle their jumping in a different paradigm, for example it will be possible to create jump programs that includes multiple jumps with multiple slots and use those jump programs in reservations and manifesting to avoid repetitive data entry. Teams can also be used to do cross reservations and manifesting (reserving or manifesting other people) while offering a system for defining permissions (who can manifest who and for what).
 1. **Events management**: a module to create special events and facilitate their handling (slots needed, people involved, pricing, priorities, etc...). An example of that could be a boogie, a training camp or may be the 1000° jump of a friend that should occur on the sunset with all the team in the load for a memorable souvenir !
 1. **Competitions management**: this module is a companion of the events module and will be used to create competition like events with scoring calculations, rankings and broadcasting facilities. 
