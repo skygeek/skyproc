@@ -73,15 +73,13 @@ def register_sp_user(req, user):
     
     # send confirmation email
     subject = "Confirm email address for Skyproc.com"
-    msg = "Hi %s %s,\n\n" % (p.first_name, p.last_name)
+    name = "%s %s" % (p.first_name, p.last_name)
+    msg = "Hi %s,\n\n" % name.strip()
     msg += "You're using this inbox as an email address on Skyproc.com.\n\n"
     msg += "To confirm this is correct, please go to https://www.skyproc.com/validate/email/%s\n\n" % validation_link
     msg += "____________________\n"
     msg += "Skyproc.com"
-    
     send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
-    
-    
     
 def validate_captcha(challenge, response, remoteip):
     return captcha.submit(challenge, response, settings.CAPTCHA_PK, remoteip)
