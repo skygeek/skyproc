@@ -37,7 +37,8 @@ from utils import auth, misc
 
 def __get_model(model_name):
     model = models.get_model(settings.DATA_APP, model_name)
-    if model: return model
+    if model and (not hasattr(model, 'private') or not model.private):
+        return model
     raise Http404
 
 def __get_fields(model, config):
@@ -118,6 +119,8 @@ def __filter_fields(fields, filter):
     return filtered_fields
 
 def __include_relation(model, config, related_model):
+    if hasattr(related_model, 'private') and related_model.private:
+        return
     if config['public_view']:
         if not hasattr(model, 'public_relations') or not model.public_relations:
             return
@@ -753,10 +756,9 @@ def __DELETE(req, data_path):
 """ Main
 """ 
 def dispatch(req, data_path):
-    # auth
-    r = auth.is_user_authenticated(req)
-    if r is not True:
-        return r
+    
+    if not req.user.is_authenticated():
+        return HttpResponse('Unauthorized access', status=401)
     
     if settings.DEBUG:
         logging.debug('='*60)

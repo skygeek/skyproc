@@ -8,7 +8,7 @@ Want to install your own Skyproc server ? Go to the [SVA wiki page](https://gith
 
 ### What is Skyproc
 
-Skyproc is a free software project that aims to build a comprehensive and integrated application for the skydive industry, so to fulfill the needs of dropzones and skydivers. The global goals of Skyproc are to :
+Skyproc is a free software project that aims to build a comprehensive and integrated web application for the skydive industry, so to fulfill the needs of dropzones and skydivers. The global goals of Skyproc are to :
 
 - Create a centralized system using the latest Internet technologies to provide a real time platform where every actor can log in and manipulate the data relevant for him. 
 - Try to stay as flexible as possible within the system work flows and paradigms. 

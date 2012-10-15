@@ -1717,11 +1717,10 @@ function SRP(register, operation)
                         params += '&r=1';
                     }    
 	            } catch (e){}
-
                 that.ajaxRequest(url+that.paths("authenticate/"), params, confirm_authentication);
 		    }
 		    else if(xhr.responseXML.getElementsByTagName("error").length > 0)
-                that.error_message(xhr.responseXML.getElementsByTagName("error")[0]);
+                that.error_message(that.innerxml(xhr.responseXML.getElementsByTagName("error")[0]));
 	    }
     };
     // Calculate S, M, and M2

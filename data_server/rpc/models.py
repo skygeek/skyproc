@@ -76,6 +76,9 @@ def get(model_name):
     if model is None:
         raise Http404
     
+    if hasattr(model, 'private') and model.private:
+        raise Http404
+    
     if public_view and not hasattr(model, 'public_fields'):
         raise Http404
     
@@ -193,6 +196,8 @@ def get(model_name):
     
         # many to many fields
         for field in model._meta.many_to_many:
+            if hasattr(field.related.parent_model, 'private') and field.related.parent_model.private:
+                continue
             ret['fields'].append({'name':field.name})
             ret['associations'].append({
                 'type': 'hasMany',
@@ -204,6 +209,8 @@ def get(model_name):
         # related fk
         for r in model._meta.get_all_related_objects():
             #ret['fields'].append({'name':r.model._meta.object_name.lower()})
+            if hasattr(r.model, 'private') and r.model.private:
+                continue
             ret['associations'].append({
                 'type': 'hasMany',
                 'model': r.model._meta.object_name,
@@ -213,6 +220,8 @@ def get(model_name):
         # related m2m
         for r in model._meta.get_all_related_many_to_many_objects():
             #ret['fields'].append({'name':r.model._meta.object_name.lower()})
+            if hasattr(r.model, 'private') and r.model.private:
+                continue
             ret['associations'].append({
                 'type': 'hasMany',
                 'model': r.model._meta.object_name,
@@ -224,6 +233,8 @@ def get(model_name):
 def getAll():
     ret = {}
     for m in models.get_models(__import__(settings.DATA_APP).models):
+        if hasattr(m, 'private') and m.private:
+            continue
         ret[m._meta.object_name] = get(m._meta.object_name)
         if hasattr(m, 'public_fields'):
             ret[m._meta.object_name+'_P'] = get(m._meta.object_name+'_P')

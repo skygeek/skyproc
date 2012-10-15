@@ -27,6 +27,7 @@ from utils import auth
 from utils import weather
 
 Person = models.get_model(settings.DATA_APP, 'Person')
+EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
 
 def login(req, prod=None):
     if req.user.is_authenticated():
@@ -58,22 +59,37 @@ def registration_succeeded(req):
     c = {}
     c['title'] = "Registration succeeded !"
     c['msg'] = "Check your email inbox, you will have received an email containing the link to activate your account."
+    c['link_text'] = "Return"
     return render_to_response('login_msg.html', c)
 
 def password_reset_succeeded(req):
     c = {}
     c['title'] = "Mail sent !"
     c['msg'] = "Check your email inbox, you will have received an email containing the link to reset your password."
+    c['link_text'] = "Return"
     return render_to_response('login_msg.html', c)
     
 def validate_registration(req):
     # FIXME: complete validation and error notification
         
-    result = auth.validate_captcha(req.POST['challenge'], req.POST['response'], req.META['REMOTE_ADDR'])
-    if result.is_valid:
+    #result = auth.validate_captcha(req.POST['challenge'], req.POST['response'], req.META['REMOTE_ADDR'])
+    #if result.is_valid:
+    if True:
         return HttpResponse()
     else:
         return HttpResponse(result.error_code)
+
+def validate_email(req, validation_link):
+    try: v = EmailValidation.objects.get(validation_link=validation_link)
+    except EmailValidation.DoesNotExist: raise Http404
+    v.delete()
+    user = django.contrib.auth.authenticate(username=v.email, M=(None, None))
+    django.contrib.auth.login(req, user)
+    c = {}
+    c['title'] = "Account activated"
+    c['msg'] = "%s has been confirmed as your Skyproc email address. Thank you for registering !" % v.email
+    c['link_text'] = "Enter Skyproc"
+    return render_to_response('login_msg.html', c)
 
 # use urls as triggers for periodic jobs
 # those views are restricted to the localhost

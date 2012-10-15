@@ -33,7 +33,7 @@ class Person(base.Model):
     is_pro_jumper = models.BooleanField(default=False)
     is_dz_operator = models.BooleanField(default=True)
     is_tn_operator = models.BooleanField(default=False)
-    self_created = models.BooleanField(default=True)
+    self_created = models.BooleanField(default=False)
     
     email = models.EmailField()
     
@@ -77,16 +77,15 @@ class Person(base.Model):
     def __unicode__(self):
         return self.email
     
-    def save(self, *args, **kwargs):
-        self_create = kwargs.has_key('self_create') and kwargs['self_create']
-        force_insert = kwargs.has_key('force_insert') and kwargs['force_insert']
-        if force_insert and not self_create:
-            self.self_created = False
-        if kwargs.has_key('self_create'):
-            del kwargs['self_create']
-        super(Person, self).save(*args, **kwargs)
 
-
+class EmailValidation(models.Model):
+    private = True
+    
+    person = models.ForeignKey('Person')
+    email = models.EmailField()
+    validation_link = models.CharField(max_length=128)
+    
+    
 class Phantom(base.Model):
     isolated = True
     auto_create_related = True
@@ -95,3 +94,4 @@ class Phantom(base.Model):
     name = models.CharField(max_length=128)
     phone = models.CharField(max_length=32, blank=True, null=True)
     weight = models.IntegerField(default=100)
+

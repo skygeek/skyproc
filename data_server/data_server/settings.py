@@ -4,8 +4,16 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Nabil SEFRIOUI', 'nabil.sefrioui@gmail.com'),
+    ('Nabil SEFRIOUI', 'contact@skyproc.com'),
 )
+
+EMAIL_HOST = 'smtpout.secureserver.net'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = True
+
+EMAIL_HOST = '127.0.0.1'
+EMAIL_PORT = 1025
+EMAIL_USE_TLS = False
 
 MANAGERS = ADMINS
 
@@ -205,7 +213,9 @@ INTERNAL_MODEL_FIELDS = ['id', 'owner', 'deleted','created','modified']
 RESERVED_MODEL_FIELDS = INTERNAL_MODEL_FIELDS + ['uuid']
 COMET_SERVER = '127.0.0.1'
 COMET_PORT = 8080
+CAPTCHA_PK = "6LeUg9cSAAAAAKcG0s5mYSXd_oS3brfZITYxT32f"
 GEONAMES_USER = 'demo'
+SENDER_EMAIL = "contact@skyproc.com"
 
 # debug
 if DEBUG:
@@ -215,3 +225,4 @@ if DEBUG:
         format = '%(asctime)s %(levelname)s %(message)s',
         filename = '/home/pck/work/skyproc/tmp/django.log',
     )
+

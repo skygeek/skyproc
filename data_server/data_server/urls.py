@@ -23,6 +23,9 @@ urlpatterns = patterns('',
     (r'^handshake/$', srp.views.handshake),
     (r'^authenticate/$', srp.views.verify),
     
+    # validate email
+    url(r'^validate/email/(?P<validation_link>.*$)', 'ui.views.validate_email'), 
+    
     (r'^registration-succeeded/$', 'ui.views.registration_succeeded'),
     (r'^password-reset-succeeded/$', 'ui.views.password_reset_succeeded'),
     

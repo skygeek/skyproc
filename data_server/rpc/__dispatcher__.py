@@ -24,10 +24,9 @@ import pprint
 from utils import auth
 
 def dispatch(req, rpc_path):
-    # auth
-    r = auth.is_user_authenticated(req)
-    if r is not True:
-        return r
+    
+    if not req.user.is_authenticated():
+        return HttpResponse('Unauthorized access', status=401)
     
     # respond only to POST requests
     if req.method != 'POST':
