@@ -54,7 +54,7 @@
 			</form>
 			
 			
-			<form action="/reset/password/" method="post" id="reset_password" style="display:none">{% csrf_token %}
+			<form action="/reset/password/" method="post" id="reset_password" onsubmit="return disableSubmitButton()" style="display:none">{% csrf_token %}
 				<div class="top_b">Can't log in?</div>    
 					<div class="alert alert-info alert-login">
 					Please enter your email address. You will receive a link to create a new password via email.

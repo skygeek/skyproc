@@ -33,8 +33,9 @@ $(document).ready(function(){
         e.preventDefault();
     });
     
+    
     //* validation
-    $('#login').validate({
+    login_validator = $('#login').validate({
         onkeyup: false,
         errorClass: 'error',
         validClass: 'valid',
@@ -167,13 +168,31 @@ $(document).ready(function(){
     });
 });
 
+
+function disableSubmitButton(fields) {
+    fields = fields || [];
+    var form = form_wrapper.find('form:visible');
+    var submit_bt = form.find(':submit');
+    submit_bt.attr("disabled", true);
+    submit_bt.css('cursor', 'wait');
+    $('body').css('cursor', 'wait');
+    for (var i=0,f ; f=fields[i] ; i++){
+        f = form.find(f);
+        if (f){
+            f.attr("disabled", true);
+            f.css('cursor', 'wait');
+        }
+    }    
+}
+
 function login() {
     // form validation
     if (!$('#login').valid()){
-        return;
+        return false;
     }
     // login
     srp = new SRP();
+    srp.setBusy(true);
     srp.identify();
     return false;
 }
@@ -181,10 +200,12 @@ function login() {
 function register() {
     // form validation
     if (!$('#register').valid()){
-        return;
+        return false;
     }
     var srp = new SRP(true);
-    // registration validation
+    srp.setBusy(true);
+    // FIXME: THIS IS NOT SECURE, captcha validation code must be moved inside the srp
+    // process, especially in server side !!!
     var params = '';
     params += "email="+encodeURIComponent(document.getElementById("r_email").value);
     params += "&challenge="+encodeURIComponent(Recaptcha.get_challenge());
@@ -198,7 +219,6 @@ function doRegister(srp){
     if(xhr.readyState == 4 && xhr.status == 200) {
         if (xhr.responseText.length == 0){
             srp.register();
-        // FIXME: complete error handling: duplicate email and err msg display
         } else {
             Recaptcha.reload();
         }
@@ -208,8 +228,9 @@ function doRegister(srp){
 function reset_pwd() {
     // form validation
     if (!$('#reset_pwd').valid()){
-        return;
+        return false;
     }
+    disableSubmitButton(['#password', '#confirm_password']);
     s = new SRP(null, {
         email: document.getElementById("email").value,
         password: document.getElementById("password").value,

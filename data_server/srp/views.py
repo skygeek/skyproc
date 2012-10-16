@@ -43,7 +43,7 @@ def generate_verifier(salt, username, password):
 
 # Step 1. A client submits a username. If the username is available, we generate a salt, store it, and return it.
 # Otherwise, we return an error.
-def register_salt(request):
+def register_salt(request):    
     if User.objects.filter(username=request.POST["I"]).count() > 0:
         return HttpResponse("<error>Username already in use</error>", mimetype="text/xml")
     request.session["srp_name"] = request.POST["I"]
@@ -90,6 +90,10 @@ def alter_user(request):
 # Step 1: The user sends an identifier and public ephemeral key, A
 # The server responds with the salt and public ephemeral key, B
 def handshake(request):
+    
+    import time
+    time.sleep(5)
+    
     randomgen = random.SystemRandom()
     request.session["srp_I"] = request.POST["I"]
     A = int(request.POST["A"], 16)

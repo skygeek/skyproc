@@ -69,8 +69,8 @@ def register_sp_user(req, user):
                               email=req.session["srp_name"], owner=user, self_created=True)
     
     # do not require email validation when debuggin
-    #if settings.DEBUG:
-    #    return
+    if settings.DEBUG:
+        return
     
     # email validation record
     validation_link = misc.get_tmp_link()
@@ -100,6 +100,10 @@ def create_pwd_reset_request(user):
     p = Person.objects.getOwn(user)
     reset_link = misc.get_tmp_link()
     PasswordResetRequest.objects.create(person=p, reset_link=reset_link)
+    
+    # do not send email in debug mode
+    if settings.DEBUG:
+        return
     
     # send pwd reset email
     subject = "Reset password for Skyproc.com"

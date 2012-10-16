@@ -1803,12 +1803,51 @@ function SRP(register, operation)
     };*/
     // If an error occurs, raise it as an alert.
     // Developers can set this to an alternative function to handle erros differently.
-    this.error_message = function(t)
+    this.error_message = function(msg)
     {
-        if (operation){
-            operation.callback(false);
+        if (operation && operation.callback){
+            operation.callback(false, msg);
         } else {
-            alert(t);
+            try {
+                var validator = $(form_wrapper.find('form:visible')).validate();
+                var field = register === true ? 'r_email' : 'email';
+                var error = {};
+                error[field] = msg;
+                validator.showErrors(error);
+                that.setBusy(false);
+            } catch(e){
+                alert(msg);
+            }
+        }
+    };
+    
+    this.setBusy = function(busy){
+        if (typeof(form_wrapper) == 'undefined'){
+            return;
+        }
+        
+        var cursor = busy === true ? 'wait' : 'auto';
+        $('body').css('cursor', cursor);
+        
+        var form = form_wrapper.find('form:visible');
+        form_wrapper.css('cursor', cursor);
+        
+        var submit_bt = form.find(':submit');
+        submit_bt.attr("disabled", busy);
+        submit_bt.css('cursor', cursor);
+        
+        // disable fields
+        if (register){
+            var fields = ['#r_fullname', '#r_email', '#r_password', '#confirm_password', '#recaptcha_response_field'];
+        } else {
+            var fields = ['#email', '#password', '#remember'];
+        }
+        for (var i=0,f ; f=fields[i] ; i++){
+            f = form.find(f);
+            if (f){
+                f.attr("disabled", busy);
+                f.css('cursor', cursor);
+            }
         }
         
     };
@@ -1817,3 +1856,4 @@ function SRP(register, operation)
 // It gets a list of all <script> tags and finds the last instance.
 // The path to this script is the "src" attribute of that tag.
 SRP.prototype.srpPath = document.getElementsByTagName('script')[document.getElementsByTagName('script').length-1].getAttribute("src");
+
