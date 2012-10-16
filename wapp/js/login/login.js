@@ -70,19 +70,19 @@ $(document).ready(function(){
         rules: {
             r_fullname: { required: true },
             r_email: { required: true, email: true },
-            r_password: { required: true, minlength: 5 },
-            confirm_password: { required: true, minlength: 5, equalTo: "#r_password" },
+            r_password: { required: true, minlength: 6 },
+            confirm_password: { required: true, minlength: 6, equalTo: "#r_password" },
         },
         messages: {
             r_fullname: "Please enter your name",
             r_email: "Please enter your email address",
             r_password: {
                 required: "Please provide a password",
-                minlength: "Password must be at least 5 characters long"
+                minlength: "Password must be at least 6 characters long"
             },
             confirm_password: {
                 required: "Please enter the password confirmation",
-                minlength: "Password must be at least 5 characters long",
+                minlength: "Password must be at least 6 characters long",
                 equalTo: "The passwords you entered are different"
             },
         },
@@ -112,6 +112,42 @@ $(document).ready(function(){
         },
         messages: {
             s_email: "Please enter your email address",
+        },
+        highlight: function(element) {
+            $(element).closest('div').addClass("f_error");
+            setTimeout(function() {
+                boxHeight()
+            }, 200)
+        },
+        unhighlight: function(element) {
+            $(element).closest('div').removeClass("f_error");
+            setTimeout(function() {
+                boxHeight()
+            }, 200)
+        },
+        errorPlacement: function(error, element) {
+            $(element).closest('div').append(error);
+        }
+    });
+    
+    $('#reset_pwd').validate({
+        onkeyup: false,
+        errorClass: 'error',
+        validClass: 'valid',
+        rules: {
+            password: { required: true, minlength: 6 },
+            confirm_password: { required: true, minlength: 6, equalTo: "#password" },
+        },
+        messages: {
+            password: {
+                required: "Please provide a password",
+                minlength: "Password must be at least 6 characters long"
+            },
+            confirm_password: {
+                required: "Please enter the password confirmation",
+                minlength: "Password must be at least 6 characters long",
+                equalTo: "The passwords you entered are different"
+            },
         },
         highlight: function(element) {
             $(element).closest('div').addClass("f_error");
@@ -167,4 +203,21 @@ function doRegister(srp){
             Recaptcha.reload();
         }
     }
+}
+
+function reset_pwd() {
+    // form validation
+    if (!$('#reset_pwd').valid()){
+        return;
+    }
+    s = new SRP(null, {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        change_password: true, 
+        callback: function(success){
+            window.location = success === true ? '/password-reset-succeeded/' : '/';
+        },
+    });
+    s.register();
+    return false;
 }

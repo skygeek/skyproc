@@ -3,7 +3,7 @@ import string
 import random
 import datetime
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
@@ -50,6 +50,14 @@ def register_salt(request):
     request.session["srp_salt"] = generate_salt()
     return HttpResponse("<salt>%s</salt>" % request.session["srp_salt"], mimetype="text/xml")
 
+def alter_salt(request):
+    #FIXME: return a fake salt instead of raising Http404
+    try: User.objects.get(username=request.POST["I"])
+    except ObjectDoesNotExist: raise Http404
+    request.session["srp_name"] = request.POST["I"]
+    request.session["srp_salt"] = generate_salt()
+    return HttpResponse("<salt>%s</salt>" % request.session["srp_salt"], mimetype="text/xml")
+
 # Step 2. The client creates the password verifier and sends it to the server, along with a username.
 def register_user(request):
     u = SRPUser(salt=request.session["srp_salt"], username=request.session["srp_name"], verifier=request.POST["v"])
@@ -59,6 +67,20 @@ def register_user(request):
     del request.session["srp_name"]
     return HttpResponse("<ok/>", mimetype="text/xml")
     
+def alter_user(request):
+    try: u = SRPUser.objects.get(username=request.session["srp_name"])
+    except ObjectDoesNotExist: raise Http404
+    u.salt = request.session["srp_salt"]
+    u.verifier=request.POST["v"]
+    u.save()
+    utils.auth.cancel_pwd_reset_request(u)
+    # authentificate the user here so he can login right away after password reset
+    user = authenticate(username=u.username, M=(None, None))
+    login(request, user)
+    del request.session["srp_salt"]
+    del request.session["srp_name"]
+    return HttpResponse("<ok/>", mimetype="text/xml")
+
 # Step 3: The client initiates the login process.
 
 ###

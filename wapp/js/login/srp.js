@@ -1598,6 +1598,11 @@ function SRP(register, operation)
     }
     
     // *** Accessor methods ***
+    
+    this.getOperation = function()
+    {
+        return operation;
+    };
 
     // Returns the user's identity
     this.getI = function()
@@ -1652,7 +1657,7 @@ function SRP(register, operation)
     };
 
     // Check whether or not a variable is defined
-    function isdefined ( variable)
+    function isdefined (variable)
     {
         return (typeof(window[variable]) != "undefined");
     };    
@@ -1679,7 +1684,7 @@ function SRP(register, operation)
             xhr.onreadystatechange = callback;
             xhr.open("POST", full_url, true);
             try {
-                if (operation){
+                if (operation && operation.csrf){
                     var csrfToken = operation.csrf;
                 } else {
                     var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;

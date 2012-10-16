@@ -6,11 +6,12 @@ function SRP_REGISTER()
     SRP.prototype.register = function()
     {
         that = this;
-        var handshake_url = this.geturl() + this.paths("register/salt/");
+        var operation = this.getOperation();
         var params = "I="+this.getI();
-        this.ajaxRequest(handshake_url, params, this.register_receive_salt);
+        var path = (operation && operation.change_password) ? 'alter/salt/' : 'register/salt/';
+        this.ajaxRequest(this.geturl() + path, params, this.register_receive_salt);
     };
-
+    
     // Receive the salt for registration
     SRP.prototype.register_receive_salt = function()
     {
@@ -32,12 +33,13 @@ function SRP_REGISTER()
         // Send the verifier to the server
     SRP.prototype.register_send_verifier = function(v)
     {
+        var operation = that.getOperation();
         var params = "v="+v;
         try {
             params += "&fullname=" + encodeURIComponent(document.getElementById("r_fullname").value);
         } catch(e){}
-        var auth_url = that.geturl() + that.paths("register/user/");
-        that.ajaxRequest(auth_url, params, that.register_user);
+        var path = (operation && operation.change_password) ? 'alter/user/' : 'register/user/';
+        that.ajaxRequest(that.geturl() + path, params, that.register_user);
     };
 
     // The user has been registered successfully, now login
@@ -47,7 +49,16 @@ function SRP_REGISTER()
         if(xhr.readyState == 4 && xhr.status == 200) {
 	        if(xhr.responseXML.getElementsByTagName("ok").length > 0)
 	        {
-	            window.location = '/registration-succeeded/';
+	            var operation = that.getOperation();
+	            if (operation && operation.change_password){
+	                operation.callback(true);
+	            } else {
+	                window.location = '/registration-succeeded/';
+	            }
+            }
+            else if(xhr.responseXML.getElementsByTagName("error").length > 0)
+            {
+                that.error_message(that.innerxml(xhr.responseXML.getElementsByTagName("error")[0]));
             }
         }
     };  

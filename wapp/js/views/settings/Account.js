@@ -70,25 +70,38 @@ Ext.define('Sp.views.settings.Account', {
                     },
                     items:[
                         {
-                            name: 'email',
-                            xtype: 'textfield',
-                            fieldLabel: 'Email',
-                            allowBlank: false,
-                            readOnly: true,
+                            xtype: 'fieldcontainer',
+                            fieldLabel: TR("Current email address"),
+                            labelWidth: 145,
+                            layout: {
+                                type: 'hbox',
+                            },
+                            items: [
+                                {
+                                    name: 'email',
+                                    xtype: 'textfield',
+                                    readOnly: true,
+                                    width: 290,
+                                },
+                                {
+                                    xtype: 'button',
+                                    text: TR("Change email address"),
+                                    icon: '/static/images/icons/mail.png',
+                                    margin: '0 0 0 12',
+                                },
+                                {
+                                    xtype: 'button',
+                                    text: TR("Change password"),
+                                    icon: '/static/images/icons/password.png',
+                                    margin: '0 0 0 8',
+                                    handler: function(){
+                                        Sp.ui.misc.passwordAction(function(c){
+                                            Ext.create('Sp.views.settings.ChangePassword', {c:c}).show();
+                                        }, null, TR("Please type your current password"));
+                                    },
+                                },
+                            ],
                         },
-                        {
-                            xtype: 'textfield',
-                            inputType: 'password',
-                            fieldLabel: TR("Password"),
-                            value: '############',
-                        },
-                        {
-                            xtype: 'textfield',
-                            inputType: 'password',
-                            fieldLabel: TR("Confirmation"),
-                            value: '############',
-                        }
-                        
                     ],
                 },
             ],
@@ -103,9 +116,11 @@ Ext.define('Sp.views.settings.Account', {
     },
     
     save: function(){
-        var profile_changed = (this.form.findField('is_consumer').getValue() != Sp.app.isCm() 
+        /*var profile_changed = (this.form.findField('is_consumer').getValue() != Sp.app.isCm() 
                                 || this.form.findField('is_dz_operator').getValue() != Sp.app.isDzOp() 
-                                || this.form.findField('is_tn_operator').getValue() != Sp.app.isTnOp());
+                                || this.form.findField('is_tn_operator').getValue() != Sp.app.isTnOp());*/
+        var profile_changed = (this.form.findField('is_consumer').getValue() != Sp.app.isCm() 
+                                || this.form.findField('is_dz_operator').getValue() != Sp.app.isDzOp());
         if (profile_changed){
             this.callParent([false, true]);
             Ext.MessageBox.confirm(TR("Profile change"), 

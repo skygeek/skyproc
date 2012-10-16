@@ -15,19 +15,23 @@
 # You should have received a copy of the GNU Affero General Public 
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
-import django.contrib.auth 
+import time
+import django.contrib.auth
+from django.conf import settings 
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.middleware import csrf
 from django.core import context_processors
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 
 from utils import auth
 from utils import weather
+from utils import misc
 
 Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
+PasswordResetRequest = models.get_model(settings.DATA_APP, 'PasswordResetRequest')
 
 def login(req, prod=None):
     if req.user.is_authenticated():
@@ -61,20 +65,12 @@ def registration_succeeded(req):
     c['msg'] = "Check your email inbox, you will have received an email containing the link to activate your account."
     c['link_text'] = "Return"
     return render_to_response('login_msg.html', c)
-
-def password_reset_succeeded(req):
-    c = {}
-    c['title'] = "Mail sent !"
-    c['msg'] = "Check your email inbox, you will have received an email containing the link to reset your password."
-    c['link_text'] = "Return"
-    return render_to_response('login_msg.html', c)
     
 def validate_registration(req):
     # FIXME: complete validation and error notification
         
-    #result = auth.validate_captcha(req.POST['challenge'], req.POST['response'], req.META['REMOTE_ADDR'])
-    #if result.is_valid:
-    if True:
+    result = auth.validate_captcha(req.POST['challenge'], req.POST['response'], req.META['REMOTE_ADDR'])
+    if result.is_valid:
         return HttpResponse()
     else:
         return HttpResponse(result.error_code)
@@ -88,6 +84,38 @@ def validate_email(req, validation_link):
     c = {}
     c['title'] = "Account activated"
     c['msg'] = "%s has been confirmed as your Skyproc email address. Thank you for registering !" % v.email
+    c['link_text'] = "Enter Skyproc"
+    return render_to_response('login_msg.html', c)
+
+def reset_password(req, reset_link):
+    
+    if req.method == 'GET' and reset_link:
+        try: r = PasswordResetRequest.objects.get(reset_link=reset_link)
+        except PasswordResetRequest.DoesNotExist: raise Http404
+        c = context_processors.csrf(req)
+        c['email'] = r.person.email
+        return render_to_response('pwd_reset.html', c)
+        
+    if req.method == 'POST':
+        try:
+            user = User.objects.get(username=req.POST['s_email'])
+            auth.create_pwd_reset_request(user)
+        except:
+            misc.fake_processing(2, 5) # dont return too quickly
+        # always return "mail sent" message even if no message was sent
+        # otherwise it can be possible to check if an email exists in the database
+        c = {}
+        c['title'] = "Mail sent !"
+        c['msg'] = "Check your email inbox, you will have received an email containing the link to reset your password."
+        c['link_text'] = "Return"
+        return render_to_response('login_msg.html', c)
+    
+    raise Http404
+
+def password_reset_succeeded(req):
+    c = {}
+    c['title'] = "Password changed !"
+    c['msg'] = "Your new password has been saved."
     c['link_text'] = "Enter Skyproc"
     return render_to_response('login_msg.html', c)
 

@@ -18,6 +18,8 @@
 import uuid
 import logging
 import cjson
+import random
+import time
 from django.conf import settings
 
 def validate_uuid(uuid_str):
@@ -74,3 +76,14 @@ def update_prices(price, prices):
         if not prices.has_key(k):
             prices[k] = 0
         prices[k] += v
+
+def get_tmp_link():
+    link = ''
+    for i in range(2):
+        link += str(uuid.uuid4()).replace('-','')
+    return link[:48]
+
+def fake_processing(a, b):
+    for i in range(random.randint(a, b)):
+        time.sleep(random.random())
+    

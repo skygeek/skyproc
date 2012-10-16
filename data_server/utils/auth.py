@@ -17,7 +17,6 @@
 
 import datetime
 import logging
-import uuid
 import cjson
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseServerError
 from django.contrib.sessions.models import Session
@@ -28,10 +27,12 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db import models
 
+import misc
 from recaptcha.client import captcha
 
 Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
+PasswordResetRequest = models.get_model(settings.DATA_APP, 'PasswordResetRequest')
 
 def is_email_verified(user):
     p = Person.objects.getOwn(user)
@@ -66,9 +67,13 @@ def register_sp_user(req, user):
     # create Person record owned by the associated django user
     p = Person.objects.create(first_name=first_name, last_name=last_name, \
                               email=req.session["srp_name"], owner=user, self_created=True)
-    validation_link = ''
-    for i in range(4):
-        validation_link += str(uuid.uuid4()).replace('-','')
+    
+    # do not require email validation when debuggin
+    #if settings.DEBUG:
+    #    return
+    
+    # email validation record
+    validation_link = misc.get_tmp_link()
     EmailValidation.objects.create(person=p, email=p.email, validation_link=validation_link)
     
     # send confirmation email
@@ -76,11 +81,38 @@ def register_sp_user(req, user):
     name = "%s %s" % (p.first_name, p.last_name)
     msg = "Hi %s,\n\n" % name.strip()
     msg += "You're using this inbox as an email address on Skyproc.com.\n\n"
-    msg += "To confirm this is correct, please go to https://www.skyproc.com/validate/email/%s\n\n" % validation_link
-    msg += "____________________\n"
+    msg += "To confirm this is correct, please go to https://%s/validate/email/%s\n\n" % \
+            (settings.SP_HOME_URL, validation_link)
+    msg += "____________\n"
     msg += "Skyproc.com"
     send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
     
 def validate_captcha(challenge, response, remoteip):
+    # returns a fake ok result when debug is on
+    if settings.DEBUG:
+        class Result: pass
+        r = Result()
+        r.is_valid = True
+        return r
     return captcha.submit(challenge, response, settings.CAPTCHA_PK, remoteip)
- 
+
+def create_pwd_reset_request(user):
+    p = Person.objects.getOwn(user)
+    reset_link = misc.get_tmp_link()
+    PasswordResetRequest.objects.create(person=p, reset_link=reset_link)
+    
+    # send pwd reset email
+    subject = "Reset password for Skyproc.com"
+    name = "%s %s" % (p.first_name, p.last_name)
+    msg = "Hi %s,\n\n" % name.strip()
+    msg += "Someone (probably you) has requested a new password for your account on Skyproc.com.\n\n"
+    msg += "To confirm this and create a new password, please go to https://%s/reset/password/%s\n\n" % \
+            (settings.SP_HOME_URL, reset_link)
+    msg += "Otherwise, simply ignore this message.\n\n"
+    msg += "____________\n"
+    msg += "Skyproc.com"
+    send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
+
+def cancel_pwd_reset_request(user):
+    p = Person.objects.getOwn(user)
+    PasswordResetRequest.objects.filter(person=p).delete()

@@ -66,6 +66,7 @@ Ext.define('Sp.ui.LockWindow', {
         
     unlock: function(){
         this.down('#unlockBt').disable();
+        this.body.mask(TR("Unlocking"));
         s = new SRP(null, {
             email: Data.me.data.email,
             password: this.down('#pwd').getValue(),
@@ -82,6 +83,7 @@ Ext.define('Sp.ui.LockWindow', {
         } else {
             this.down('#pwd').markInvalid(TR("Incorrect password"));
             this.down('#unlockBt').enable();
+            this.body.unmask();
         }
     },
     

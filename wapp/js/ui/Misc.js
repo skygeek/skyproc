@@ -38,6 +38,15 @@ Sp.ui.misc.warnMsg = function(msg, title){
     });
 }
 
+Sp.ui.misc.okMsg = function(msg, title){
+    Ext.MessageBox.show({
+        title: title ? title : TR("Information"),
+        msg: msg,
+        buttons: Ext.MessageBox.OK,
+        icon: Ext.MessageBox.INFO,
+    });
+}
+
 Sp.ui.misc.reportProxyException = function(proxy, response, operation){
     
     if (response.status == 401){
@@ -319,8 +328,9 @@ Sp.ui.misc.getCatalogElementLabel = function(element){
     return label;
 }
 
-Sp.ui.misc.passwordAction = function(callback, previous_pwd){
-    var msgbox = Ext.Msg.prompt(TR("Please type your password"), '', function(btn, pwd){
+Sp.ui.misc.passwordAction = function(callback, previous_pwd, title){
+    title = title || TR("Please type your password");
+    var msgbox = Ext.Msg.prompt(title, '', function(btn, pwd){
         if (btn == 'ok'){
             s = new SRP(null, {
                 email: Data.me.data.email,
@@ -328,7 +338,7 @@ Sp.ui.misc.passwordAction = function(callback, previous_pwd){
                 csrf: Ext.util.Cookies.get('csrftoken'), 
                 callback: function(verified){
                     if (verified){
-                        callback();
+                        callback(pwd);
                     } else {
                         Sp.ui.misc.passwordAction(callback, pwd);
                     }

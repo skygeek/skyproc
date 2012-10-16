@@ -159,6 +159,14 @@ GNU Affero General Public License for more details.",
 		    "path": "/static/js/views/settings/"
 		},
 		{
+            "name": "ChangePassword.js",
+            "path": "/static/js/views/settings/"
+        },
+        {
+            "name": "ChangeEmail.js",
+            "path": "/static/js/views/settings/"
+        },
+		{
 		    "name": "JumperProfile.js",
 		    "path": "/static/js/views/settings/"
 		},

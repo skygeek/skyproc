@@ -81,10 +81,17 @@ class Person(base.Model):
 class EmailValidation(models.Model):
     private = True
     
+    created =  models.DateTimeField(auto_now_add=True)
     person = models.ForeignKey('Person')
     email = models.EmailField()
-    validation_link = models.CharField(max_length=128)
+    validation_link = models.CharField(max_length=48)
     
+class PasswordResetRequest(models.Model):
+    private = True
+    
+    created =  models.DateTimeField(auto_now_add=True)
+    person = models.ForeignKey('Person')
+    reset_link = models.CharField(max_length=48)
     
 class Phantom(base.Model):
     isolated = True
@@ -94,4 +101,3 @@ class Phantom(base.Model):
     name = models.CharField(max_length=128)
     phone = models.CharField(max_length=32, blank=True, null=True)
     weight = models.IntegerField(default=100)
-
