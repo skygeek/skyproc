@@ -21,7 +21,7 @@ $(document).ready(function(){
                 $(target).fadeIn(400);
                 $('.links_btm .linkform').toggle();
                 $(form_wrapper).css({
-                    'height'        : ''
+                    'height': '',
                 }); 
                 if (target == '#register'){                               
                    Recaptcha.create("6LeUg9cSAAAAAGY1_FuDoKgtUAXWUoY2do5sqTAa", "captcha", {
@@ -35,7 +35,7 @@ $(document).ready(function(){
     
     
     //* validation
-    login_validator = $('#login').validate({
+    $('#login').validate({
         onkeyup: false,
         errorClass: 'error',
         validClass: 'valid',

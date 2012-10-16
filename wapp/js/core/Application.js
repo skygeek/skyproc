@@ -299,14 +299,8 @@ Ext.define('Sp.core.Application', {
                     border: 0,
                     items: [
                     
-                        { xtype: 'tbspacer', width: 20 },
+                        { xtype: 'tbspacer', width: 10 },
                         
-                        /*{
-                            xtype: 'label',
-                            baseCls: 'logo-icon',
-                            width: 14,
-                            height: 14,
-                        },*/
                         {
                             xtype: 'label',
                             baseCls: 'logo-text',
@@ -314,7 +308,7 @@ Ext.define('Sp.core.Application', {
                             text: Sp.core.Globals.BRAND,
                         },
                         
-                        { xtype: 'tbspacer', width: 70 },
+                        { xtype: 'tbspacer', width: 80 },
                         
                         {
                             xtype: 'textfield',

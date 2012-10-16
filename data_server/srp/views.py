@@ -41,17 +41,19 @@ def generate_verifier(salt, username, password):
 ### User Registration
 ###
 
+# FIXME: register_salt and alter_salt can leak information about user existance !
+# FIXME: captcha verification must be done here...
+
 # Step 1. A client submits a username. If the username is available, we generate a salt, store it, and return it.
 # Otherwise, we return an error.
-def register_salt(request):    
+def register_salt(request):
     if User.objects.filter(username=request.POST["I"]).count() > 0:
-        return HttpResponse("<error>Username already in use</error>", mimetype="text/xml")
+        return HttpResponse("<error>This email address is already in use</error>", mimetype="text/xml")
     request.session["srp_name"] = request.POST["I"]
     request.session["srp_salt"] = generate_salt()
     return HttpResponse("<salt>%s</salt>" % request.session["srp_salt"], mimetype="text/xml")
 
 def alter_salt(request):
-    #FIXME: return a fake salt instead of raising Http404
     try: User.objects.get(username=request.POST["I"])
     except ObjectDoesNotExist: raise Http404
     request.session["srp_name"] = request.POST["I"]
@@ -66,7 +68,8 @@ def register_user(request):
     del request.session["srp_salt"]
     del request.session["srp_name"]
     return HttpResponse("<ok/>", mimetype="text/xml")
-    
+
+# alter user password
 def alter_user(request):
     try: u = SRPUser.objects.get(username=request.session["srp_name"])
     except ObjectDoesNotExist: raise Http404
@@ -90,10 +93,6 @@ def alter_user(request):
 # Step 1: The user sends an identifier and public ephemeral key, A
 # The server responds with the salt and public ephemeral key, B
 def handshake(request):
-    
-    import time
-    time.sleep(5)
-    
     randomgen = random.SystemRandom()
     request.session["srp_I"] = request.POST["I"]
     A = int(request.POST["A"], 16)
@@ -102,7 +101,7 @@ def handshake(request):
     N = 125617018995153554710546479714086468244499594888726646874671447258204721048803
     k = 88846390364205216646376352624313659232912717719075174937149043299744712465496
     if A % N == 0:
-        return HttpResponse("<error>Invalid ephemeral key.</error>", mimetype="text/xml")
+        return HttpResponse("<error>Authentication error</error>", mimetype="text/xml")
 
     try:
         user = User.objects.get(username=request.session["srp_I"]) 
@@ -142,7 +141,7 @@ def verify(request):
         else:
             response = "<error>Email not verified</error>"
     else:
-        response = "<error>Invalid username or password.</error>"
+        response = "<error>Incorrect password or email address</error>"
 
     try:
         del request.session["srp_I"]

@@ -45,6 +45,7 @@ When beta testing is complete, development of new features will resume. Here is 
 1. **Events management**: a module to create special events and facilitate their handling (slots needed, people involved, pricing, priorities, etc...). An example of that could be a boogie, a training camp or may be the 1000° jump of a friend that should occur on the sunset with all the team in the load for a memorable souvenir !
 1. **Competitions management**: this module is a companion of the events module and will be used to create competition like events with scoring calculations, rankings and broadcasting facilities. 
 1. **Public reservation plugin**: a web page that can be used publicly (without registering to Skyproc) to book for tandems mainly but not exclusively. The catalog module will propose an interface to customize the public offering. The plugin can be used either as a standalone web page or can be integrated into the dropzone website.
+1. **Affiliations management**: a generic system to create affiliations (with other dropzones and/or members) and set custom prices and commissions.
 1. **Wind tunnel management**: extend all features related to aircrafts management for handling vertical wind tunnels, there is a lot of similarities between the two and often people are the same. There is also locations that both offers aircraft jumps and tunnel time, so the benefits of a global system are obvious.
 
 The items bellow are some "not yet very clear" ideas that can be implemented :

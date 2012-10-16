@@ -1825,14 +1825,11 @@ function SRP(register, operation)
         if (typeof(form_wrapper) == 'undefined'){
             return;
         }
-        
+        var form = form_wrapper.find('form:visible');
+        var submit_bt = form.find(':submit');
         var cursor = busy === true ? 'wait' : 'auto';
         $('body').css('cursor', cursor);
-        
-        var form = form_wrapper.find('form:visible');
         form_wrapper.css('cursor', cursor);
-        
-        var submit_bt = form.find(':submit');
         submit_bt.attr("disabled", busy);
         submit_bt.css('cursor', cursor);
         
@@ -1841,6 +1838,9 @@ function SRP(register, operation)
             var fields = ['#r_fullname', '#r_email', '#r_password', '#confirm_password', '#recaptcha_response_field'];
         } else {
             var fields = ['#email', '#password', '#remember'];
+            if (!busy){
+                form.find('#password').select();
+            }
         }
         for (var i=0,f ; f=fields[i] ; i++){
             f = form.find(f);
@@ -1849,7 +1849,6 @@ function SRP(register, operation)
                 f.css('cursor', cursor);
             }
         }
-        
     };
 };
 // This line is run while the document is loading
