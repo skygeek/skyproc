@@ -1,12 +1,10 @@
 from django.conf.urls import patterns, include, url
 import srp.views
 from utils import auth
-
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-
     # admin
     (r'^admin/', include(admin.site.urls)),
 
@@ -27,7 +25,6 @@ urlpatterns = patterns('',
     
     # post registration confirmation message
     (r'^registration-succeeded/$', 'ui.views.registration_succeeded'),
-    
     
     # post registration confirmation message
     (r'^password-reset-succeeded/$', 'ui.views.password_reset_succeeded'),

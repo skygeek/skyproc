@@ -19,7 +19,7 @@ import logging
 import httplib
 import urllib
 import datetime
-import cjson
+import ujson
 import ephem
 from django.db import models
 from django.conf import settings
@@ -34,7 +34,7 @@ def __geonames_request(service, params):
         conn = httplib.HTTPConnection("api.geonames.org")
         conn.request("GET", "/%s?%s" % (service, urllib.urlencode(params)))
         r = conn.getresponse()
-        return cjson.decode(r.read())['weatherObservation']
+        return ujson.decode(r.read())['weatherObservation']
     except KeyError:
         logging.info("No weather data available (%s)" % service)
     except Exception, e:
@@ -44,7 +44,7 @@ def __get_map_object_position(mapdata):
     lat = None
     lng = None
     try:
-        mapdata = cjson.decode(mapdata)
+        mapdata = ujson.decode(mapdata)
         if mapdata['type'] in ('marker', 'circle'):
             lat = mapdata['lat']
             lng = mapdata['lng']

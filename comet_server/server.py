@@ -24,7 +24,8 @@ import cPickle
 import base64
 import threading
 import copy
-import cjson
+import ssl
+import ujson
 
 from os import path as op
 
@@ -58,7 +59,7 @@ class DataChangeDispatcher(threading.Thread):
         message['data'] = copy.copy(self.message)
         del message['data']['user']
         del message['data']['session']
-        message = cjson.encode(message)
+        message = ujson.encode(message)
         for conn in CONNECTIONS:
             if conn.user and conn.user['username'] == self.message['user'] \
             and conn.session_id != self.message['session']:
@@ -76,7 +77,7 @@ class Connection(tornadio2.conn.SocketConnection):
         else: body = None
         conn.close()
         if body:
-            self.user = cjson.decode(body)
+            self.user = ujson.decode(body)
             self.session_id = session_id
             CONNECTIONS.add(self)
             log_msg = ["Connection authenticated"]
@@ -121,10 +122,13 @@ application = tornado.web.Application(
 )
 
 # setup logging
-logging.getLogger().setLevel(logging.INFO)
+#logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.DEBUG)
 
 # start server
 tornadio2.server.SocketServer(application, ssl_options={
         "certfile": "server.crt",
-        "keyfile":  "server.key",
+        "keyfile": "server.key",
+        "ca_certs": "ca.crt",
+        "cert_reqs": ssl.CERT_OPTIONAL,
 })

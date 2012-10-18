@@ -16,7 +16,7 @@
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import cjson
+import ujson
 from django.db import models
 from django.db.models import F
 from django.http import Http404
@@ -189,7 +189,7 @@ def archive_load(load_uuid, note, del_options={}):
         slot_log['exit_order'] = slot.exit_order
         if not slot.worker_type:
             if slot.price:
-                slot_log['catalog_price'] = cjson.encode({slot.price.currency.code:slot.price.price})
+                slot_log['catalog_price'] = ujson.encode({slot.price.currency.code:slot.price.price})
                 if not prices.has_key(slot.price.currency.code):
                     prices[slot.price.currency.code] = 0
                 prices[slot.price.currency.code] += slot.price.price
@@ -224,7 +224,7 @@ def archive_load(load_uuid, note, del_options={}):
                 load_log['postpaid_slots'] += 1
                 slot_log['payment_type'] = 'postpaid'
             
-    load_log['prices'] = cjson.encode(prices)
+    load_log['prices'] = ujson.encode(prices)
         
     if not del_options.has_key('delLoad') or not del_options['delLoad']:
         load_log_rec = LoadLog.objects.create(**load_log)

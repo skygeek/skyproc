@@ -18,7 +18,7 @@
 import time
 import uuid
 import datetime
-import cjson
+import ujson
 import pprint
 
 import logging
@@ -280,7 +280,7 @@ def __parse_params(req, config):
     for k,l in req.GET.lists():
         v = []
         for i in l:
-            try: i = cjson.decode(i)
+            try: i = ujson.decode(i)
             except: pass
             v.append(i)
         if len(v) == 1 and k not in ('fields',):
@@ -436,7 +436,7 @@ def __check_create_permission(req, config):
 
 def __decode_body(req, config):
     try:
-        config['body'] = cjson.decode(req.body)
+        config['body'] = ujson.decode(req.body)
         return config
     except Exception, e:
         msg = 'JSON decode error: %s' % (e)
@@ -794,7 +794,7 @@ def dispatch(req, data_path):
         exec_time = time.time()-start_time
         if req.method == 'GET':
             logging.debug("Return:")
-            try: logging.debug(pprint.pformat(cjson.decode(ret)))
+            try: logging.debug(pprint.pformat(ujson.decode(ret)))
             except: logging.debug('%s' % ret)
             try: logging.debug("Length: %s" % len(ret))
             except: pass

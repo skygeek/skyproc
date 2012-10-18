@@ -17,7 +17,7 @@
 
 import datetime
 import logging
-import cjson
+import ujson
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseServerError
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
@@ -48,7 +48,7 @@ def validate_session_id(req, session_id):
         if not user.is_authenticated(): raise ObjectDoesNotExist
     except ObjectDoesNotExist: raise Http404
     ret = {'username': user.username}
-    return HttpResponse(cjson.encode(ret))
+    return HttpResponse(ujson.encode(ret))
 
 def register_sp_user(req, user):
     # split name

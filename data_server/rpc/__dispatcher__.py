@@ -18,7 +18,7 @@
 from django.http import HttpResponse, Http404, HttpResponseServerError
 from django.conf import settings
 import logging
-import cjson
+import ujson
 import pprint
 
 from utils import auth
@@ -60,7 +60,7 @@ def dispatch(req, rpc_path):
     
     # decode args
     try:
-        args = cjson.decode(req.body)
+        args = ujson.decode(req.body)
     except Exception, e:
         msg = 'JSON decode error: %s' % (e)
         if settings.DEBUG:
@@ -101,7 +101,7 @@ def dispatch(req, rpc_path):
     
     # encode return value
     try:
-        r = cjson.encode(ret)
+        r = ujson.encode(ret)
     except Exception, e:
         msg = 'JSON encode error'
         if settings.DEBUG:

@@ -17,7 +17,7 @@
 
 import uuid
 import logging
-import cjson
+import ujson
 import random
 import time
 from django.conf import settings
@@ -71,7 +71,7 @@ def get_person_profile(membership):
 def update_prices(price, prices):
     if not price or price == 'N/A':
         return
-    price = cjson.decode(price)
+    price = ujson.decode(price)
     for k,v in price.items():
         if not prices.has_key(k):
             prices[k] = 0

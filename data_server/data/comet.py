@@ -20,7 +20,7 @@ import urllib
 import logging
 import cPickle
 import base64
-import cjson
+import ujson
 from django.db import models
 from django.conf import settings
 from django.core import serializers

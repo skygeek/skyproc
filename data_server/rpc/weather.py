@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public 
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
-import cjson
+import ujson
 from django.db import models
 from django.http import Http404
 from django.conf import settings

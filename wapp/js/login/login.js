@@ -221,6 +221,7 @@ function doRegister(srp){
             srp.register();
         } else {
             Recaptcha.reload();
+            srp.setBusy(false);
         }
     }
 }
