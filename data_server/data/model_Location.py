@@ -36,6 +36,10 @@ class Location(base.Model):
     map_zoom = models.SmallIntegerField(default=12)
     map_latitude  = models.CharField(max_length=32, blank=True, null=True)
     map_longitude  = models.CharField(max_length=32, blank=True, null=True)
+    terrain_latitude  = models.CharField(max_length=32, blank=True, null=True)
+    terrain_longitude  = models.CharField(max_length=32, blank=True, null=True)
+    terrain_elevation  = models.IntegerField(blank=True, null=True)
+    landing_area  = models.IntegerField(blank=True, null=True)
     
     currencies = models.ManyToManyField('Currency')
     default_currency = models.ForeignKey('Currency', blank=True, null=True, related_name='+')
@@ -83,6 +87,7 @@ class Location(base.Model):
         return self.name
 
 class MapObject(base.Model):
+    isolated = True
     related_fields = '+all'
     
     location = models.ForeignKey('Location')

@@ -3,13 +3,14 @@
  */
 
 Ext.define('Sp.ui.GMapPanel', {
-    extend : 'Ext.panel.Panel',
+    extend: 'Ext.panel.Panel',
 
-    alias : 'widget.gmappanel',
+    alias: 'widget.gmappanel',
 
     requires : ['Ext.window.MessageBox'],
 
-    initComponent : function() {
+    initComponent: function() {
+        this.map_objects = [];
         Ext.applyIf(this, {
             plain : true,
             gmapType : 'map',
@@ -19,7 +20,7 @@ Ext.define('Sp.ui.GMapPanel', {
         this.callParent();
     },
 
-    afterFirstLayout : function() {
+    afterFirstLayout: function() {
         var center = this.center;
         this.callParent();
 
@@ -35,7 +36,7 @@ Ext.define('Sp.ui.GMapPanel', {
 
     },
 
-    createMap : function(center, marker) {
+    createMap: function(center, marker) {
         var options = Ext.apply({}, this.mapOptions);
         options = Ext.applyIf(options, {
             zoom : 14,
@@ -55,7 +56,7 @@ Ext.define('Sp.ui.GMapPanel', {
         Ext.each(this.polygons, this.addPolygon, this);
     },
 
-    addMarker : function(marker) {
+    addMarker: function(marker) {
         Ext.apply(marker, {
             map : this.gmap,
         });
@@ -70,10 +71,11 @@ Ext.define('Sp.ui.GMapPanel', {
         Ext.Object.each(marker.listeners, function(name, fn) {
             google.maps.event.addListener(o, name, fn);
         });
+        this.setupMapObject(o);
         return o;
     },
 
-    addCircle : function(circle) {
+    addCircle: function(circle) {
         Ext.apply(circle, {
             map : this.gmap,
         });
@@ -82,10 +84,11 @@ Ext.define('Sp.ui.GMapPanel', {
             o.uuid = circle.uuid;
         }
         this.fireEvent('circleRender', o);
+        this.setupMapObject(o);
         return o;
     },
 
-    addRectangle : function(rectangle) {
+    addRectangle: function(rectangle) {
         Ext.apply(rectangle, {
             map : this.gmap,
         });
@@ -94,10 +97,11 @@ Ext.define('Sp.ui.GMapPanel', {
             o.uuid = rectangle.uuid;
         }
         this.fireEvent('RectangleRender', o);
+        this.setupMapObject(o);
         return o;
     },
 
-    addPolygon : function(polygon) {
+    addPolygon: function(polygon) {
         Ext.apply(polygon, {
             map : this.gmap,
         });
@@ -106,17 +110,45 @@ Ext.define('Sp.ui.GMapPanel', {
             o.uuid = polygon.uuid;
         }
         this.fireEvent('PolygonRender', o);
+        this.setupMapObject(o);
         return o;
     },
+    
+    setupMapObject: function(o) {
+        this.map_objects.push(o);
+        google.maps.event.addListener(o, 'mouseover', Ext.bind(this.onMapObjectOver, this, [o], true));
+        google.maps.event.addListener(o, 'mouseout', Ext.bind(this.onMapObjectOut, this, [o], true));
+    },
+    
+    onMapObjectOver: function(e, o) {
+        this.fireEvent('MapObjectMouseOver', o);
+    },
+    
+    onMapObjectOut: function(e, o) {
+        this.fireEvent('MapObjectMouseOut', o);
+    },
+    
+    clearMapObjects: function() {
+        for (var i=0,o ; o=this.map_objects[i] ; i++){
+            o.setMap(null);
+        }
+    },
+    
+    addMapObjects: function(objects) {
+        Ext.each(objects.markers, this.addMarker, this);
+        Ext.each(objects.circles, this.addCircle, this);
+        Ext.each(objects.rectangles, this.addRectangle, this);
+        Ext.each(objects.polygons, this.addPolygon, this);
+    },
 
-    lookupCode : function(addr, marker) {
+    lookupCode: function(addr, marker) {
         this.geocoder = new google.maps.Geocoder();
         this.geocoder.geocode({
             address : addr
         }, Ext.Function.bind(this.onLookupComplete, this, [marker], true));
     },
 
-    onLookupComplete : function(data, response, marker) {
+    onLookupComplete: function(data, response, marker) {
         if (response != 'OK') {
             if (response == 'ZERO_RESULTS') {
                 var msg = TR("No results found !");
@@ -129,19 +161,21 @@ Ext.define('Sp.ui.GMapPanel', {
         this.createMap(data[0].geometry.location, marker);
     },
 
-    afterComponentLayout : function(w, h) {
+    afterComponentLayout: function(w, h) {
         this.callParent(arguments);
         this.redraw();
     },
 
-    redraw : function() {
+    redraw: function() {
         var map = this.gmap;
         if (map) {
             google.maps.event.trigger(map, 'resize');
         }
     },
 
-    getMap : function() {
+    getMap: function() {
         return this.gmap;
     },
 });
+
+

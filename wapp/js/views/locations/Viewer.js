@@ -30,6 +30,8 @@ Ext.define('Sp.views.locations.Viewer', {
             this.applyNextLoadsFilter();
         }
         
+        var map_infos = Sp.ui.data.getLocationMapInfos(this.locationRec, false);
+        
         Ext.apply(this, {
             layout: {
                 type: 'card',
@@ -203,7 +205,7 @@ Ext.define('Sp.views.locations.Viewer', {
                     layout: {
                         type: 'border',
                     },
-                    padding: '10 10 10 10',
+                    padding: '10 10 0 10',
                     items: [
                         {
                             region: 'west',
@@ -215,6 +217,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                 align: 'stretch',
                                 
                             },
+                            padding: '0 0 10 0',
                             items: [
                                 {
                                     xtype: 'panel',
@@ -237,7 +240,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                 {
                                     xtype: 'panel',
                                     itemId: 'ressources',
-                                    title: TR("Ressources"),
+                                    title: TR("Resources"),
                                     padding: '0 0 0 0',
                                     flex: 1,
                                     layout: 'fit',
@@ -342,8 +345,153 @@ Ext.define('Sp.views.locations.Viewer', {
                                         {
                                             xtype: 'container',
                                             itemId: 'dzInfosPage',
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch',
+                                            },
                                             items: [
-                                                {xtype: 'label', text:'INFOS'},
+                                                {
+                                                    xtype: 'fieldset',
+                                                    itemId: 'terrainFs',
+                                                    title: TR("Terrain informations"),
+                                                    layout: 'card',
+                                                    items: [
+                                                        {
+                                                            xtype: 'container',
+                                                            itemId: 'terrainInfosCtx',
+                                                            layout: {
+                                                                type: 'hbox',
+                                                                pack: 'center',
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'label',
+                                                                    text: TR("Latitude") + ':',
+                                                                    cls: 'header-color',
+                                                                    margin: '0 3 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'terrainLat',
+                                                                    margin: '0 8 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    text: TR("Longitude") + ':',
+                                                                    cls: 'header-color',
+                                                                    margin: '0 3 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'terrainLng',
+                                                                    margin: '0 8 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    text: TR("Elevation") + ':',
+                                                                    cls: 'header-color',
+                                                                    margin: '0 3 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'terrainElev',
+                                                                    margin: '0 8 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    text: TR("Landing area") + ':',
+                                                                    cls: 'header-color',
+                                                                    margin: '0 3 0 0',
+                                                                },
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'landingArea',
+                                                                },
+                                                            ],
+                                                        },
+                                                        {
+                                                            xtype: 'container',
+                                                            itemId: 'terrainLabelCtx',
+                                                            layout: {
+                                                                type: 'hbox',
+                                                                pack: 'center',
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'label',
+                                                                    itemId: 'terrainLabel',
+                                                                },
+                                                            ],                                                        },
+                                                    ],
+                                                },
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: TR("Dropzone map"),
+                                                    flex: 1,
+                                                    layout: 'fit',
+                                                    items: [
+                                                        {
+                                                            xtype: 'gmappanel',
+                                                            itemId: 'viewMap',
+                                                            mapOptions: {
+                                                                zoom: map_infos.map_zoom,
+                                                                mapTypeId: map_infos.map_type,
+                                                            },
+                                                            center: map_infos.map_center,
+                                                            listeners: {
+                                                                MapObjectMouseOver: this.onMapObjectMouseOver,
+                                                                MapObjectMouseOut: this.onMapObjectMouseOut,
+                                                                scope: this,
+                                                            },
+                                                            markers: map_infos.markers,
+                                                            circles: map_infos.circles,
+                                                            rectangles: map_infos.rectangles,
+                                                            polygons: map_infos.polygons,
+                                                        },
+                                                    ],
+                                                },
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: TR("Contact informations"),
+                                                    layout: {
+                                                        type: 'hbox',
+                                                        pack: 'center',
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'label',
+                                                            text: TR("Website") + ':',
+                                                            cls: 'header-color',
+                                                            margin: '0 3 0 0',
+                                                        },
+                                                        {
+                                                            xtype: 'label',
+                                                            itemId: 'website',
+                                                            margin: '0 8 0 0',
+                                                        },
+                                                        {
+                                                            xtype: 'label',
+                                                            text: TR("E-mail") + ':',
+                                                            cls: 'header-color',
+                                                            margin: '0 3 0 0',
+                                                        },
+                                                        {
+                                                            xtype: 'label',
+                                                            itemId: 'email',
+                                                            margin: '0 8 0 0',
+                                                        },
+                                                        {
+                                                            xtype: 'label',
+                                                            text: TR("Phone") + ':',
+                                                            cls: 'header-color',
+                                                            margin: '0 3 0 0',
+                                                        },
+                                                        {
+                                                            xtype: 'label',
+                                                            itemId: 'phone',
+                                                        },
+                                                    ],
+                                                },
                                             ],
                                         },
                                         {
@@ -705,6 +853,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                 align: 'stretch',
                                 
                             },
+                            padding: '0 0 10 0',
                             items: [
                                 {
                                     xtype: 'panel',
@@ -1070,11 +1219,7 @@ Ext.define('Sp.views.locations.Viewer', {
             // dew point
             data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Dew point")));
             if (infos.data.dew_point){
-                if (Data.me.data.temperature_unit == 'c'){
-                    data_label.push(Ext.String.format("<dt>{0} °C</dt>", infos.data.dew_point));
-                } else {
-                    data_label.push(Ext.String.format("<dt>{0} °F</dt>", parseInt(infos.data.dew_point)*9/5+32));
-                }
+                data_label.push(Ext.String.format("<dt>{0}</dt>", Sp.utils.getUserUnit(infos.data.dew_point, 'temperature')));
             } else {
                 data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
             }
@@ -1082,15 +1227,8 @@ Ext.define('Sp.views.locations.Viewer', {
             // wind speed
             data_label.push(Ext.String.format("<dt {0}>{1}</dt>", header_attrs, TR("Wind speed")));
             if (infos.data.wind_speed){
-                if (Data.me.data.speed_unit == 'kts'){
-                    data_label.push(Ext.String.format("<dt>{0} Knots</dt>", parseInt(infos.data.wind_speed)));
-                } else if (Data.me.data.speed_unit == 'mph'){
-                    data_label.push(Ext.String.format("<dt>{0} mph</dt>", parseInt(parseInt(infos.data.wind_speed)*1.150779)));
-                } else if (Data.me.data.speed_unit == 'ms'){
-                    data_label.push(Ext.String.format("<dt>{0} m/s</dt>", parseInt(parseInt(infos.data.wind_speed)*0.514444)));
-                } else if (Data.me.data.speed_unit == 'kmh'){
-                    data_label.push(Ext.String.format("<dt>{0} km/h</dt>", parseInt(parseInt(infos.data.wind_speed)*1.852)));
-                }
+                data_label.push(Ext.String.format("<dt>{0}</dt>", Sp.utils.getUserUnit(infos.data.wind_speed, 'wind_speed')));
+                
             } else {
                 data_label.push(Ext.String.format("<dt>{0}</dt>", TR("N/A")));
             }
@@ -1131,11 +1269,7 @@ Ext.define('Sp.views.locations.Viewer', {
             // temperature
             var temp_label = TR("N/A");
             if (infos.data.temperature){
-                if (Data.me.data.temperature_unit == 'c'){
-                    temp_label = Ext.String.format("{0} °C", parseInt(infos.data.temperature));
-                } else {
-                    temp_label = Ext.String.format("{0} °F", parseInt(parseInt(infos.data.temperature)*9/5+32));
-                }
+                temp_label = Sp.utils.getUserUnit(infos.data.temperature, 'temperature');
             }
             this.down('#tempLabel').setText(Ext.String.format("<span style='font-size: 26px'>{0}</span>", temp_label), false);
             
@@ -1187,6 +1321,7 @@ Ext.define('Sp.views.locations.Viewer', {
         }
         
         var rec = this.locationRec;
+        var val;
         
         // country
         var country = null;
@@ -1224,6 +1359,30 @@ Ext.define('Sp.views.locations.Viewer', {
         // toolbar flag and title
         this.getDockedItems('toolbar[dock="top"]')[0].getComponent('flag').setSrc(flag_img);
         this.getDockedItems('toolbar[dock="top"]')[0].getComponent('title').setText(title, false);
+        
+        // contact infos
+        val = TR("N/A");
+        if (rec.data.website){
+            var url = rec.data.website;
+            if (url.search('http') != 0){
+                url = 'http://' + url;
+            }
+            val = Ext.String.format("<a href='{0}' target='_blank'>{1}</a>", 
+                    Ext.String.htmlEncode(url), Ext.String.htmlEncode(rec.data.website));
+        }
+        this.down('#website').setText(val, false);
+        
+        val = TR("N/A");
+        if (rec.data.email){
+            val = Ext.String.format("<a href='mailto:{0}' target='_blank'>{0}</a>", Ext.String.htmlEncode(rec.data.email));
+        }
+        this.down('#email').setText(val, false);
+        
+        val = TR("N/A");
+        if (rec.data.phone){
+            val = rec.data.phone;
+        }
+        this.down('#phone').setText(val);
         
         // picture
         var picture = '/static/images/nothing.png';
@@ -1268,6 +1427,67 @@ Ext.define('Sp.views.locations.Viewer', {
         // weather infos
         this.updateWeather();
         
+        // update map
+        var map = this.down('#viewMap');
+        if (map.getMap()){
+            var map_infos = Sp.ui.data.getLocationMapInfos(rec, false);
+            map.clearMapObjects();
+            map.addMapObjects(map_infos);  
+        }
+        
+        // terrain infos
+        // GPS pos
+        if (rec.data.terrain_latitude && rec.data.terrain_longitude){
+            var pos_label = Sp.utils.getLatLngLabel(rec.data.terrain_latitude, rec.data.terrain_longitude);
+            this.down('#terrainLat').setText(pos_label.lat);
+            this.down('#terrainLng').setText(pos_label.lng);
+        } else {
+            this.down('#terrainLat').setText(TR("N/A"));
+            this.down('#terrainLng').setText(TR("N/A"));
+        }
+        // elevation
+        val = TR("N/A");
+        if (rec.data.terrain_elevation){
+            val = Sp.utils.getUserUnit(rec.data.terrain_elevation, 'altitude');
+        }
+        this.down('#terrainElev').setText(val);
+        // landing area
+        val = TR("N/A");
+        if (rec.data.landing_area){
+            val = Sp.utils.getUserUnit(rec.data.landing_area, 'area');
+        }
+        this.down('#landingArea').setText(val, false);
+        
+    },
+    
+    onMapObjectMouseOver: function(object){
+        if (!object.uuid){
+            return;
+        }
+        var mapObject = this.locationRec.MapObjects().getById(object.uuid);
+        if (!mapObject){
+            return;
+        }
+        var at = Data.areaTypes.getById(mapObject.data.type);
+        var label = at.data.label;
+        if (mapObject.data.name){
+            label += Ext.String.format(": {0}", mapObject.data.name);
+        }
+        if (mapObject.data.description){
+            if (mapObject.data.name){
+                label += ', ';
+            } else {
+                label += ': ';
+            }
+            label += mapObject.data.description;
+        }
+        this.down('#terrainLabel').setText(label);
+        this.down('#terrainFs').getLayout().setActiveItem('terrainLabelCtx');
+    },
+    
+    onMapObjectMouseOut: function(object){
+        this.down('#terrainFs').getLayout().setActiveItem('terrainInfosCtx');
+        this.down('#terrainLabel').setText('');
     },
     
     getMembership: function(){

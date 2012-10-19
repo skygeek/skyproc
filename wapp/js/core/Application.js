@@ -92,6 +92,8 @@ Ext.define('Sp.core.Application', {
                 e.preventDefault();
             });
         }
+        // variable for auto collapse menu on first clisk
+        this.menu_never_clicked = true;
     },
     
     appOverrides: function(){
@@ -302,13 +304,20 @@ Ext.define('Sp.core.Application', {
                         { xtype: 'tbspacer', width: 10 },
                         
                         {
+                            xtype: 'image',
+                            width: 16,
+                            height: 16,
+                            src: '/static/images/sp_icon.png',
+                        },
+                        
+                        {
                             xtype: 'label',
                             baseCls: 'logo-text',
                             padding: '0 0 0 6',
                             text: Sp.core.Globals.BRAND,
                         },
                         
-                        { xtype: 'tbspacer', width: 80 },
+                        { xtype: 'tbspacer', width: 60 },
                         
                         {
                             xtype: 'textfield',
@@ -403,7 +412,7 @@ Ext.define('Sp.core.Application', {
                     ui: 'main-menu',
                     width: 160,
                     header: false,
-                    split:true,
+                    split: true,
                     collapsible: true,
                     titleCollapse: true,
                     layout: {
@@ -422,6 +431,10 @@ Ext.define('Sp.core.Application', {
                         listeners: {
                             itemclick: function(v, r){
                                 this.showModule({id:r.data.id});
+                                if (this.menu_never_clicked && this.vp.getWidth() <= 1024){
+                                    this.vp.down('#mainMenuPanel').collapse();
+                                }
+                                this.menu_never_clicked = false;
                             },
                             itemcontextmenu: this.onMainMenuCtxMenu,
                             scope: this,
@@ -665,6 +678,12 @@ Ext.define('Sp.core.Application', {
         Data.newRequestsList.on('datachanged', this.updateRequestCounter, this);
         Data.notifications.on('datachanged', this.updateNotificationCounter, this);
         Comet.setReady(true);
+        
+        // collapse menu in small resolution
+        /*if (this.vp.getWidth() <= 1024){
+            this.vp.down('#mainMenuPanel').collapse();
+        }*/
+        
         Log("Ready");
     },
     

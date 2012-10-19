@@ -25,61 +25,7 @@ Ext.define('Sp.views.locations.FormGeoLocation', {
     initComponent: function() {
         
         var rec = this.locationRec;
-        var map_center = new google.maps.LatLng(37.0625, -95.677068); // world center :)
-        var map_zoom = 2;
-        var map_type = google.maps.MapTypeId.HYBRID;
-                
-        if (rec.data.map_latitude && rec.data.map_longitude){
-            map_center = new google.maps.LatLng(parseFloat(rec.data.map_latitude), parseFloat(rec.data.map_longitude));
-            map_zoom = rec.data.map_zoom;
-            map_type = rec.data.map_type;
-        } else if (Ext.isObject(rec.data.city)){
-            map_center = new google.maps.LatLng(parseFloat(rec.data.city.latitude), parseFloat(rec.data.city.longitude));
-            map_zoom = 12;
-        }
-        
-        // markers
-        var markers = [];
-        var circles = [];
-        var rectangles = [];
-        var polygons = [];
-        this.locationRec.MapObjects().each(function(o){
-            var mapdata = Ext.decode(o.data.mapdata);
-            if (mapdata.type == 'marker'){
-                markers.push({
-                    draggable: true,
-                    title: o.data.name,
-                    position: new google.maps.LatLng(mapdata.lat, mapdata.lng),
-                    uuid: o.data.uuid,
-                });
-            } else if (mapdata.type == 'circle'){
-                circles.push({
-                    editable: true,
-                    center: new google.maps.LatLng(mapdata.lat, mapdata.lng),
-                    radius: mapdata.rad,
-                    uuid: o.data.uuid,
-                });
-            } else if (mapdata.type == 'rectangle'){
-                rectangles.push({
-                    editable: true,
-                    bounds: new google.maps.LatLngBounds(
-                        new google.maps.LatLng(mapdata.swLat, mapdata.swLng),
-                        new google.maps.LatLng(mapdata.neLat, mapdata.neLng)
-                    ),
-                    uuid: o.data.uuid,
-                });
-            } else if (mapdata.type == 'polygon'){
-                var path = [];
-                for (var i=0,p ; p=mapdata.path[i] ; i++){
-                    path.push(new google.maps.LatLng(p.Xa, p.Ya));
-                }
-                polygons.push({
-                    editable: true,
-                    paths: path,
-                    uuid: o.data.uuid,
-                });
-            }
-        });
+        var map_infos = Sp.ui.data.getLocationMapInfos(rec, true);
         
         Ext.apply(this, {
             header: false,
@@ -107,10 +53,10 @@ Ext.define('Sp.views.locations.FormGeoLocation', {
                             flex: 1,
                             margins: '10 0 5 0',
                             mapOptions: {
-                                zoom: map_zoom,
-                                mapTypeId: map_type,
+                                zoom: map_infos.map_zoom,
+                                mapTypeId: map_infos.map_type,
                             },
-                            center: map_center,
+                            center: map_infos.map_center,
                             listeners: {
                                 mapRender: Ext.bind(this.onMapRender, this),
                                 markerRender: Ext.bind(this.onMarkerRender, this),
@@ -118,10 +64,10 @@ Ext.define('Sp.views.locations.FormGeoLocation', {
                                 rectangleRender: Ext.bind(this.onRectangleRender, this),
                                 polygonRender: Ext.bind(this.onPolygonRender, this),
                             },
-                            markers: markers,
-                            circles: circles,
-                            rectangles: rectangles,
-                            polygons: polygons,
+                            markers: map_infos.markers,
+                            circles: map_infos.circles,
+                            rectangles: map_infos.rectangles,
+                            polygons: map_infos.polygons,
                             tbar: [
                                 {
                                     xtype: 'textfield',
@@ -554,6 +500,11 @@ Ext.define('Sp.views.locations.FormGeoLocation', {
     
     ////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////
+    
+    pre_save: function(form){
+        // update terrain infos with elevation and landing area
+        Sp.ui.data.updateTerrainInfos(this.locationRec, form.ownerCt);
+    },
     
     post_save: function(){
         this.locationRec.MapObjects().sync();

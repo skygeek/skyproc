@@ -198,12 +198,14 @@ Ext.define('Sp.views.locations.EditLocation', {
         }
     },
     
-    save: function(close){
+    save: function(){
         
         // validation
         if (!Sp.ui.data.validateForm(this)){
             return;
         }
+        
+        this.body.mask(TR("Saving"));
         
         // update record
         this.form.updateRecord();
@@ -211,7 +213,7 @@ Ext.define('Sp.views.locations.EditLocation', {
         // form panels specific actions
         for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
             if (p.pre_save){
-                p.pre_save();   
+                p.pre_save(this);
             }
         }
         
@@ -220,6 +222,16 @@ Ext.define('Sp.views.locations.EditLocation', {
             this.locationRec.save({callback: Ext.bind(this.onLocationSaved, this)});    
         } else {
             this.onLocationSaved();
+        }
+    },
+    
+    onLocationSaved: function(){
+        
+        // forms saves
+        for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
+            if (p.post_save){
+                p.post_save(this);  
+            }
         }
         
         // update location view
@@ -233,22 +245,15 @@ Ext.define('Sp.views.locations.EditLocation', {
         store.remove(store.getById(this.locationRec.data.uuid));
         store.add(this.locationRec.copy());
         
-        if (close){
+        /*if (close){
             this.save_close = true;
             this.close();
             return;
-        }
+        }*/
         
         // change cancel boutton label
         this.down('#cancelBt').setText(TR("Close"));
-    },
-    
-    onLocationSaved: function(){
-        for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
-            if (p.post_save){
-                p.post_save();  
-            }
-        }
+        this.body.unmask();
     },
         
     onClose: function(){

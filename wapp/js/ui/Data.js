@@ -465,3 +465,129 @@ Sp.ui.data.updateMapData = function(o, data){
     Ext.apply(mapdata, data);
     o.set('mapdata', Ext.encode(mapdata));
 }
+
+Sp.ui.data.getLocationMapInfos = function(location, editable){
+    var infos = {};
+    infos.map_center = new google.maps.LatLng(37.0625, -95.677068); // world center :)
+    infos.map_zoom = 2;
+    infos.map_type = google.maps.MapTypeId.HYBRID;
+    infos.markers = [];
+    infos.circles = [];
+    infos.rectangles = [];
+    infos.polygons = [];
+            
+    // map infos
+    if (location.data.map_latitude && location.data.map_longitude){
+        infos.map_center = new google.maps.LatLng(parseFloat(location.data.map_latitude), parseFloat(location.data.map_longitude));
+        infos.map_zoom = location.data.map_zoom;
+        infos.map_type = location.data.map_type;
+    } else if (Ext.isObject(location.data.city)){
+        infos.map_center = new google.maps.LatLng(parseFloat(location.data.city.latitude), parseFloat(location.data.city.longitude));
+        infos.map_zoom = 12;
+    }
+    
+    // map objects
+    location.MapObjects().each(function(o){
+        var mapdata = Ext.decode(o.data.mapdata);
+        if (mapdata.type == 'marker'){
+            infos.markers.push({
+                draggable: editable,
+                title: o.data.name,
+                position: new google.maps.LatLng(mapdata.lat, mapdata.lng),
+                uuid: o.data.uuid,
+            });
+        } else if (mapdata.type == 'circle'){
+            infos.circles.push({
+                editable: editable,
+                center: new google.maps.LatLng(mapdata.lat, mapdata.lng),
+                radius: mapdata.rad,
+                uuid: o.data.uuid,
+            });
+        } else if (mapdata.type == 'rectangle'){
+            infos.rectangles.push({
+                editable: editable,
+                bounds: new google.maps.LatLngBounds(
+                    new google.maps.LatLng(mapdata.swLat, mapdata.swLng),
+                    new google.maps.LatLng(mapdata.neLat, mapdata.neLng)
+                ),
+                uuid: o.data.uuid,
+            });
+        } else if (mapdata.type == 'polygon'){
+            var path = [];
+            for (var i=0,p ; p=mapdata.path[i] ; i++){
+                path.push(new google.maps.LatLng(p.Xa, p.Ya));
+            }
+            infos.polygons.push({
+                editable: editable,
+                paths: path,
+                uuid: o.data.uuid,
+            });
+        }
+    });
+    
+    return infos;
+}
+
+Sp.ui.data.updateTerrainInfos = function(location, viewer){
+    var lat, lng, area;
+    var elevator = new google.maps.ElevationService();
+    location.MapObjects().each(function(o){
+        var at = Data.areaTypes.getById(o.data.type);
+        if (at.data.type == 'landing'){
+            var mapdata = Ext.decode(o.data.mapdata);
+            switch (mapdata.type){
+                case 'marker':
+                    lat = mapdata.lat;
+                    lng = mapdata.lng;
+                    area = null;
+                    break;
+                case 'circle':
+                    lat = mapdata.lat;
+                    lng = mapdata.lng;
+                    area = Math.PI*(mapdata.rad*mapdata.rad);
+                    break;
+                case 'rectangle':
+                    lat = mapdata.swLat;
+                    lng = mapdata.swLng;
+                    area = google.maps.geometry.spherical.computeArea([
+                        {Xa:mapdata.swLat, Ya:mapdata.neLng},
+                        {Xa:mapdata.neLat, Ya:mapdata.neLng},
+                        {Xa:mapdata.neLat, Ya:mapdata.swLng},
+                        {Xa:mapdata.swLat, Ya:mapdata.swLng},
+                        {Xa:mapdata.swLat, Ya:mapdata.neLng},
+                    ]);
+                    break;
+                case 'polygon':
+                    lat = mapdata.path[0].Xa;
+                    lng = mapdata.path[0].Ya;
+                    area = google.maps.geometry.spherical.computeArea(mapdata.path);
+                    break;
+            }
+        }
+    });
+    if (lat && lng){
+        var data = {};
+        data.terrain_latitude = lat;
+        data.terrain_longitude = lng;
+        data.landing_area = area;
+        location.set(data);
+        var request = {
+            'locations': [new google.maps.LatLng(lat, lng)],
+        };
+        elevator.getElevationForLocations(request, function(results, status) {
+            if (status == google.maps.ElevationStatus.OK) {
+                if (results[0]) {
+                    location.set('terrain_elevation', results[0].elevation);
+                    location.save();
+                    if (viewer){
+                        var label = viewer.down('#terrainElev');
+                        if (label){
+                            label.setText(Sp.utils.getUserUnit(results[0].elevation, 'altitude'));
+                        }
+                    }
+                }
+            }
+        });
+    }
+        
+}

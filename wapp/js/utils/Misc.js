@@ -59,3 +59,50 @@ Sp.utils.findLoad = function(load_uuid){
     });
     return load;
 }
+
+Sp.utils.getUserUnit = function(value, type){
+    var d = Data.me.data;
+    switch (type){
+        case 'temperature':
+            switch (d.temperature_unit){
+                case 'c': return Ext.String.format("{0} °C", parseInt(value));
+                case 'f': return Ext.String.format("{0} °F", parseInt(value)*9/5+32);
+            }
+        case 'wind_speed':
+            switch (d.speed_unit){
+                case 'kts': return Ext.String.format("{0} Knots", parseInt(value));
+                case 'mph': return Ext.String.format("{0} mph", parseInt(parseInt(value)*1.150779));
+                case 'ms':  return Ext.String.format("{0} m/s", parseInt(parseInt(value)*0.514444));
+                case 'kmh': return Ext.String.format("{0} km/h", parseInt(parseInt(value)*1.852));
+            }
+        case 'altitude':
+            switch (d.altitude_unit){
+                case 'm': return Ext.String.format("{0} m", Ext.util.Format.number(parseInt(value), '0,/i'));
+                case 'ft': return Ext.String.format("{0} ft", Ext.util.Format.number(parseInt(parseInt(value)*3.28084), '0,/i'));
+                
+            }
+        case 'area':
+            switch (d.distance_unit){
+                case 'm': return Ext.String.format("{0} m<sup>2</sup>", Ext.util.Format.number(parseInt(value), '0,/i'));
+                case 'us': return Ext.String.format("{0} ft<sup>2</sup>", Ext.util.Format.number(parseInt(parseInt(value)*10.76391), '0,/i'));
+                
+            }
+    }
+}
+
+Sp.utils.getPositionLabel = function(position, positive, negative){
+    var d = Math.abs(parseInt(position));
+    var mm = (Math.abs(position)-d)*60;
+    var m = parseInt(mm);
+    var s = Ext.util.Format.round((mm-m)*60, 2);
+    var dir = position < 0 ? negative : positive;
+    return Ext.String.format("{0}°{1}′{2}″{3}", d, m, s, dir);
+}
+
+Sp.utils.getLatLngLabel = function(lat, lng){
+    var label = {};
+    label.lat = Sp.utils.getPositionLabel(lat, 'N', 'S');
+    label.lng = Sp.utils.getPositionLabel(lng, 'E', 'W');
+    return label;
+}
+
