@@ -138,6 +138,9 @@ def verify(request):
             # remember user login (if requested) for 10 days
             if request.POST.has_key('r') and request.POST['r'] == '1':
                 request.session.set_expiry(datetime.timedelta(days=10))
+            # unlock session
+            try: del request.session["locked"]
+            except KeyError: pass
         else:
             response = "<error>Email not verified</error>"
     else:

@@ -34,6 +34,13 @@ Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
 PasswordResetRequest = models.get_model(settings.DATA_APP, 'PasswordResetRequest')
 
+def validate_request(req):
+    if not req.user.is_authenticated():
+        return HttpResponse('Unauthorized access', status=401)
+    if req.session.has_key('locked') and req.method != 'GET':
+        return HttpResponse('Session locked', status=403)
+    return True
+
 def is_email_verified(user):
     p = Person.objects.getOwn(user)
     return EmailValidation.objects.filter(person=p, email=p.email).count() == 0

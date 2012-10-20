@@ -34,7 +34,7 @@ EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
 PasswordResetRequest = models.get_model(settings.DATA_APP, 'PasswordResetRequest')
 
 def login(req, prod=None):
-    if req.user.is_authenticated():
+    if req.user.is_authenticated() and not req.session.has_key('locked'):
         if prod is None:
             prod = not settings.DEBUG
         u = Person.objects.getOwn(req.user)
@@ -119,10 +119,12 @@ def password_reset_succeeded(req):
     c['link_text'] = "Enter Skyproc"
     return render_to_response('login_msg.html', c)
 
-# use urls as triggers for periodic jobs
-# those views are restricted to the localhost
+
+# webcron
 def weather_update(req):
     if req.META['REMOTE_ADDR'] != '127.0.0.1':
         raise Http404
     weather.update()
     return HttpResponse()
+
+

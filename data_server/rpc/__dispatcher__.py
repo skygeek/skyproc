@@ -25,8 +25,9 @@ from utils import auth
 
 def dispatch(req, rpc_path):
     
-    if not req.user.is_authenticated():
-        return HttpResponse('Unauthorized access', status=401)
+    valid = auth.validate_request(req)
+    if valid is not True:
+        return valid
     
     # respond only to POST requests
     if req.method != 'POST':

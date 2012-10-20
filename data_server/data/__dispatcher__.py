@@ -757,9 +757,10 @@ def __DELETE(req, data_path):
 """ 
 def dispatch(req, data_path):
     
-    if not req.user.is_authenticated():
-        return HttpResponse('Unauthorized access', status=401)
-    
+    valid = auth.validate_request(req)
+    if valid is not True:
+        return valid
+
     if settings.DEBUG:
         logging.debug('='*60)
         logging.debug("User: %s" % req.user)

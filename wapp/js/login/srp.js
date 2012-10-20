@@ -1762,7 +1762,7 @@ function SRP(register, operation)
 		            success();
 	            }
 		        else
-		            that.error_message("Server key does not match");
+		            that.error_message("Authentication error");
 		    }
 		    else if (xhr.responseXML.getElementsByTagName("error").length > 0)
 		        that.error_message(that.innerxml(xhr.responseXML.getElementsByTagName("error")[0]));

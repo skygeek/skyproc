@@ -21,6 +21,8 @@ Ext.define('Sp.ui.LockWindow', {
     extend: 'Ext.window.Window',
     
     initComponent: function() {
+        
+        Sp.utils.rpc('misc.lock_session');
                 
         Ext.apply(this, {
             width: 380,

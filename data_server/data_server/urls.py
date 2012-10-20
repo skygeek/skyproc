@@ -41,6 +41,6 @@ urlpatterns = patterns('',
     # session id validation url (internal: used only by comet server)
     (r'^session/(?P<session_id>.*$)', auth.validate_session_id),
     
-    # cron jobs
-    (r'^weather-update/$', 'ui.views.weather_update'),
+    # webcron
+    (r'^webcron/weather-update/$', 'ui.views.weather_update'),
 )

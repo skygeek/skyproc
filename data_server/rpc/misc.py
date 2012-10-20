@@ -35,3 +35,5 @@ def undelete(model_name, record_uuid):
     rec.save(force_update=True)
     comet.Notifier(req, rec, 'create')
     
+def lock_session():
+    req.session["locked"] = True
