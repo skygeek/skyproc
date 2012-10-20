@@ -55,7 +55,25 @@ class SpokenLang(base.AnonymousModel):
     
     def __unicode__(self):
         return self.label
+
+class Timezone(base.AnonymousModel):
+    show_all = True
+    isolated = True
     
+    public_fields = '+all'
+    related_fields = '+all'
+    
+    name = models.CharField(max_length=64)
+    country_code = models.CharField(max_length=2)
+    utc_offset = models.DecimalField(max_digits=4, decimal_places=2)
+    utc_offset_label = models.CharField(max_length=10)
+    
+    class Meta:
+        ordering = ["name"]
+    
+    def __unicode__(self):
+        return self.name
+
 class Country(base.AnonymousModel):
     show_all = True
     isolated = True

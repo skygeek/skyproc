@@ -27,3 +27,20 @@ class MembershipProfile(base.Model):
         
     def __unicode__(self):
         return self.name
+
+class ProfileCatalog(base.Model):
+    isolated = True
+    
+    profile = models.ForeignKey('MembershipProfile')
+    
+    item = models.ForeignKey('LocationCatalogItem')
+    price = models.ForeignKey('LocationCatalogPrice', blank=True, null=True)
+    
+class ProfileExtraCatalog(base.Model):
+    isolated = True
+    
+    profile = models.ForeignKey('MembershipProfile')
+    
+    item = models.ForeignKey('LocationCatalogItem')
+    price = models.ForeignKey('LocationCatalogPrice', blank=True, null=True)
+

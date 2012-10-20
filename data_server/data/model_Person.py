@@ -60,6 +60,7 @@ class Person(base.Model):
     custom_city = models.CharField(max_length=128, blank=True, null=True)
     postal_address = models.CharField(max_length=250, blank=True, null=True)
     phone = models.CharField(max_length=32, blank=True, null=True)
+    timezone = models.ForeignKey('Timezone', blank=True, null=True)
     
     lang = models.CharField(max_length=2, choices=LANGS, default='EN')
     date_format = models.CharField(max_length=10, choices=DATE_FORMATS, default='m/d/Y')

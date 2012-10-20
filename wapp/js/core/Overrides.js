@@ -135,7 +135,18 @@ Ext.override(Ext.form.field.ComboBox, {
             arguments[0] = value.uuid;
         }
         return this.callParent(arguments);
-    }
+    },
+    
+    // permit clearing combo value when forceSelection is true
+    beforeBlur: function() {
+        this.doQueryTask.cancel();
+        if (this.forceSelection && this.allowBlank){
+            if (!this.getRawValue()){
+                return;
+            }
+        }
+        this.assertValue();
+    },
     
 });
 

@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public
 License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 */
 
+//FIXME: code for profile editing is duplicated from EditProfile.js
 
 Ext.define('Sp.views.locations.EditMember', {
     extend: 'Ext.window.Window',
@@ -28,6 +29,13 @@ Ext.define('Sp.views.locations.EditMember', {
         var member_name = Sp.ui.misc.formatFullname(rec.getPerson(), Data.me.data.name_order, true);
         
         this.membershipRec.BuyedItems().sort('created', 'DESC');
+        
+        this.defaultCatalogStore = Data.createStore('LocationCatalogItem');
+        this.locationRec.LocationCatalogItems().each(function(i){
+            if (i.LocationCatalogElements().getCount() == 1){
+                this.defaultCatalogStore.add(i);
+            }
+        }, this);
                 
         Ext.apply(this, {
             width: 530,
@@ -159,10 +167,8 @@ Ext.define('Sp.views.locations.EditMember', {
                                                     displayField: 'code',
                                                     valueField: 'uuid',
                                                     forceSelection: true,
+                                                    editable: true,
                                                     lastQuery: '',
-                                                    listeners: {
-                                                        select: Ext.bind(this.buildDefaultPricesStore, this),
-                                                    },
                                                 },
                                                 {
                                                     name: 'credit_line',
@@ -250,7 +256,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                     xtype: 'combobox',
                                                     itemId: 'defaultCatalogItem',
                                                     fieldLabel: TR("Default Item"),
-                                                    store: this.locationRec.LocationCatalogItems(),
+                                                    store: this.defaultCatalogStore,
                                                     queryMode: 'local',
                                                     displayField: 'name',
                                                     valueField: 'uuid',
@@ -304,11 +310,35 @@ Ext.define('Sp.views.locations.EditMember', {
                                                             icon: '/static/images/icons/basket.png',
                                                             margin: '0 55 0 0',
                                                             disabled: true,
+                                                            handler: function(){
+                                                                Ext.create('Sp.views.locations.CatalogItemsSelect', {
+                                                                    locationRec: this.locationRec,
+                                                                    defaultCatalogStore: this.defaultCatalogStore,
+                                                                    store: this.membershipRec.MembershipCatalogs(),
+                                                                    create_model: 'MembershipCatalog',
+                                                                    parent_field: 'membership',
+                                                                    parent_uuid: this.membershipRec.data.uuid,
+                                                                    title: TR("Select additional available catalog items"),
+                                                                }).show();
+                                                            },
+                                                            scope: this,
                                                         },
                                                         {
                                                             xtype: 'button',
                                                             text: TR("Extra Catalog Items"),
                                                             icon: '/static/images/icons/basket_plus.png',
+                                                            handler: function(){
+                                                                Ext.create('Sp.views.locations.CatalogItemsSelect', {
+                                                                    locationRec: this.locationRec,
+                                                                    defaultCatalogStore: this.defaultCatalogStore,
+                                                                    store: this.membershipRec.MembershipExtraCatalogs(),
+                                                                    create_model: 'MembershipExtraCatalog',
+                                                                    parent_field: 'membership',
+                                                                    parent_uuid: this.membershipRec.data.uuid,
+                                                                    title: TR("Select extra catalog items"),
+                                                                }).show();
+                                                            },
+                                                            scope: this,
                                                         },
                                                     ],
                                                 },
@@ -516,17 +546,20 @@ Ext.define('Sp.views.locations.EditMember', {
         var currency_uuid = currency_field.getValue();
         var currency_code = currency_field.getRawValue();
         var price_field = this.down('#defaultPrice');
-        if (item_uuid && currency_uuid){
+        if (item_uuid){
             var item_rec = this.locationRec.LocationCatalogItems().getById(item_uuid);
             if (item_rec){
                 var prices = [];
                 item_rec.LocationCatalogPrices().each(function(p){
-                    if (p.getCurrency().data.uuid == currency_uuid){
-                        prices.push({
-                            uuid: p.data.uuid,
-                            price: p.data.price + ' ' + currency_code,
-                        }); 
+                    if (Ext.isObject(p.data.currency)){
+                        var currency = p.getCurrency();
+                    } else {
+                        var currency = Data.currencies.getById(p.data.currency);
                     }
+                    prices.push({
+                        uuid: p.data.uuid,
+                        price: p.data.price + ' ' + currency.data.code,
+                    }); 
                 }, this);
                 var store = price_field.getStore();
                 store.loadRawData(prices);
@@ -635,6 +668,8 @@ Ext.define('Sp.views.locations.EditMember', {
             this.membershipRec.Accounts().each(function(a){
                 a.AccountOperations().rejectChanges();
             });
+            this.membershipRec.MembershipCatalogs().rejectChanges();
+            this.membershipRec.MembershipExtraCatalogs().rejectChanges();
         }
     },
 

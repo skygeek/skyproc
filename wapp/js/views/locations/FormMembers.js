@@ -51,7 +51,7 @@ Ext.define('Sp.views.locations.FormMembers', {
                             store: Data.createStore('LocationMembership', {
                                 autoLoad: true,
                                 buffered: true,
-                                pageSize: 100,
+                                pageSize: 50,
                                 remoteSort: true,
                                 sorters: [
                                     {
@@ -146,7 +146,7 @@ Ext.define('Sp.views.locations.FormMembers', {
                                 },
                                 '->',
                                 {
-                                    text: TR("Membership Options"),
+                                    text: TR("Membership profiles"),
                                     icon: '/static/images/icons/membership.png',
                                     handler: function(){
                                         Ext.create('Sp.views.locations.MembershipOpt', {
@@ -433,8 +433,23 @@ Ext.define('Sp.views.locations.FormMembers', {
         });
     },
     
+    catalog_save: function(store){
+        store.each(function(m){
+            m.MembershipCatalogs().sync();
+            m.MembershipExtraCatalogs().sync();
+        });
+    },
+    
     post_save: function(){
-        this.locationRec.MembershipProfiles().sync();
+        var profiles_store = this.locationRec.MembershipProfiles();
+        profiles_store.sync({
+            success: function(){
+                profiles_store.each(function(p){
+                    p.ProfileCatalogs().sync();
+                    p.ProfileExtraCatalogs().sync();
+                });        
+            },
+        });
         var membersGrid = this.down('#membersGrid');
         if (membersGrid){
             var store = membersGrid.getStore();
@@ -442,21 +457,32 @@ Ext.define('Sp.views.locations.FormMembers', {
                 store.sync({
                     success: function(){
                         this.account_save(store);
+                        this.catalog_save(store);
                     },
                     scope: this,
                 });
             } else {
                 this.account_save(store);
+                this.catalog_save(store);
             }
         }
     },
     
     reject: function(){
         this.locationRec.MembershipProfiles().rejectChanges();
+        this.locationRec.MembershipProfiles().each(function(p){
+            p.ProfileCatalogs().rejectChanges();
+            p.ProfileExtraCatalogs().rejectChanges();
+        });
         var membersGrid = this.down('#membersGrid');
         if (membersGrid){
             membersGrid.getStore().rejectChanges();
+            membersGrid.getStore().each(function(m){
+                m.MembershipCatalogs().rejectChanges();
+                m.MembershipExtraCatalogs().rejectChanges();
+            });
         }
     },
     
 });
+

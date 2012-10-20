@@ -94,7 +94,7 @@ Sp.utils.getPositionLabel = function(position, positive, negative){
     var d = Math.abs(parseInt(position));
     var mm = (Math.abs(position)-d)*60;
     var m = parseInt(mm);
-    var s = Ext.util.Format.round((mm-m)*60, 2);
+    var s = Ext.util.Format.round((mm-m)*60, 1);
     var dir = position < 0 ? negative : positive;
     return Ext.String.format("{0}°{1}′{2}″{3}", d, m, s, dir);
 }
@@ -106,3 +106,15 @@ Sp.utils.getLatLngLabel = function(lat, lng){
     return label;
 }
 
+Sp.utils.getWebsiteLink = function(url){
+    var href = url;
+    if (href.search('http') != 0){
+        href = 'http://' + url;
+    }
+    return Ext.String.format("<a href='{0}' target='_blank'>{1}</a>", 
+            Ext.String.htmlEncode(href), Ext.String.htmlEncode(url));
+}
+
+Sp.utils.getEmailLink = function(email){
+    return Ext.String.format("<a href='mailto:{0}' target='_blank'>{0}</a>", Ext.String.htmlEncode(email));
+}

@@ -3,7 +3,7 @@ Ext.ns('Sp.core.Globals');
 
 // set to 'null' to disable google maps api loading
 // set to an empty string to use google maps without an api key
-Sp.core.Globals.GOOGLE_MAPS_API_KEY = '';
+Sp.core.Globals.GOOGLE_MAPS_API_KEY = null;
 
 Sp.core.Globals.DEBUG = true;
 Sp.core.Globals.BRAND = "Skyproc";

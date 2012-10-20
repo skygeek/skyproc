@@ -130,7 +130,7 @@ Ext.define('Sp.views.locations.Locator', {
                     enableColumnHide: false,
                     enableColumnMove: false,
                     enableColumnResize: false,
-                    sortableColumns: true,  
+                    sortableColumns: false,
                     emptyText: TR("No dropzones matching your search criteria were found !"),
                     store: Data.createStore('Location_P', {
                         storeId: 'mainLocationsStore',
@@ -161,7 +161,25 @@ Ext.define('Sp.views.locations.Locator', {
                             },
                         },
                         {
+                            header: TR("Contact infos"),
+                            flex: 1,
+                            renderer: function(v,o,r){
+                                var label = [];
+                                if (r.data.website){
+                                    label.push(Sp.utils.getWebsiteLink(r.data.website));
+                                }
+                                if (r.data.email){
+                                    label.push(Sp.utils.getEmailLink(r.data.email));
+                                }
+                                if (r.data.phone){
+                                    label.push(Ext.String.htmlEncode(r.data.phone));
+                                }
+                                return label.join('<br>');
+                            },
+                        },
+                        {
                             header: TR("Active Aircrafts"),
+                            align: 'center',
                             renderer: function(v,o,r){
                                 var count = 0;
                                 r.Aircrafts().each(function(a){
@@ -174,6 +192,7 @@ Ext.define('Sp.views.locations.Locator', {
                         },
                         {
                             header: TR("Total Slots"),
+                            align: 'center',
                             renderer: function(v,o,r){
                                 var slots = 0;
                                 r.Aircrafts().each(function(a){

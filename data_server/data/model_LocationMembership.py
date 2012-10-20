@@ -10,7 +10,7 @@ from utils import misc
 class LocationMembership(base.Model):
     ignore_unexistant_delete = True
     
-    relations = 'Person Account BuyedItem'
+    relations = 'Person Account BuyedItem MembershipCatalog MembershipExtraCatalog'
     
     related_field = 'person'
     related_fields = 'location join_type approved new_approval'
@@ -101,3 +101,19 @@ class LocationMembership(base.Model):
         message['user'] = notif_data['owner'].username
         message['session'] = None
         comet.Notifier().postMessage(message)
+
+class MembershipCatalog(base.Model):
+    isolated = True
+    
+    membership = models.ForeignKey('LocationMembership')
+    
+    item = models.ForeignKey('LocationCatalogItem')
+    price = models.ForeignKey('LocationCatalogPrice', blank=True, null=True)
+    
+class MembershipExtraCatalog(base.Model):
+    isolated = True
+    
+    membership = models.ForeignKey('LocationMembership')
+    
+    item = models.ForeignKey('LocationCatalogItem')
+    price = models.ForeignKey('LocationCatalogPrice', blank=True, null=True)

@@ -40,6 +40,13 @@ Ext.define('Sp.views.locations.EditProfile', {
             var ok_handler = this.createProfile;
         }
         
+        this.defaultCatalogStore = Data.createStore('LocationCatalogItem');
+        this.locationRec.LocationCatalogItems().each(function(i){
+            if (i.LocationCatalogElements().getCount() == 1){
+                this.defaultCatalogStore.add(i);
+            }
+        }, this);
+        
         Ext.apply(this, {
             width: 550,
             height: 510,
@@ -223,9 +230,6 @@ Ext.define('Sp.views.locations.EditProfile', {
                                     forceSelection: true,
                                     lastQuery: '',
                                     hidden: true,
-                                    listeners: {
-                                        select: Ext.bind(this.buildDefaultPricesStore, this),
-                                    },
                                 },
                             ],
                         },
@@ -242,7 +246,7 @@ Ext.define('Sp.views.locations.EditProfile', {
                                     name: 'default_catalog_item',
                                     xtype: 'combobox',
                                     fieldLabel: TR("Default Item"),
-                                    store: this.locationRec.LocationCatalogItems(),
+                                    store: this.defaultCatalogStore,
                                     queryMode: 'local',
                                     displayField: 'name',
                                     valueField: 'uuid',
@@ -297,11 +301,35 @@ Ext.define('Sp.views.locations.EditProfile', {
                                     icon: '/static/images/icons/basket.png',
                                     margin: '0 50 0 0',
                                     disabled: true,
+                                    handler: function(){
+                                        Ext.create('Sp.views.locations.CatalogItemsSelect', {
+                                            locationRec: this.locationRec,
+                                            defaultCatalogStore: this.defaultCatalogStore,
+                                            store: this.profileRec.ProfileCatalogs(),
+                                            create_model: 'ProfileCatalog',
+                                            parent_field: 'profile',
+                                            parent_uuid: this.profileRec.data.uuid,
+                                            title: TR("Select additional available catalog items"),
+                                        }).show();
+                                    },
+                                    scope: this,
                                 },
                                 {
                                     xtype: 'button',
                                     text: TR("Extra Catalog Items"),
                                     icon: '/static/images/icons/basket_plus.png',
+                                    handler: function(){
+                                        Ext.create('Sp.views.locations.CatalogItemsSelect', {
+                                            locationRec: this.locationRec,
+                                            defaultCatalogStore: this.defaultCatalogStore,
+                                            store: this.profileRec.ProfileExtraCatalogs(),
+                                            create_model: 'ProfileExtraCatalog',
+                                            parent_field: 'profile',
+                                            parent_uuid: this.profileRec.data.uuid,
+                                            title: TR("Select extra catalog items"),
+                                        }).show();
+                                    },
+                                    scope: this,
                                 },
                             ],
                         },
@@ -343,17 +371,20 @@ Ext.define('Sp.views.locations.EditProfile', {
         var currency_uuid = currency_field.getValue();
         var currency_code = currency_field.getRawValue();
         var price_field = this.down('#defaultPrice');
-        if (item_uuid && currency_uuid){
+        if (item_uuid){
             var item_rec = this.locationRec.LocationCatalogItems().getById(item_uuid);
             if (item_rec){
                 var prices = [];
                 item_rec.LocationCatalogPrices().each(function(p){
-                    if (p.getCurrency().data.uuid == currency_uuid){
-                        prices.push({
-                            uuid: p.data.uuid,
-                            price: p.data.price + ' ' + currency_code,
-                        }); 
+                    if (Ext.isObject(p.data.currency)){
+                        var currency = p.getCurrency();
+                    } else {
+                        var currency = Data.currencies.getById(p.data.currency);
                     }
+                    prices.push({
+                        uuid: p.data.uuid,
+                        price: p.data.price + ' ' + currency.data.code,
+                    }); 
                 }, this);
                 var store = price_field.getStore();
                 store.loadRawData(prices);
@@ -426,6 +457,8 @@ Ext.define('Sp.views.locations.EditProfile', {
     
     onClose: function(){
         if (this.cancel_close){
+            this.profileRec.ProfileCatalogs().rejectChanges();
+            this.profileRec.ProfileExtraCatalogs().rejectChanges();
         }
     },
 

@@ -32,7 +32,7 @@ Ext.define('Sp.views.locations.MembershipOpt', {
             height: 520,
             modal: true,
             resizable: false,
-            title: TR("Edit Membership Options"),
+            title: TR("Edit membership options"),
             icon: '/static/images/icons/membership.png',
             layout: 'fit',
             items: [

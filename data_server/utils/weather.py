@@ -34,7 +34,7 @@ def __geonames_request(service, params):
         conn = httplib.HTTPConnection("api.geonames.org")
         conn.request("GET", "/%s?%s" % (service, urllib.urlencode(params)))
         r = conn.getresponse()
-        return ujson.decode(r.read())['weatherObservation']
+        return ujson.decode(r.read())
     except KeyError:
         logging.info("No weather data available (%s)" % service)
     except Exception, e:
@@ -57,13 +57,22 @@ def __get_map_object_position(mapdata):
     except: pass
     return lat, lng
 
-def __get_sun_infos(lat, lng, dt, utc_offset=0):
+def __get_sun_infos(lat, lng, dt, location):
     infos = {}
-    o = ephem.Observer()
-    o.lat, o.long, o.date = str(lat), str(lng), dt
-    sun = ephem.Sun(o)
-    infos['sunrise'] = ephem.Date(o.next_rising(sun, start=o.date) + utc_offset*ephem.hour).datetime()
-    infos['sunset'] = ephem.Date(o.next_setting(sun, start=o.date) + utc_offset*ephem.hour).datetime()
+    # get infos from geonames
+    tz_data = __geonames_request('timezoneJSON', {'lat':lat, 'lng':lng})
+    if isinstance(tz_data, dict) and tz_data.has_key('time'):
+        infos['sunrise'] = tz_data['sunrise']
+        infos['sunset'] = tz_data['sunset']
+    else:
+        # fallback to local calculation
+        if location.timezone: utc_offset = float(location.timezone.utc_offset)
+        else: utc_offset = 0
+        o = ephem.Observer()
+        o.lat, o.long, o.date = str(lat), str(lng), dt
+        sun = ephem.Sun(o)
+        infos['sunrise'] = ephem.Date(o.next_rising(sun, start=o.date) + utc_offset*ephem.hour).datetime()
+        infos['sunset'] = ephem.Date(o.next_setting(sun, start=o.date) + utc_offset*ephem.hour).datetime()
     return infos
 
 def update_location(location):
@@ -74,7 +83,8 @@ def update_location(location):
     # use the airport icao code
     if location.airport_icao:
         weather_data = __geonames_request('weatherIcaoJSON', {'ICAO':location.airport_icao})
-        if weather_data:
+        if isinstance(weather_data, dict) and weather_data.has_key('weatherObservation'):
+            weather_data = weather_data['weatherObservation']
             lat = weather_data['lat']
             lng = weather_data['lng']
             
@@ -102,6 +112,9 @@ def update_location(location):
             except: pass
         if lat and lng:
             weather_data = __geonames_request('findNearByWeatherJSON', {'lat':lat, 'lng':lng})
+            if isinstance(weather_data, dict) and weather_data.has_key('weatherObservation'):
+                weather_data = weather_data['weatherObservation']
+            else: weather_data = None
     
     # got weather data
     if weather_data:
@@ -127,7 +140,7 @@ def update_location(location):
         obs_record = WeatherObservation(**data)
         obs_record.clean_fields()
         # update sunrise/sunset
-        sun_infos = __get_sun_infos(lat, lng, obs_record.datetime)
+        sun_infos = __get_sun_infos(lat, lng, obs_record.datetime, location)
         obs_record.sunrise = sun_infos['sunrise']
         obs_record.sunset = sun_infos['sunset']
         obs_record.save(force_insert=True)
@@ -141,7 +154,7 @@ def update_location(location):
         data['owner'] = location.owner
         data['location'] = location
         data['datetime'] = now
-        data.update(__get_sun_infos(lat, lng, now))
+        data.update(__get_sun_infos(lat, lng, now, location))
         obs_record = WeatherObservation.objects.create(**data)
         logging.info("Updated location sun infos for: %s" % location.name)
         return obs_record

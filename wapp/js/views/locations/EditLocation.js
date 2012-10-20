@@ -66,9 +66,6 @@ Ext.define('Sp.views.locations.EditLocation', {
         var rec = this.locationRec;
         var menu_store = this.getMenuStore();
         this.main_ctx_items = [];
-        this.main_ctx_items.push({
-            xtype: 'container',
-        });
         menu_store.each(function(r){
             this.main_ctx_items.push(
                 Ext.create('Sp.views.locations.Form' + r.data.id, {
@@ -115,7 +112,7 @@ Ext.define('Sp.views.locations.EditLocation', {
                         },
                     ],
                     listeners: {
-                        render: function(me){
+                        afterrender: function(me){
                             me.getSelectionModel().select(0);
                         },
                         itemmouseenter: function(me, r, el){

@@ -57,6 +57,7 @@ if (DEV){
         'Sp.ui.CountryCity',
         'Sp.ui.LockWindow',
         'Sp.ui.PersonCombo',
+        'Sp.ui.TimezoneCombo',
         'Sp.ui.ux.StatusBar',
         'Sp.ui.ux.RowExpander',
         'Sp.ui.ux.Printer',
@@ -613,6 +614,12 @@ Ext.define('Sp.core.Application', {
             remoteSort: true,
         });
         this.storesLoader.add(Data.currencies);
+        
+        // currency list
+        Data.timezones = Data.createStore('Timezone', {
+            remoteSort: true,
+        });
+        this.storesLoader.add(Data.timezones);
                 
         // Area Types
         Data.areaTypes = Data.createStore('AreaType', {

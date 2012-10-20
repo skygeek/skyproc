@@ -257,7 +257,11 @@ Ext.define('Sp.views.settings.l10n', {
                             displayField: 'label',
                             valueField: 'day',
                         },
-                        
+                        {
+                            name: 'timezone',
+                            xtype: 'timezonecombo',
+                            fieldLabel: TR("Time zone"),
+                        },
                     ],
                 },
                 

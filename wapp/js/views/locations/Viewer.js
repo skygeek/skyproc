@@ -1264,6 +1264,9 @@ Ext.define('Sp.views.locations.Viewer', {
             
             // clouds image
             var clouds = infos.data.clouds || 'none';
+            if (infos.data.sunrise && infos.data.sunset && !Ext.Date.between(new Date(), infos.data.sunrise, infos.data.sunset)){
+                clouds += '_night';
+            }
             this.down('#cloudsImg').setSrc(Ext.String.format("/static/images/weather/clouds_{0}.png", clouds));
             
             // temperature
@@ -1363,18 +1366,13 @@ Ext.define('Sp.views.locations.Viewer', {
         // contact infos
         val = TR("N/A");
         if (rec.data.website){
-            var url = rec.data.website;
-            if (url.search('http') != 0){
-                url = 'http://' + url;
-            }
-            val = Ext.String.format("<a href='{0}' target='_blank'>{1}</a>", 
-                    Ext.String.htmlEncode(url), Ext.String.htmlEncode(rec.data.website));
+            val = Sp.utils.getWebsiteLink(rec.data.website);
         }
         this.down('#website').setText(val, false);
         
         val = TR("N/A");
         if (rec.data.email){
-            val = Ext.String.format("<a href='mailto:{0}' target='_blank'>{0}</a>", Ext.String.htmlEncode(rec.data.email));
+            val = Sp.utils.getEmailLink(rec.data.email);
         }
         this.down('#email').setText(val, false);
         
@@ -1431,8 +1429,12 @@ Ext.define('Sp.views.locations.Viewer', {
         var map = this.down('#viewMap');
         if (map.getMap()){
             var map_infos = Sp.ui.data.getLocationMapInfos(rec, false);
+            var gmap = map.getMap();
             map.clearMapObjects();
-            map.addMapObjects(map_infos);  
+            gmap.setMapTypeId(map_infos.map_type);
+            gmap.setZoom(map_infos.map_zoom);
+            gmap.setCenter(map_infos.map_center);
+            map.addMapObjects(map_infos); 
         }
         
         // terrain infos

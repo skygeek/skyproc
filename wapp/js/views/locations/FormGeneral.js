@@ -44,7 +44,7 @@ Ext.define('Sp.views.locations.FormGeneral', {
                         {
                             xtype: 'fieldset',
                             itemId: 'fs',
-                            title: TR("Contact informations"),
+                            title: TR("Contact infos"),
                             defaults: {
                                 anchor: '100%'
                             },
@@ -86,7 +86,7 @@ Ext.define('Sp.views.locations.FormGeneral', {
                         },
                         {
                             xtype: 'fieldset',
-                            title: TR("Airport informations"),
+                            title: TR("Airport"),
                             defaults: {
                                 anchor: '100%'
                             },
@@ -105,14 +105,27 @@ Ext.define('Sp.views.locations.FormGeneral', {
                                 },
                             ],
                         },
+                        {
+                            xtype: 'fieldset',
+                            title: TR("Local time"),
+                            defaults: {
+                                anchor: '100%'
+                            },
+                            margin: '5 0 0 0',
+                            items: [
+                                {
+                                    name: 'timezone',
+                                    xtype: 'timezonecombo',
+                                    fieldLabel: TR("Time zone"),
+                                },
+                            ],
+                        },
                     ],
                 },
             ], 
-            
         });
- 
+
         this.callParent(arguments);
-        
     },
     
     initValues: function(){

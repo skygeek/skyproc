@@ -28,6 +28,7 @@ class Location(base.Model):
     picture = models.TextField(blank=True, null=True)
     short_description = models.TextField(blank=True, null=True)
     long_description = models.TextField(blank=True, null=True)
+    timezone = models.ForeignKey('Timezone', blank=True, null=True)
     
     airport_name = models.CharField(max_length=128, blank=True, null=True)
     airport_icao = models.CharField(max_length=4, blank=True, null=True)
