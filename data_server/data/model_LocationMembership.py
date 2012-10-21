@@ -13,8 +13,8 @@ class LocationMembership(base.Model):
     relations = 'Person Account BuyedItem MembershipCatalog MembershipExtraCatalog'
     
     related_field = 'person'
-    related_fields = 'location join_type approved new_approval'
-    related_relations = 'Location Account'
+    related_fields = 'location join_type approved new_approval profile override_profile catalog_access default_catalog_item default_catalog_price'
+    related_relations = 'Location Account MembershipCatalog MembershipProfile'
     
     location = models.ForeignKey('Location')
     person = models.ForeignKey('Person')
@@ -104,6 +104,7 @@ class LocationMembership(base.Model):
 
 class MembershipCatalog(base.Model):
     isolated = True
+    related_fields = '+all'
     
     membership = models.ForeignKey('LocationMembership')
     

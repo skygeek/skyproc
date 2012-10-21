@@ -54,7 +54,6 @@ Ext.define('Sp.views.locations.InviteMember', {
                                     fieldLabel: TR("Member's Name"),
                                     emptyText: TR("search by member's last name"),
                                     store: Data.createStore('Person_P', {
-                                        buffered: true,
                                         pageSize: 20,
                                         remoteSort: true,
                                         sorters: [
@@ -70,6 +69,9 @@ Ext.define('Sp.views.locations.InviteMember', {
                                         proxy: {
                                             extraParams: {
                                                 query_field: 'last_name',
+                                                exclude: Ext.encode([
+                                                    {'uuid': Data.me.data.uuid},
+                                                ]),
                                             },
                                         },
                                     }),

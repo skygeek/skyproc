@@ -273,7 +273,7 @@ Ext.define('Sp.views.locations.EditProfile', {
                                 {
                                     name: 'catalog_access',
                                     xtype: 'checkbox',
-                                    boxLabel: TR("The user can choose other items from the catalog"),
+                                    boxLabel: TR("Let the member choose other items from the catalog (when self-manifesting)"),
                                     listeners: {
                                         change: Ext.bind(function(me, value){
                                             this.down('#catalogItemsAvailBt').setDisabled(!value);

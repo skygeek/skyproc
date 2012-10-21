@@ -22,10 +22,12 @@ Ext.define('Sp.views.locations.TakeSlot', {
     extend: 'Ext.window.Window',
     
     initComponent: function() {
+                
+        this.profile = Sp.ui.data.getPersonProfile(this.membership, this.locationRec);
         
         Ext.apply(this, {
-            width: 360,
-            height: 220,
+            width: 400,
+            height: this.profile.catalog_access ? 160 : 140,
             modal: true,
             resizable: false,
             title: Ext.String.format(TR("Take a slot in load n° {0}"), this.loadRec.data.number),
@@ -55,6 +57,23 @@ Ext.define('Sp.views.locations.TakeSlot', {
                                     editable: false,
                                     valueField: 'uuid',
                                     displayField: 'label',
+                                },
+                                {
+                                    name: 'item',
+                                    xtype: 'combobox',
+                                    itemId: 'item',
+                                    fieldLabel: TR("Catalog Item"),
+                                    store: Ext.create('store.store', {
+                                        fields: ['uuid','name','price'],
+                                        data: this.profile.available_catalog,
+                                    }),
+                                    queryMode: 'local',
+                                    forceSelection: true,
+                                    editable: false,
+                                    valueField: 'uuid',
+                                    displayField: 'name',
+                                    hidden: !this.profile.catalog_access,
+                                    
                                 },
                             ],
                         },
@@ -86,6 +105,11 @@ Ext.define('Sp.views.locations.TakeSlot', {
             jump_type.setValue(jump_type.getStore().getById(Data.me.data.default_jump_type));
         }
         
+        if (this.profile.catalog_access && this.profile.catalog_item){
+            var itemCbx = this.down('#item');
+            itemCbx.setValue(itemCbx.getStore().findRecord('uuid', this.profile.catalog_item));
+        }
+        
     },
     
     takeSlot: function(){
@@ -93,6 +117,10 @@ Ext.define('Sp.views.locations.TakeSlot', {
         this.down('#takeBt').disable();
         this.down('#cancelBt').disable();
         var values = this.down('#form').form.getValues();
+        var catalog_item = this.down('#item').getStore().findRecord('uuid', values.item);
+        if (catalog_item && catalog_item.data.price){
+            values.price = catalog_item.data.price;
+        }
         Sp.utils.rpc('lmanager.take_slot', [Data.me.data.uuid, this.loadRec.data.uuid, values], function(slot_data){
             slot_data = Ext.decode(slot_data);
             var s = Data.create('Slot', slot_data[0]);

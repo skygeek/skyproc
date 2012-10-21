@@ -40,6 +40,8 @@ Account = models.get_model(settings.DATA_APP, 'Account')
 AccountOperation = models.get_model(settings.DATA_APP, 'AccountOperation')
 BuyedItem = models.get_model(settings.DATA_APP, 'BuyedItem')
 JumpType = models.get_model(settings.DATA_APP, 'JumpType')
+LocationCatalogItem = models.get_model(settings.DATA_APP, 'LocationCatalogItem')
+LocationCatalogPrice = models.get_model(settings.DATA_APP, 'LocationCatalogPrice')
 
 def __get_item_total_slots(item):
     total_slots = 0
@@ -243,6 +245,9 @@ def delete_load(load_uuid, del_options):
 
 def take_slot(person_uuid, load_uuid, user_data):
     
+    if not isinstance(user_data, dict):
+        user_data = {}
+    
     slot_data = {}
     slot_data['load'] = Load.objects.get_by_natural_key(load_uuid)
     slot_data['owner'] = slot_data['load'].owner
@@ -250,13 +255,25 @@ def take_slot(person_uuid, load_uuid, user_data):
     membership = LocationMembership.objects.get(location=slot_data['load'].location, person=slot_data['person'], deleted=False)
     slot_data['membership_uuid'] = membership.uuid
     
-    # FIXME: fill those fields
     slot_data['item'] = None
     slot_data['element'] = None
     slot_data['price'] = None
     slot_data['payer'] = None
     
-    if isinstance(user_data, dict) and user_data.has_key('jump_type') and user_data['jump_type']:
+    if user_data.has_key('item') and user_data['item']:
+        slot_data['item'] = LocationCatalogItem.objects.get_by_natural_key(user_data['item'])
+        if user_data.has_key('price') and user_data['price']:
+            slot_data['price'] = LocationCatalogPrice.objects.get_by_natural_key(user_data['price'])
+        else:
+            # FIXME: set a default price
+            pass
+        # set first element, since default items must have one and olny one element
+        slot_data['element'] = slot_data['item'].locationcatalogelement_set.all()[0]
+    else:
+        pass
+        # FIXME default catalog item
+        
+    if user_data.has_key('jump_type') and user_data['jump_type']:
         slot_data['jump_type'] = JumpType.objects.get_by_natural_key(user_data['jump_type'])
     else:
         slot_data['jump_type'] = None
@@ -286,4 +303,3 @@ def cancel_slot(person_uuid, load_uuid):
         removed_slots.append(s.uuid)
         s.delete()
     return removed_slots
-

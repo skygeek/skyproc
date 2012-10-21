@@ -40,7 +40,7 @@ Ext.define('Sp.views.locations.AddMember', {
         
         Ext.apply(this, {
             width: 560,
-            height: 400,
+            height: 480,
             modal: true,
             resizable: false,
             title: TR("New Member"),
@@ -107,6 +107,17 @@ Ext.define('Sp.views.locations.AddMember', {
                                 Sp.ui.getCityCombo('city', 'city', TR("City"), 
                                     {change: Ext.bind(this.onCityChange, this)}),
                                 Sp.ui.getCustomCityField('custom_city', 'customCity'),
+                                {
+                                    name: 'postal_address',
+                                    xtype: 'textarea',
+                                    fieldLabel: TR("Address"),
+                                    rows: 3,
+                                },
+                                {
+                                    name: 'phone',
+                                    xtype: 'textfield',
+                                    fieldLabel: TR("Phone"),
+                                },
                             ],
                         },
                         {

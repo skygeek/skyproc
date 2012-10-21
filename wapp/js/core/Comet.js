@@ -25,8 +25,6 @@ Sp.core.comet.connect = function(){
         return;
     }
     
-    WEB_SOCKET_SWF_LOCATION = Sp.core.Globals.COMET_FLASH_WEBSOCKET;
-    
     Sp.core.comet.socket = io.connect(Sp.app.getCometUrl(), {
         secure: Sp.core.Globals.COMET_SECURE,
         'connect timeout': 30000,

@@ -443,7 +443,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                     ],
                                 },
                                 {
-                                    title: TR("Ressources"),
+                                    title: TR("<span class='disabled-text'>Ressources</span>"),
                                     icon: '/static/images/icons/ressources.png',
                                     padding: 10,
                                     layout: {

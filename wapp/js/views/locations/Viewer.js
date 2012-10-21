@@ -1308,7 +1308,25 @@ Ext.define('Sp.views.locations.Viewer', {
         }, this);
     },
     
+    updateBalanceLabel: function(){
+        var membership = this.getMembership();
+        var balance_label = [];
+        membership.Accounts().each(function(a){
+            if (a.data.balance != 0){
+                var currency = Data.currencies.getById(a.data.currency);
+                balance_label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 0, true));  
+            }
+        });
+        if (balance_label.length > 0){
+            balance_label = balance_label.join(' | ');
+        } else {
+            balance_label = TR("None");
+        }
+        this.down('#balanceLabel').setText(balance_label, false);
+    },
+    
     updateView: function(init, dont_update_buttons, dont_update_infos){
+        var rec = this.locationRec, val;
         
         if (!init){
             this.getRelationship();
@@ -1322,9 +1340,6 @@ Ext.define('Sp.views.locations.Viewer', {
         if (dont_update_infos){
             return;
         }
-        
-        var rec = this.locationRec;
-        var val;
         
         // country
         var country = null;
@@ -1405,21 +1420,7 @@ Ext.define('Sp.views.locations.Viewer', {
         
         // balance label
         if (this.is_member){
-            var membership = this.getMembership();
-            var balance_label = [];
-            membership.Accounts().each(function(a){
-                if (a.data.balance != 0){
-                    var currency = Data.currencies.getById(a.data.currency);
-                    balance_label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 0, true));  
-                }
-                
-            });
-            if (balance_label.length > 0){
-                balance_label = balance_label.join(' | ');
-            } else {
-                balance_label = TR("None");
-            }
-            this.down('#balanceLabel').setText(balance_label, false);
+            this.updateBalanceLabel();
         }
         
         // weather infos
@@ -1712,6 +1713,7 @@ Ext.define('Sp.views.locations.Viewer', {
             var loads_store = this.locationRec.Loads();
             this.applyNextLoadsFilter();
             grid.getView().bindStore(loads_store);
+            this.updateBalanceLabel();
             grid.body.unmask();
         }, this);
     },
@@ -1719,6 +1721,7 @@ Ext.define('Sp.views.locations.Viewer', {
     takeSlot: function(loadRec){
         Ext.create('Sp.views.locations.TakeSlot', {
             locationRec: this.locationRec,
+            membership: this.getMembership(),
             loadRec: loadRec,
             applyNextLoadsFilter: Ext.bind(this.applyNextLoadsFilter, this),
         }).show();

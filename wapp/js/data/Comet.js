@@ -288,6 +288,13 @@ Ext.define('Sp.data.Comet', {
      * Lift manager
      */
     
+    notifyPlanner: function(location_uuid, record, operation){
+        var planner = Sp.app.vp.down(Ext.String.format('#{0}-planner', location_uuid));
+        if (planner){
+            planner.onCometMessage(record, operation);
+        }
+    },
+    
     onLoadCreate: function(data){
         if (!Sp.app.isOp()){
             return;
@@ -296,8 +303,9 @@ Ext.define('Sp.data.Comet', {
             var location = Data.locations.getById(rec.data.location);
             if (location){
                 location.Loads().add(rec);
+                this.notifyPlanner(location.data.uuid, rec, 'create');
             }
-        });
+        }, this);
     },
     
     onLoadUpdate: function(data){
@@ -313,9 +321,10 @@ Ext.define('Sp.data.Comet', {
                     load.set(rec.data);
                     load.commit();
                     store.fireEvent('datachanged', store);
+                    this.notifyPlanner(location.data.uuid, rec, 'update');
                 }
             }
-        });
+        }, this);
     },
     
     onLoadDelete: function(data){
@@ -327,9 +336,10 @@ Ext.define('Sp.data.Comet', {
             var load = store.getById(data.uuid);
             if (load){
                 store.remove(load, true);
+                this.notifyPlanner(load.data.location, load, 'destroy');
                 return false;
             }
-        });
+        }, this);
     },
     
     onSlotCreate: function(data){
@@ -340,6 +350,7 @@ Ext.define('Sp.data.Comet', {
             var load = Sp.utils.findLoad(rec.data.load);
             if (load){
                 load.Slots().add(rec);
+                this.notifyPlanner(load.data.location, rec, 'create');
             }
         }, this);
     },
@@ -355,6 +366,7 @@ Ext.define('Sp.data.Comet', {
                 if (slot){
                     slot.set(rec.data);
                     slot.commit();
+                    this.notifyPlanner(load.data.location, rec, 'update');
                 }
             }
         }, this);
@@ -371,14 +383,15 @@ Ext.define('Sp.data.Comet', {
                 var slot = store.getById(data.uuid);
                 if (slot){
                     store.remove(slot, true);
+                    this.notifyPlanner(location.data.uuid, slot, 'destroy');
                     found = true;
                     return false;
                 }
-            });
+            }, this);
             if (found){
                 return false;
             }
-        });
+        }, this);
     },
     
 });

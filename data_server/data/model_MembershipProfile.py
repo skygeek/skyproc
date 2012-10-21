@@ -8,6 +8,9 @@ class MembershipProfile(base.Model):
     
     relations = '+all -Location -LocationMembership -LocationCatalogItem -LocationCatalogPrice'
     
+    related_relations = 'ProfileCatalog'
+    related_fields = 'catalog_access default_catalog_item default_catalog_price'
+    
     location = models.ForeignKey('Location')
     
     name = models.CharField(max_length=128)
@@ -30,6 +33,7 @@ class MembershipProfile(base.Model):
 
 class ProfileCatalog(base.Model):
     isolated = True
+    related_fields = '+all'
     
     profile = models.ForeignKey('MembershipProfile')
     

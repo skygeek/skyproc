@@ -129,6 +129,6 @@ logging.getLogger().setLevel(logging.DEBUG)
 tornadio2.server.SocketServer(application, ssl_options={
         "certfile": "server.crt",
         "keyfile": "server.key",
-        "ca_certs": "ca.crt",
-        "cert_reqs": ssl.CERT_OPTIONAL,
+        #"ca_certs": "ca.crt",
+        #"cert_reqs": ssl.CERT_OPTIONAL,
 })

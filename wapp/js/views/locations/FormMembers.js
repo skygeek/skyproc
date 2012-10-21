@@ -51,7 +51,7 @@ Ext.define('Sp.views.locations.FormMembers', {
                             store: Data.createStore('LocationMembership', {
                                 autoLoad: true,
                                 buffered: true,
-                                pageSize: 50,
+                                pageSize: 40,
                                 remoteSort: true,
                                 sorters: [
                                     {
@@ -405,11 +405,23 @@ Ext.define('Sp.views.locations.FormMembers', {
     },
     
     doSearch: function(){
-        var re = new RegExp(this.down('#searchField').getValue(), 'i')
-        this.down('#membersGrid').getStore().filterBy(function(r){
-            var p = r.getPerson();
-            return re.test(p.data.first_name + ' ' + p.data.last_name);         
-        });
+        var search_text = this.down('#searchField').getValue();
+        var store = this.down('#membersGrid').getStore();
+        var filters = [{
+            property: 'location',
+            value: this.locationRec.data.uuid,
+        }];
+        if (search_text){
+            filters.push({
+                property: 'person__last_name__icontains',
+                value: search_text,
+            });
+            store.buffered = false;
+        } else {
+            store.buffered = true;
+        }
+        store.clearFilter(true);
+        store.filter(filters);
     },
     
     account_save: function(store){
@@ -485,4 +497,3 @@ Ext.define('Sp.views.locations.FormMembers', {
     },
     
 });
-

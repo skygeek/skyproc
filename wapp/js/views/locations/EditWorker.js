@@ -232,7 +232,7 @@ Ext.define('Sp.views.locations.EditWorker', {
                                     ],
                                 },
                                 {
-                                    title: TR("Remuneration"),
+                                    title: "<span class='disabled-text'>" + TR("Remuneration") + "</span>",
                                     icon: '/static/images/icons/money.png',
                                     padding: '15 0 0 10',
                                     items: [

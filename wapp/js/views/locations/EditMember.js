@@ -57,6 +57,18 @@ Ext.define('Sp.views.locations.EditMember', {
                             border: 0,
                             items: [
                                 {
+                                    title: TR("Personal infos"),
+                                    icon: '/static/images/icons/member.png',
+                                    border: 0,
+                                    items: [],
+                                },
+                                {
+                                    title: TR("Jumper infos"),
+                                    icon: '/static/images/icons/parachute_small.png',
+                                    border: 0,
+                                    items: [],
+                                },
+                                {
                                     title: TR("Profile"),
                                     icon: '/static/images/icons/membership.png',
                                     border: 0,
@@ -284,7 +296,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                     name: 'catalog_access',
                                                     xtype: 'checkbox',
                                                     itemId: 'catalogAccess',
-                                                    boxLabel: TR("The user can choose other items from the catalog"),
+                                                    boxLabel: TR("Let the member choose other items from the catalog (when self-manifesting)"),
                                                     listeners: {
                                                         change: Ext.bind(function(me, value){
                                                             this.down('#catalogItemsAvailBt').setDisabled(!value);

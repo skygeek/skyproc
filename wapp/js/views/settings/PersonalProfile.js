@@ -152,60 +152,6 @@ Ext.define('Sp.views.settings.PersonalProfile', {
                         },
                     ],
                 },
-                /*{
-                    xtype:'fieldset',
-                    title: TR("Email & Password"),
-                    defaults: {
-                        anchor: '100%'
-                    },
-                    items:[
-                        {
-                            name: 'email',
-                            xtype: 'textfield',
-                            fieldLabel: 'Email',
-                            allowBlank: false
-                        },
-                        {
-                            name: 'password',
-                            xtype: 'textfield',
-                            inputType: 'password',
-                            fieldLabel: TR("Password"),
-                            value: '############',
-                        },
-                        {
-                            name: 'password2',
-                            xtype: 'textfield',
-                            inputType: 'password',
-                            fieldLabel: TR("Confirmation"),
-                            value: '############',
-                        }
-                        
-                    ],
-                },
-                {
-                    xtype:'fieldset',
-                    title: TR("Select one or more profile"),
-                    defaults: {
-                        anchor: '100%'
-                    },
-                    items:[
-                        {
-                            name: 'is_consumer',
-                            xtype: 'checkbox',
-                            boxLabel: TR("I'm a skydiver"),
-                        },
-                        {
-                            name: 'is_dz_operator',
-                            xtype: 'checkbox',
-                            boxLabel: TR("I'm operating a dropzone"),
-                        },
-                        {
-                            name: 'is_tn_operator',
-                            xtype: 'checkbox',
-                            boxLabel: TR("I'm operating a wind tunnel"),
-                        },
-                    ],
-                },*/
                 {
                     xtype:'fieldset',
                     title: TR("Contact informations"),

@@ -6,7 +6,10 @@ $(document).ready(function(){
     function boxHeight() {
         form_wrapper.animate({ marginTop : ( - ( form_wrapper.height() / 2) - 24) },400);   
     };
+    
     form_wrapper.css({ marginTop : ( - ( form_wrapper.height() / 2) - 24) });
+    $('#login').find('#email').select();
+    
     $('.linkform a,.link_reg a').on('click',function(e){
         var target  = $(this).attr('href'),
             target_height = $(target).actual('height');
@@ -22,11 +25,16 @@ $(document).ready(function(){
                 $('.links_btm .linkform').toggle();
                 $(form_wrapper).css({
                     'height': '',
-                }); 
-                if (target == '#register'){                               
-                   Recaptcha.create("6LeUg9cSAAAAAGY1_FuDoKgtUAXWUoY2do5sqTAa", "captcha", {
-                       theme: 'white',
-                   });
+                });
+                if (target == '#login'){
+                    $('#login').find('#email').select();
+                } else if (target == '#register'){
+                    Recaptcha.create("6LeUg9cSAAAAAGY1_FuDoKgtUAXWUoY2do5sqTAa", "captcha", {
+                        theme: 'white',
+                    });
+                    $('#register').find('#r_fullname').select();
+                } else if (target == '#reset_password'){
+                    $('#reset_password').find('#s_email').select();
                 }
             });
         });

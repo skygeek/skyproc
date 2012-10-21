@@ -229,7 +229,7 @@ Ext.define('Sp.views.locations.FormWorkers', {
     
     onWorkerContextMenu: function(grid, record, el, idx, ev){
         
-        var availability_menu = [];
+        /*var availability_menu = [];
         if (record.data.available_fulltime){
             availability_menu.push({
                 text: TR("Set unavailable"),
@@ -250,7 +250,7 @@ Ext.define('Sp.views.locations.FormWorkers', {
                 text: TR("Set available for today only"),
                 icon: '/static/images/icons/calendar_one.png',
             });
-        }
+        }*/
         
         // context menu
         var menu = Ext.create('Ext.menu.Menu', {
@@ -281,12 +281,12 @@ Ext.define('Sp.views.locations.FormWorkers', {
                     },
                     scope: this,
                 },
-                '-',
+                /*'-',
                 {
                     text: TR("Change availability"),
                     icon: '/static/images/icons/calendar_small.png',
                     menu: availability_menu,
-                },
+                },*/
             ]
         });
         

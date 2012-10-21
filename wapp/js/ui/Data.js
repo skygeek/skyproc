@@ -274,7 +274,11 @@ Sp.ui.data.getPersonProfile = function(membershipRec, locationRec, override_valu
     if (override_values.profile){
         p = locationRec.MembershipProfiles().getById(override_values.profile);
     } else if (membershipRec.data.profile){
-        p = locationRec.MembershipProfiles().getById(membershipRec.data.profile);
+        if (Ext.isObject(membershipRec.data.profile)){
+            p = membershipRec.getMembershipProfile();
+        } else {
+            p = locationRec.MembershipProfiles().getById(membershipRec.data.profile);
+        }
     }
     
     // catalog item
@@ -289,7 +293,7 @@ Sp.ui.data.getPersonProfile = function(membershipRec, locationRec, override_valu
         profile.catalog_item = profile.catalog_item.uuid;
     }
     
-    // catalog element will be set only if the item has one and one only element
+    // catalog element will be set only if the item has one and only one element
     if (profile.catalog_item){
         var item = locationRec.LocationCatalogItems().getById(profile.catalog_item);
         if (item && item.LocationCatalogElements().getCount() == 1){
@@ -344,6 +348,42 @@ Sp.ui.data.getPersonProfile = function(membershipRec, locationRec, override_valu
         }
     }
     
+    // catalog access
+    var md = membershipRec.data;
+    var items = {};
+    var add_item = function(item_uuid, price_uuid){
+        var item = locationRec.LocationCatalogItems().getById(item_uuid);
+        if (!item){
+            return;
+        }
+        items[item_uuid] = {
+            name: item.data.name,
+            price: price_uuid,
+        };
+    };
+    profile.catalog_access = ((md.override_profile && md.catalog_access) || p.data.catalog_access);
+    profile.available_catalog = [];
+    if (profile.catalog_access){
+        if (p && p.data.default_catalog_item){
+            add_item(p.data.default_catalog_item, p.data.default_catalog_price);
+        }
+        p.ProfileCatalogs().each(function(i){
+            add_item(i.data.item, i.data.price);
+        });
+        if (md.default_catalog_item){
+            add_item(md.default_catalog_item, md.default_catalog_price);
+        }
+        membershipRec.MembershipCatalogs().each(function(i){
+            add_item(i.data.item, i.data.price);
+        });
+        Ext.Object.each(items, function(k,v){
+            profile.available_catalog.push({
+                uuid: k,
+                name: v.name,
+                price: v.price,
+            });
+        });
+    }
     return profile;
 }
 

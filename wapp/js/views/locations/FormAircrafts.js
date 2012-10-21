@@ -185,7 +185,7 @@ Ext.define('Sp.views.locations.FormAircrafts', {
     
     onAircraftContextMenu: function(grid, record, el, idx, ev){
         
-        var availability_menu = [];
+        /*var availability_menu = [];
         if (record.data.available_fulltime){
             availability_menu.push({
                 text: TR("Set unavailable"),
@@ -206,7 +206,7 @@ Ext.define('Sp.views.locations.FormAircrafts', {
                 text: TR("Set available for today only"),
                 icon: '/static/images/icons/calendar_one.png',
             });
-        }
+        }*/
         
         // context menu
         var menu = Ext.create('Ext.menu.Menu', {
@@ -237,12 +237,12 @@ Ext.define('Sp.views.locations.FormAircrafts', {
                     },
                     scope: this,
                 },
-                '-',
+                /*'-',
                 {
                     text: TR("Change availability"),
                     icon: '/static/images/icons/datetime.png',
                     menu: availability_menu,
-                },
+                },*/
             ]
         });
         

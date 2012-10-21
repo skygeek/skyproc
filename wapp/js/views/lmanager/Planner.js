@@ -2256,8 +2256,15 @@ Ext.define('Sp.views.lmanager.Planner', {
     },
     
     updateJumpersHeader: function(loadRec, infos){
-        var header_text = Sp.lmanager.getLoadHeader(loadRec, this.locationRec, infos);
-        this.slots_grids[loadRec.data.uuid].down('#jumper').setText(header_text);
+        if (!this.slots_grids[loadRec.data.uuid]){
+            return;
+        }
+        var header = this.slots_grids[loadRec.data.uuid].down('#jumper');
+        if (header){
+            infos = infos || this.getSlotsInfos(loadRec);
+            var header_text = Sp.lmanager.getLoadHeader(loadRec, this.locationRec, infos);
+            header.setText(header_text);
+        }
     },
     
     deleteJumpmasterItem: function(loadRec, slotRec){
@@ -2413,6 +2420,36 @@ Ext.define('Sp.views.lmanager.Planner', {
         Ext.ux.grid.Printer.documentTitle = print_title;
         Ext.ux.grid.Printer.mainTitle = print_header;
         Ext.ux.grid.Printer.print(print_grid);
+    },
+    
+    onCometMessage: function(record, operation){
+        var model = Data.getSpModelName(record);
+        if (model == 'Load'){
+            if (operation == 'update'){
+                var slots_grid = this.slots_grids[record.data.uuid];
+                if (slots_grid){
+                    if (record.data.state != 'P'){
+                        this.clearProblematic(record);
+                    }
+                    this.loadStateChanged(record);
+                    slots_grid.down('#loadNote').setValue(record.data.note);
+                    var jumpmasterCbx = slots_grid.down('#jumpmasterCbx');
+                    if (record.data.jumpmaster_slot){
+                        jumpmasterCbx.setValue(jumpmasterCbx.getStore().findRecord('uuid', record.data.jumpmaster_slot));
+                    } else {
+                        jumpmasterCbx.clearValue();
+                    }
+                } 
+            }
+        } else if (model == 'Slot'){
+            var loadRec = this.locationRec.Loads().getById(record.data.load);
+            if (loadRec){
+                loadRec.afterCommit();
+                this.updateJumpersHeader(loadRec);
+                //this.validateLoad(loadRec);
+                this.handleJumpmaster(loadRec, record, operation);    
+            }
+        }
     },
     
 });

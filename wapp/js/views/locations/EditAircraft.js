@@ -46,7 +46,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
         });
         
         Ext.apply(this, {
-            width: 650,
+            width: 660,
             height: 550,
             modal: true,
             resizable: false,
@@ -214,7 +214,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                     ],
                                 },
                                 {
-                                    title: TR("Timings"),
+                                    title: "<span class='disabled-text'>" + TR("Timings") + "</span>",
                                     icon: '/static/images/icons/chrono.png',
                                     padding: '5 5 0 5',
                                     layout: {
@@ -235,6 +235,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                     icon: '/static/images/icons/calculator.png',
                                                     padding: 5,
                                                     margin: '10 0 10 0',
+                                                    disabled: true,
                                                 },
                                             ],
                                         },
@@ -404,7 +405,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                     ],
                                 },
                                 {
-                                    title: TR("Pilotes"),
+                                    title: "<span class='disabled-text'>" + TR("Pilots") + "</span>",
                                     icon: '/static/images/icons/pilot.png',
                                     padding: '15 0 0 10',
                                     items: [

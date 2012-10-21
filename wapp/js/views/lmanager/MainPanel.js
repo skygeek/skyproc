@@ -219,10 +219,10 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                                 type: 'vbox',
                                 align: 'center',
                             },
-                            height: 100,
+                            height: 120,
                             margin: '0 0 4 0',
                             items: [
-                                {
+                                /*{
                                     xtype: 'chart',
                                     itemId: 'usageGauge',
                                     animate: true,
@@ -252,7 +252,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                                     xtype: 'label',
                                     html: "<span class='auto-label'>" + TR("OVERALL USAGE") + "</span>",
                                     margin: '0 0 0 0',
-                                },
+                                },*/
                             ],
                         },
                         {
