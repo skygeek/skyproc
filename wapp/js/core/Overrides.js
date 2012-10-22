@@ -142,6 +142,8 @@ Ext.override(Ext.form.field.ComboBox, {
         this.doQueryTask.cancel();
         if (this.forceSelection && this.allowBlank){
             if (!this.getRawValue()){
+                this.clearValue();
+                this.onClear();
                 return;
             }
         }

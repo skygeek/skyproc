@@ -1809,12 +1809,21 @@ function SRP(register, operation)
             operation.callback(false, msg);
         } else {
             try {
+                that.setBusy(false);
+                try {
+                    if (register){
+                        Recaptcha.reload();
+                    }
+                } catch(e){}
+                if (msg.search('captcha') != -1){
+                    var field = 'confirm_password';
+                } else {
+                    var field = register === true ? 'r_email' : 'email';
+                }
                 var validator = $(form_wrapper.find('form:visible')).validate();
-                var field = register === true ? 'r_email' : 'email';
                 var error = {};
                 error[field] = msg;
                 validator.showErrors(error);
-                that.setBusy(false);
             } catch(e){
                 alert(msg);
             }

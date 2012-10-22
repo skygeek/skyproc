@@ -11,6 +11,7 @@ from django.contrib import auth
 from srp.models import SRPUser
 
 import utils.auth
+from recaptcha.client import captcha
 
 
 ###
@@ -41,12 +42,19 @@ def generate_verifier(salt, username, password):
 ### User Registration
 ###
 
-# FIXME: register_salt and alter_salt can leak information about user existance !
-# FIXME: captcha verification must be done here...
+# FIXME: alter_salt can leak information about user existance !
+# FIXME: alter_salt must no respond to any request (authentificated and coming from tmp link only)
+# FIXME: register_user and alter_user must be called only after successfull call to register_salt/alter_salt
 
 # Step 1. A client submits a username. If the username is available, we generate a salt, store it, and return it.
 # Otherwise, we return an error.
 def register_salt(request):
+    if settings.CAPTCHA_KEY is not None:
+        try:
+            result = captcha.submit(request.POST["C"], request.POST["R"], settings.CAPTCHA_KEY, request.META['REMOTE_ADDR'])
+            if not result.is_valid: raise Exception
+        except:
+            return HttpResponse("<error>Invalid captcha</error>", mimetype="text/xml")
     if User.objects.filter(username=request.POST["I"]).count() > 0:
         return HttpResponse("<error>This email address is already in use</error>", mimetype="text/xml")
     request.session["srp_name"] = request.POST["I"]

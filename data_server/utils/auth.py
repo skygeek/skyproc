@@ -28,7 +28,6 @@ from django.conf import settings
 from django.db import models
 
 import misc
-from recaptcha.client import captcha
 
 Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
@@ -93,15 +92,6 @@ def register_sp_user(req, user):
     msg += "____________\n"
     msg += "Skyproc.com"
     send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
-    
-def validate_captcha(challenge, response, remoteip):
-    # returns a fake ok result when debug is on
-    if settings.DEBUG:
-        class Result: pass
-        r = Result()
-        r.is_valid = True
-        return r
-    return captcha.submit(challenge, response, settings.CAPTCHA_PK, remoteip)
 
 def create_pwd_reset_request(user):
     p = Person.objects.getOwn(user)

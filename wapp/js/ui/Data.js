@@ -209,7 +209,14 @@ Sp.ui.data.getPersonClearance = function(location_uuid){
             return false;
         }
     });
-    return clr;
+    if (clr && clr.data.approved){
+        var p = Sp.ui.misc.getClearancePeriod(clr);
+        var now = new Date();
+        if ((p.end_date && Ext.Date.between(now, p.start_date, p.end_date)) ||
+        Ext.Date.isEqual(Ext.Date.clearTime(now), Ext.Date.clearTime(p.start_date, true))){
+            return clr;
+        }
+    }
 }
 
 Sp.ui.data.buildCalendarStore = function(location_uuid, fn, scope){

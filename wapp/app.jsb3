@@ -318,6 +318,10 @@ GNU Affero General Public License for more details.",
             "name": "CatalogItemsSelect.js",
             "path": "/static/js/views/locations/"
         },
+        {
+            "name": "FormPrivacy.js",
+            "path": "/static/js/views/locations/"
+        },
         
         
 		{
@@ -452,3 +456,4 @@ GNU Affero General Public License for more details.",
     ],
     "resources": []
 }
+

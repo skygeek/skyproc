@@ -352,3 +352,22 @@ Sp.lmanager.getLoadHeader = function(loadRec, locationRec, infos){
     }
     return header_text;
 }
+
+Sp.lmanager.hasClearance = function(locationRec, person_uuid) {
+    var clr;
+    locationRec.Clearances().each(function(c){
+        if (c.data.person && c.data.person.uuid == person_uuid){
+            clr = c;
+            return false;
+        }
+    });
+    if (clr && clr.data.approved){
+        var p = Sp.ui.misc.getClearancePeriod(clr);
+        if (p.end_date){
+            return Ext.Date.between(new Date(), p.start_date, p.end_date);
+        } else {
+            return Ext.Date.isEqual(Ext.Date.clearTime(new Date()), Ext.Date.clearTime(p.start_date, true));
+        }
+        
+    }
+}

@@ -17,7 +17,6 @@ urlpatterns = patterns('',
     # SRP urls
     (r'^handshake/$', srp.views.handshake),
     (r'^authenticate/$', srp.views.verify),
-    (r'^register/validate/$', 'ui.views.validate_registration'),
     (r'^register/salt/$', srp.views.register_salt),
     (r'^register/user/$', srp.views.register_user),
     (r'^alter/salt/$', srp.views.alter_salt),

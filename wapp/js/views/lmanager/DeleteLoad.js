@@ -110,6 +110,9 @@ Ext.define('Sp.views.lmanager.DeleteLoad', {
     
     
     deleteLoad: function(){
+        if (this.loadRec.data.state == 'B'){
+            this.cancelBoardingTimerUpdater(this.loadRec);
+        }
         Sp.utils.rpc('lmanager.delete_load', [this.loadRec.data.uuid, this.down('#form').form.getValues()]);
         this.loadRec.store.remove(this.loadRec, true);
         this.close();

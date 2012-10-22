@@ -424,7 +424,7 @@ Ext.define('Sp.views.locations.FormMembers', {
         store.filter(filters);
     },
     
-    account_save: function(store){
+    membership_save: function(store){
         store.each(function(m){
             var account_store = m.Accounts();
             if (account_store.getModifiedRecords().length > 0 || account_store.getRemovedRecords().length > 0){
@@ -441,17 +441,16 @@ Ext.define('Sp.views.locations.FormMembers', {
                     a.AccountOperations().sync();
                 });
                 m.BuyedItems().sync();
+                m.MembershipCatalogs().sync();
+                m.MembershipExtraCatalogs().sync();
+                var person = m.getPerson();
+                if (!person.data.self_created && Ext.Object.getSize(person.getChanges()) > 0){
+                    person.save();
+                }
             }
         });
     },
-    
-    catalog_save: function(store){
-        store.each(function(m){
-            m.MembershipCatalogs().sync();
-            m.MembershipExtraCatalogs().sync();
-        });
-    },
-    
+        
     post_save: function(){
         var profiles_store = this.locationRec.MembershipProfiles();
         profiles_store.sync({
@@ -468,14 +467,12 @@ Ext.define('Sp.views.locations.FormMembers', {
             if (store.getModifiedRecords().length > 0 || store.getRemovedRecords().length > 0){
                 store.sync({
                     success: function(){
-                        this.account_save(store);
-                        this.catalog_save(store);
+                        this.membership_save(store);
                     },
                     scope: this,
                 });
             } else {
-                this.account_save(store);
-                this.catalog_save(store);
+                this.membership_save(store);
             }
         }
     },
@@ -492,6 +489,10 @@ Ext.define('Sp.views.locations.FormMembers', {
             membersGrid.getStore().each(function(m){
                 m.MembershipCatalogs().rejectChanges();
                 m.MembershipExtraCatalogs().rejectChanges();
+                var person = m.getPerson();
+                if (!person.data.self_created){
+                    person.reject();
+                }
             });
         }
     },

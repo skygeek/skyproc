@@ -22,6 +22,14 @@ Ext.define('Sp.views.locations.Locator', {
     extend: 'Ext.container.Container',
     
     initComponent: function() {
+        
+        var my_locations = [];
+        if (Sp.app.isOp()){
+            my_locations = Data.locations.getRange();
+        }
+        Data.memberships.each(function(m){
+            my_locations.push(m.getLocation());
+        });
                             
         Ext.apply(this, {
             layout: {
@@ -36,7 +44,7 @@ Ext.define('Sp.views.locations.Locator', {
                     collapsible: true,
                     collapseMode: 'header',
                     titleCollapse: true,
-                    collapsed: true,
+                    collapsed: my_locations.length > 0,
                     layout: {
                         type: 'hbox',
                     },
@@ -141,6 +149,7 @@ Ext.define('Sp.views.locations.Locator', {
                         remoteFilter: true,
                         buffered: true,
                         pageSize: 100,
+                        data: my_locations,
                     }),
                     columns: [
                         {
@@ -215,14 +224,6 @@ Ext.define('Sp.views.locations.Locator', {
         });
  
         this.callParent(arguments);
-        
-        var store = Ext.data.StoreManager.lookup('mainLocationsStore');
-        if (Sp.app.isOp()){
-            store.add(Data.locations.getRange());
-        }
-        Data.memberships.each(function(m){
-            store.add(m.getLocation());
-        });
     },
     
     onCountrySelect: function(cb, records){

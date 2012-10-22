@@ -960,6 +960,7 @@ Ext.define('Sp.views.lmanager.Planner', {
         var jumpmasterCbx = this.slots_grids[rec.data.uuid].down('#jumpmasterCbx');
         var jm_store = jumpmasterCbx.getStore();
         var jumpers = [];
+        jumpers.push({uuid: null, name: Ext.String.format('({0})', TR("None"))});
         rec.Slots().each(function(s){
             var jumper = {uuid: s.data.uuid};
             if (s.data.person){
@@ -1356,6 +1357,7 @@ Ext.define('Sp.views.lmanager.Planner', {
         var infos = this.getSlotsInfos(loadRec);
         var empty_slots = false;
         var duplicate_slots = false;
+        var no_clearance = false;
         var unpaid_slots = false;
         var unready_slots = false;
         var account_problem_slots = false;
@@ -1400,6 +1402,14 @@ Ext.define('Sp.views.lmanager.Planner', {
                     return;
                 }
             }
+            // clearance
+            if (s.data.person && this.locationRec.data.use_clearances && 
+            Sp.lmanager.hasClearance(this.locationRec, s.data.person.uuid) !== true){
+                Log('NO CLR')
+                no_clearance = true;
+                this.setProblematic(s, true, TR("Jumper has no valid clearance"));
+                return;
+            }
             // paid
             if (!s.data.is_paid){
                 Log('UNPAID')
@@ -1437,6 +1447,11 @@ Ext.define('Sp.views.lmanager.Planner', {
         
         if (duplicate_slots){
             this.setProblematic(loadRec, true, TR("There are duplicate slots in this load"));
+            return;
+        }
+        
+        if (no_clearance){
+            this.setProblematic(loadRec, true, TR("There are uncleared slots in this load"));
             return;
         }
         
@@ -1516,6 +1531,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                 timer: null,
                 state: 'T',
             });
+            this.loadStateChanged(loadRec);
         } else {
             var t = loadRec.data.timer-1;
             loadRec.set('timer', t);
@@ -1526,12 +1542,14 @@ Ext.define('Sp.views.lmanager.Planner', {
     archiveLoad: function(loadRec){
         Ext.create('Sp.views.lmanager.ArchiveLoad', {
             loadRec: loadRec,
+            cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
         }).show();
     },
     
     remoteDeleteLoad: function(loadRec){
         Ext.create('Sp.views.lmanager.DeleteLoad', {
             loadRec: loadRec,
+            cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
         }).show();
     },
     

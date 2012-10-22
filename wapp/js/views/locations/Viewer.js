@@ -30,6 +30,29 @@ Ext.define('Sp.views.locations.Viewer', {
             this.applyNextLoadsFilter();
         }
         
+        var account_log_store;
+        if (this.is_member && this.locationRec.data.share_account_data){
+            account_log_store = Data.createStore('AccountOperationLog', {
+                autoLoad: true,
+                buffered: true,
+                pageSize: 100,
+                remoteSort: true,
+                sorters: [
+                    {
+                        property: 'date',
+                        direction: 'DESC',
+                    },
+                ],
+                remoteFilter: true,
+                filters: [
+                    {
+                        property: 'location',
+                        value: this.locationRec.data.uuid,
+                    },
+                ],
+            });
+        }
+        
         var map_infos = Sp.ui.data.getLocationMapInfos(this.locationRec, false);
         
         Ext.apply(this, {
@@ -788,25 +811,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                                             enableColumnHide: false,
                                                             enableColumnResize: false,
                                                             emptyText: TR("No operations"),
-                                                            store: Data.createStore('AccountOperationLog', {
-                                                                autoLoad: true,
-                                                                buffered: true,
-                                                                pageSize: 100,
-                                                                remoteSort: true,
-                                                                sorters: [
-                                                                    {
-                                                                        property: 'date',
-                                                                        direction: 'DESC'
-                                                                    },
-                                                                ],
-                                                                remoteFilter: true,
-                                                                filters: [
-                                                                    {
-                                                                        property: 'location',
-                                                                        value: this.locationRec.data.uuid,
-                                                                    },
-                                                                ],
-                                                            }),
+                                                            store: account_log_store,
                                                             selModel: {
                                                                 pruneRemoved: false,
                                                             },

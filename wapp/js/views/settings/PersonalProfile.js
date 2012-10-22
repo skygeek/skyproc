@@ -188,8 +188,7 @@ Ext.define('Sp.views.settings.PersonalProfile', {
         this.form.loadRecord(Data.me);
                 
         // city display
-        var city_cb = this.down('#city');
-        Sp.ui.displayCity(city_cb, Data.me);
+        Sp.ui.displayCity(this.down('#city'), Data.me);
         
     },
     

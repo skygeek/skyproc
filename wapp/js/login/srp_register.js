@@ -9,6 +9,10 @@ function SRP_REGISTER()
         var operation = this.getOperation();
         var params = "I="+this.getI();
         var path = (operation && operation.change_password) ? 'alter/salt/' : 'register/salt/';
+        if (path == 'register/salt/' && typeof(reCAPTCHA_PK) != 'undefined' && reCAPTCHA_PK){
+            params += "&C="+encodeURIComponent(Recaptcha.get_challenge());
+            params += "&R="+encodeURIComponent(Recaptcha.get_response());
+        }
         this.ajaxRequest(this.geturl() + path, params, this.register_receive_salt);
     };
     

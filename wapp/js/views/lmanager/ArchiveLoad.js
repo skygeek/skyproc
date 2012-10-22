@@ -92,6 +92,9 @@ Ext.define('Sp.views.lmanager.ArchiveLoad', {
     
     
     archive: function(){
+        if (this.loadRec.data.state == 'B'){
+            this.cancelBoardingTimerUpdater(this.loadRec);
+        }
         Sp.utils.rpc('lmanager.archive_load', [this.loadRec.data.uuid, this.down('#note').getValue()]);
         this.loadRec.store.remove(this.loadRec, true);
         this.close();

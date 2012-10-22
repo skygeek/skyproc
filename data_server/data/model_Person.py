@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.db.models import F
 import base
 from choices import *
 
@@ -12,7 +13,7 @@ class Person(base.Model):
     objects = PersonManager()
 
     fields = {
-        'LocationMembership': 'first_name last_name gender picture',
+        #'LocationMembership': 'first_name last_name gender picture',
         'Location': 'first_name last_name gender picture', # via Clearance
         'Reservation': 'first_name last_name', # via Clearance
     }
@@ -49,7 +50,9 @@ class Person(base.Model):
     weight_kg = models.SmallIntegerField(blank=True, null=True)
     weight_lb = models.SmallIntegerField(blank=True, null=True)
     
-    past_jumps = models.IntegerField(blank=True, null=True)
+    past_jumps = models.IntegerField(default=0)
+    logged_jumps = models.IntegerField(default=0)
+    total_jumps = models.IntegerField(default=0)
     jumper_level = models.CharField(max_length=1, choices=JUMPER_LEVEL, blank=True, null=True)
     
     default_jump_type = models.ForeignKey('JumpType', blank=True, null=True, related_name='+')
@@ -78,6 +81,16 @@ class Person(base.Model):
     def __unicode__(self):
         return self.email
     
+    def save(self, *args, **kwargs):
+        if not hasattr(self, 'jumps_update') or not self.jumps_update:
+            if kwargs.has_key('force_insert') and kwargs['force_insert']:
+                self.logged_jumps = 0
+                self.total_jumps = 0
+            else:
+                self.logged_jumps = F('logged_jumps')
+                self.total_jumps = self.past_jumps + F('logged_jumps')
+        super(Person, self).save(*args, **kwargs)
+
 
 class EmailValidation(models.Model):
     private = True

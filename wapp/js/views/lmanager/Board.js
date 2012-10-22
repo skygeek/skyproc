@@ -22,7 +22,6 @@ Ext.define('Sp.views.lmanager.Board', {
     constructor: function(config){
         Ext.apply(this, config);
         this.taskRunner = new Ext.util.TaskRunner();
-        this.store = Data.createStore('Load');
         
         // options
         this.full_grids_count = this.locationRec.data.lboard_full_grids_count;
@@ -140,16 +139,11 @@ Ext.define('Sp.views.lmanager.Board', {
         });
         
         // add boarding loads
-        this.locationRec.Loads().each(function(l){
-            if (l.data.state == 'B'){
-                this.store.add(l)
-            }
-        }, this);
-        this.updateDisplay();
+        this.updateDisplay(this.locationRec.Loads());
         
     },
     
-    updateDisplay: function(){
+    updateDisplay: function(loads_store){
         if (this.full_grids_count == 0 && this.compact_grids_count == 0){
             return;
         }
@@ -157,8 +151,15 @@ Ext.define('Sp.views.lmanager.Board', {
         var full_grids = this.full_grids_count;
         var compact_grids = this.compact_grids_count;
         
+        var copy_store = Data.createStore('Load');
+        (loads_store.snapshot || loads_store.data).each(function(l){
+            if (l.data.state == 'B'){
+                copy_store.add(l);
+            }
+        });
+        
         // sort loads
-        this.store.sort({sorterFn: function(l1, l2){
+        copy_store.sort({sorterFn: function(l1, l2){
             if (Ext.isNumber(l1.data.timer) && Ext.isNumber(l2.data.timer)){
                 if (l1.data.timer > l2.data.timer){
                     return 1;
@@ -176,7 +177,7 @@ Ext.define('Sp.views.lmanager.Board', {
         
         // remove and recreate loads
         ctx.removeAll();
-        this.store.each(function(load){
+        copy_store.each(function(load){
             if (full_grids == 0 && compact_grids == 0){
                 return false;
             }
@@ -286,13 +287,17 @@ Ext.define('Sp.views.lmanager.Board', {
         }, this);
     },
     
-    onLoadDataChange: function(store){
+    onLoadDataChange: function(loads_store){
+        this.updateDisplay(loads_store);
+    },
+    
+    onLoadDataChange_bak: function(store){
         // FIXME: update instead of remove all/add -> this will cause more screen flickers !
         this.store.removeAll();
         // loop over unfiltred data     
         (store.snapshot || store.data).each(function(l){
             if (l.data.state == 'B'){
-                this.store.add(l)
+                this.store.add(l);
             }
         }, this);
         this.updateDisplay();

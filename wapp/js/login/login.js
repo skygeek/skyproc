@@ -10,6 +10,10 @@ $(document).ready(function(){
     form_wrapper.css({ marginTop : ( - ( form_wrapper.height() / 2) - 24) });
     $('#login').find('#email').select();
     
+    if (typeof(reCAPTCHA_PK) == 'undefined' || !reCAPTCHA_PK){
+        $('#register').find('#captcha').hide();    
+    }
+    
     $('.linkform a,.link_reg a').on('click',function(e){
         var target  = $(this).attr('href'),
             target_height = $(target).actual('height');
@@ -29,9 +33,11 @@ $(document).ready(function(){
                 if (target == '#login'){
                     $('#login').find('#email').select();
                 } else if (target == '#register'){
-                    Recaptcha.create("6LeUg9cSAAAAAGY1_FuDoKgtUAXWUoY2do5sqTAa", "captcha", {
-                        theme: 'white',
-                    });
+                    if (typeof(reCAPTCHA_PK) != 'undefined' && reCAPTCHA_PK){
+                        Recaptcha.create(reCAPTCHA_PK, "captcha", {
+                            theme: 'white',
+                        });    
+                    }
                     $('#register').find('#r_fullname').select();
                 } else if (target == '#reset_password'){
                     $('#reset_password').find('#s_email').select();
@@ -81,6 +87,7 @@ $(document).ready(function(){
             r_email: { required: true, email: true },
             r_password: { required: true, minlength: 6 },
             confirm_password: { required: true, minlength: 6, equalTo: "#r_password" },
+            recaptcha_response_field: { required: true },
         },
         messages: {
             r_fullname: "Please enter your name",
@@ -93,6 +100,9 @@ $(document).ready(function(){
                 required: "Please enter the password confirmation",
                 minlength: "Password must be at least 6 characters long",
                 equalTo: "The passwords you entered are different"
+            },
+            recaptcha_response_field: {
+                required: null,
             },
         },
         highlight: function(element) {
@@ -199,7 +209,7 @@ function login() {
         return false;
     }
     // login
-    srp = new SRP();
+    var srp = new SRP();
     srp.setBusy(true);
     srp.identify();
     return false;
@@ -210,17 +220,14 @@ function register() {
     if (!$('#register').valid()){
         return false;
     }
+    // register
     var srp = new SRP(true);
     srp.setBusy(true);
-    // FIXME: THIS IS NOT SECURE, captcha validation code must be moved inside the srp
-    // process, especially in server side !!!
-    var params = '';
-    params += "email="+encodeURIComponent(document.getElementById("r_email").value);
-    params += "&challenge="+encodeURIComponent(Recaptcha.get_challenge());
-    params += "&response="+encodeURIComponent(Recaptcha.get_response());
-    srp.ajaxRequest("/register/validate/", params, doRegister.bind(this, srp));
+    srp.register();
     return false;
 }
+
+
 
 function doRegister(srp){
     xhr = srp.getxhr();
@@ -240,7 +247,7 @@ function reset_pwd() {
         return false;
     }
     disableSubmitButton(['#password', '#confirm_password']);
-    s = new SRP(null, {
+    var srp = new SRP(null, {
         email: document.getElementById("email").value,
         password: document.getElementById("password").value,
         change_password: true, 
@@ -248,6 +255,6 @@ function reset_pwd() {
             window.location = success === true ? '/password-reset-succeeded/' : '/';
         },
     });
-    s.register();
+    srp.register();
     return false;
 }

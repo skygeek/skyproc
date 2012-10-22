@@ -65,15 +65,6 @@ def registration_succeeded(req):
     c['msg'] = "Check your email inbox, you will have received an email containing the link to activate your account."
     c['link_text'] = "Return"
     return render_to_response('login_msg.html', c)
-    
-def validate_registration(req):
-    # FIXME: complete validation and error notification
-        
-    result = auth.validate_captcha(req.POST['challenge'], req.POST['response'], req.META['REMOTE_ADDR'])
-    if result.is_valid:
-        return HttpResponse()
-    else:
-        return HttpResponse(result.error_code)
 
 def validate_email(req, validation_link):
     try: v = EmailValidation.objects.get(validation_link=validation_link)
