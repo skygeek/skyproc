@@ -159,6 +159,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                                 align: 'center',
                             },
                             margin: '0 0 4 0',
+                            disabled: true,
                             items: [
                                 {
                                     xtype: 'label',
@@ -216,12 +217,20 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                         {
                             xtype: 'panel',
                             layout: {
-                                type: 'vbox',
-                                align: 'center',
+                                //type: 'vbox',
+                                //align: 'center',
+                                type: 'hbox',
+                                align: 'middle',
+                                pack: 'center',
                             },
                             height: 120,
                             margin: '0 0 4 0',
                             items: [
+                                 {
+                                    xtype: 'label',
+                                    text: TR("This feature is not yet available"),
+                                    cls: 'placeholder-color',
+                                },
                                 /*{
                                     xtype: 'chart',
                                     itemId: 'usageGauge',

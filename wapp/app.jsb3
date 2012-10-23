@@ -389,6 +389,10 @@ GNU Affero General Public License for more details.",
 		    "name": "MainPanel.js",
 		    "path": "/static/js/views/logbook/"
 		},
+		{
+            "name": "EditJumpLog.js",
+            "path": "/static/js/views/logbook/"
+        },
 		
 		{
 		    "name": "MainPanel.js",

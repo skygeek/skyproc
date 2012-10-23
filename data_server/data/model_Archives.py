@@ -18,6 +18,8 @@
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models
+from django.db.models import Max
+from django.conf import settings
 import base
 import fields
 from choices import *
@@ -58,13 +60,26 @@ class SlotLog(base.ArchiveModel):
 class JumpLog(base.ArchiveModel):
     archive = True
     
-    location = fields.UUIDField()
-    location_name = models.CharField(max_length=64)
-    aircraft_type = models.CharField(max_length=32)
+    location = fields.UUIDField(blank=True, null=True)
+    number = models.IntegerField(blank=True, null=True)
+    location_name = models.CharField(max_length=64, blank=True, null=True)
+    aircraft_type = models.CharField(max_length=32, blank=True, null=True)
     date =  models.DateField()
-    jump_type = models.CharField(max_length=32)
-    altitude = models.CharField(max_length=32)
+    jump_type = models.CharField(max_length=32, blank=True, null=True)
+    altitude = models.CharField(max_length=32, blank=True, null=True)
     note = models.CharField(max_length=100, blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.number:
+            max_number = JumpLog.objects.filter(owner=self.owner).aggregate(Max('number'))['number__max']
+            if max_number is None:
+                try:
+                    person = models.get_model(settings.DATA_APP, 'Person').objects.get_by_natural_key(self.owner)
+                    past_jumps = person.past_jumps
+                except: past_jumps = 0
+                self.number = past_jumps+1
+            else: self.number = max_number+1
+        super(JumpLog, self).save(*args, **kwargs)
     
 class AccountOperationLog(base.ArchiveModel):
     archive = True
@@ -75,5 +90,4 @@ class AccountOperationLog(base.ArchiveModel):
     amount = models.CharField(max_length=64)
     currency = models.CharField(max_length=5)
     note = models.CharField(max_length=200)
-    
-    
+
