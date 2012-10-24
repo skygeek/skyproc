@@ -47,6 +47,20 @@ Sp.ui.misc.okMsg = function(msg, title){
     });
 }
 
+Sp.ui.misc.showAbout = function(){
+    var msg = '';
+    msg += "<span style='font-size:14px'>&copy; 2012, Skyproc (beta)</span><br><br>";
+    msg += "<span style='font-size:11px'>Skyproc is a free software released under";
+    msg += "<br><a href='http://www.gnu.org/licenses/agpl-3.0.html' target='_blank'>The GNU Affero General Public License</a>";
+    msg += "<br><br><a href='mailto:contact@skyproc.com' target='_blank'>contact@skyproc.com</a></span>";
+    Ext.MessageBox.show({
+        title: TR("About"),
+        msg: msg,
+        buttons: Ext.MessageBox.OK,
+        icon: Ext.MessageBox.INFO,
+    });
+}
+
 Sp.ui.misc.reportProxyException = function(proxy, response, operation){
     
     if (response.status == 401){

@@ -929,7 +929,15 @@ Ext.define('Sp.views.locations.EditMember', {
                 },
                 scope: this,
             });
-            this.afterSlotEdit(this.slotRec);
+            this.membershipRec.MembershipCatalogs().sync();
+            this.membershipRec.MembershipExtraCatalogs().sync();
+            var person = this.membershipRec.getPerson();
+            if (!person.data.self_created && Ext.Object.getSize(person.getChanges()) > 0){
+                person.save();
+            }
+            if (Ext.isFunction(this.afterSlotEdit)){
+                this.afterSlotEdit(this.slotRec);
+            }
         } else {
             record.afterCommit();
         }

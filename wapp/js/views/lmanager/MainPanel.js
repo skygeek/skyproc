@@ -36,6 +36,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
             items: [
                 {
                     xtype: 'toolbar',
+                    itemId: 'topToolbar',
                     region: 'north',
                     margin: '0 0 10 0',
                     items: [
@@ -98,6 +99,70 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                             itemId: 'filterBt',
                             icon: '/static/images/icons/filter.png',
                             menu: [
+                                {
+                                    text: TR("Filter by State"),
+                                    icon: '/static/images/icons/check.png',
+                                    itemId: 'stateFilter',
+                                    menu: [
+                                        {
+                                            text: TR("Planned"),
+                                            checked: false,
+                                            state: 'P',
+                                            listeners: {
+                                                click: this.doFilterLoads,
+                                                scope: this,
+                                            },
+                                        },
+                                        {
+                                            text: TR("Boarding"),
+                                            checked: false,
+                                            state: 'B',
+                                            listeners: {
+                                                click: this.doFilterLoads,
+                                                scope: this,
+                                            },
+                                        },
+                                        {
+                                            text: TR("In the air"),
+                                            checked: false,
+                                            state: 'X',
+                                            listeners: {
+                                                click: this.doFilterLoads,
+                                                scope: this,
+                                            },
+                                        },
+                                    ],
+                                },
+                                {
+                                    text: TR("Filter by Pilot"),
+                                    icon: '/static/images/icons/roles/pilot.png',
+                                    itemId: 'pilotFilter',
+                                    menu: [],
+                                },
+                                {
+                                    text: TR("Filter by Aircraft"),
+                                    icon: '/static/images/icons/plane_small.png',
+                                    itemId: 'aircraftFilter',
+                                    menu: [],
+                                },
+                                '-',
+                                {
+                                    text: TR("Apply filters"),
+                                    icon: '/static/images/icons/apply_filter.png',
+                                    handler: function(){
+                                        this.doFilterLoads();
+                                    },
+                                    scope: this,
+                                },
+                                '-',
+                                {
+                                    text: TR("Clear all filters"),
+                                    icon: '/static/images/icons/filter_clear.png',
+                                    handler: function(){
+                                        this.clearFilterLoads();
+                                    },
+                                    scope: this,
+                                },
                             ],
                         },
                         '-',
@@ -109,12 +174,14 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                         },
                         '-',
                         {
-                            text: TR("Ressources"),
+                            text: TR("Resources"),
                             icon: '/static/images/icons/sheet.png',
                             handler: function(){
                                 Ext.create('Sp.views.lmanager.Ressources', {
                                     locationRec: this.currentLocation,
-                                    res_stores: this.res_stores[this.currentLocation.data.uuid],
+                                    planner: this.getPlanner(this.currentLocation),
+                                    workersGrid: this.down('#workersGrid'),
+                                    updateCurrentLocation: Ext.bind(this.updateCurrentLocation, this),
                                 }).show();
                             },
                             scope: this,
@@ -304,6 +371,9 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                                     }),
                                     selModel: {
                                         pruneRemoved: false,
+                                        allowDeselect: true,
+                                        ignoreRightMouseSelection: true,
+                                        mode: 'MULTI',
                                     },
                                     viewConfig: {
                                         trackOver: false,
@@ -324,23 +394,47 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                                     tbar: [
                                         {
                                             xtype: 'textfield',
+                                            itemId: 'memberSearchText',
                                             flex: 1,
+                                            listeners: {
+                                                specialkey: function(me, e){
+                                                    if (e.getKey() == e.ENTER){
+                                                        this.doMemberSearch();
+                                                    }
+                                                },
+                                                scope: this,
+                                            },
                                         },
                                         {
                                             xtype: 'button',
                                             icon: '/static/images/icons/search.png',
                                             tooltip: TR("Search"),
-                                        }
-                                    ],
-                                    /*bbar: [
-                                        '->',
+                                            handler: function(){
+                                                this.doMemberSearch();
+                                            },
+                                            scope: this,
+                                        },
                                         {
                                             xtype: 'button',
-                                            text: TR("Add to this reservation"),
-                                            icon: '/static/images/icons/rewind.png',
-                                       },
-                                        '->',
-                                    ],*/
+                                            icon: '/static/images/icons/clear_sel.png',
+                                            tooltip: TR("Clear selection"),
+                                            handler: function(){
+                                                this.down('#membersGrid').getSelectionModel().deselectAll();
+                                            },
+                                            scope: this,
+                                        },
+                                    ],
+                                    listeners: {
+                                        itemcontextmenu: this.onMemberContextMenu,
+                                        itemdblclick: function(me, r, el){
+                                            Ext.create('Sp.views.locations.EditMember', {
+                                                locationRec: this.currentLocation,
+                                                membershipRec: r,
+                                                instantSave: true,
+                                            }).show();
+                                        },
+                                        scope: this,
+                                    },
                                 },
                                 {
                                     tabConfig: {
@@ -351,35 +445,54 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                                     },
                                     xtype: 'grid',
                                     itemId: 'workersGrid',
-                                    store: Ext.create('Ext.data.Store', {
-                                        fields: ['uuid','name'],
-                                    }),
                                     hideHeaders: true,
                                     border: 0,
-                                    emptyText: TR("No staff !"),
+                                    emptyText: TR("No staff available !"),
+                                    selModel: {
+                                        allowDeselect: true,
+                                        ignoreRightMouseSelection: true,
+                                        mode: 'MULTI',
+                                    },
                                     columns: [
                                         {dataIndex: 'name', flex:1},
                                     ],
                                     tbar: [
                                         {
                                             xtype: 'textfield',
+                                            itemId: 'workerSearchText',
                                             flex: 1,
+                                            listeners: {
+                                                specialkey: function(me, e){
+                                                    if (e.getKey() == e.ENTER){
+                                                        this.doWorkerSearch();
+                                                    }
+                                                },
+                                                scope: this,
+                                            },
                                         },
                                         {
                                             xtype: 'button',
                                             icon: '/static/images/icons/search.png',
                                             tooltip: TR("Search"),
-                                        }
-                                    ],
-                                    /*bbar: [
-                                        '->',
+                                            handler: function(){
+                                                this.doWorkerSearch();
+                                            },
+                                            scope: this,
+                                        },
                                         {
                                             xtype: 'button',
-                                            text: TR("Add to this reservation"),
-                                            icon: '/static/images/icons/rewind.png',
-                                       },
-                                        '->',
-                                    ],*/
+                                            icon: '/static/images/icons/clear_sel.png',
+                                            tooltip: TR("Clear selection"),
+                                            handler: function(){
+                                                this.down('#workersGrid').getSelectionModel().deselectAll();
+                                            },
+                                            scope: this,
+                                        },
+                                    ],
+                                    listeners: {
+                                        itemcontextmenu: this.onWorkerContextMenu,
+                                        scope: this,
+                                    },
                                 },
                             ],
                         },
@@ -432,6 +545,9 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         var r = store.getAt(0);
         if (r){
             this.setLocation(r.data.uuid);
+        } else {
+            this.down('#topToolbar').disable();
+            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one."), TR("No dropzone"));
         }
         
     },
@@ -446,14 +562,52 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         members_store.filter('location', locationRec.data.uuid);
         members_store.load();
         
-        var data = [];
-        locationRec.Workers().each(function(w){
-            data.push({
-                uuid: w.data.uuid,
-                name: w.data.name,
-            });
-        });
-        this.down('#workersGrid').getStore().loadRawData(data);
+        this.down('#workersGrid').getView().bindStore(this.res_stores[locationRec.data.uuid].workers);
+       
+        this.setLocationFilters(locationRec);
+    },
+    
+    setLocationFilters: function(locationRec){
+        var pilots = [];
+        this.res_stores[locationRec.data.uuid].pilot.each(function(p){
+            pilots.push({
+                 pilot_uuid: p.data.uuid,
+                 text: p.data.name,
+                 checked: false,
+                 listeners: {
+                     click: this.doFilterLoads,
+                     scope: this,
+                 },
+             });
+        }, this);
+        var menu = this.down('#pilotFilter').menu;
+        menu.removeAll();
+        menu.add(pilots);
+       
+        var aircrafts = [];
+        this.res_stores[locationRec.data.uuid].aircrafts.each(function(a){
+            aircrafts.push({
+                 aircraft_uuid: a.data.uuid,
+                 text: a.data.registration,
+                 checked: false,
+                 listeners: {
+                     click: this.doFilterLoads,
+                     scope: this,
+                 },
+             });
+        }, this);
+        var menu = this.down('#aircraftFilter').menu;
+        menu.removeAll();
+        menu.add(aircrafts);
+    },
+    
+    updateCurrentLocation: function(){
+        if (!this.currentLocation){
+            return;
+        }
+        var locationRec = this.currentLocation;
+        this.res_stores[locationRec.data.uuid] = Sp.ui.data.getActiveRessources(locationRec);
+        this.setLocationFilters(locationRec);
     },
     
     setOtherLocation: function(locationRec){
@@ -782,6 +936,209 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         }
         this.down('#redoBt').setDisabled(redo_stack.length == 0);
         this.down('#undoBt').enable();
+    },
+    
+    doMemberSearch: function(){
+        if (!this.currentLocation){
+            return;
+        }
+        var search_text = this.down('#memberSearchText').getValue();
+        var store = this.down('#membersGrid').getStore();
+        var filters = [{
+            property: 'location',
+            value: this.currentLocation.data.uuid,
+        }];
+        if (search_text){
+            filters.push({
+                property: 'person__last_name__icontains',
+                value: search_text,
+            });
+            store.buffered = false;
+        } else {
+            store.buffered = true;
+        }
+        store.clearFilter(true);
+        store.filter(filters);
+    },
+    
+    doWorkerSearch: function(){
+        if (!this.currentLocation){
+            return;
+        }
+        var store = this.down('#workersGrid').getView().getStore();
+        if (!store){
+            return;
+        }
+        var search_text = this.down('#workerSearchText').getValue();
+        store.clearFilter(true);
+        store.filter('name', new RegExp(search_text, 'i'));
+    },
+    
+    onMemberContextMenu: function(grid, record, el, idx, ev){
+        // context menu
+        var menu = Ext.create('Ext.menu.Menu', {
+            items: [
+                {
+                    text: TR("Filter by"),
+                    icon: '/static/images/icons/filter.png',
+                    handler: function(){
+                        this.doFilterLoads();
+                    },
+                    scope: this,
+                },
+                '-',
+                {
+                    text: TR("Edit"),
+                    icon: '/static/images/icons/edit.png',
+                    handler: function(){
+                        Ext.create('Sp.views.locations.EditMember', {
+                            locationRec: this.currentLocation,
+                            membershipRec: record,
+                            instantSave: true,
+                        }).show();                                                
+                    },
+                    scope: this,
+                    disabled: this.down('#membersGrid').getSelectionModel().getCount() > 1,
+                },
+            ]
+        });
+        
+        // show context menu
+        ev.preventDefault();
+        menu.showAt(ev.getXY());
+    },
+    
+    onWorkerContextMenu: function(grid, record, el, idx, ev){
+        // context menu
+        var menu = Ext.create('Ext.menu.Menu', {
+            items: [
+                {
+                    text: TR("Filter by"),
+                    icon: '/static/images/icons/filter.png',
+                    handler: function(){
+                        this.doFilterLoads();
+                    },
+                    scope: this,
+                },
+            ]
+        });
+        
+        // show context menu
+        ev.preventDefault();
+        menu.showAt(ev.getXY());
+    },
+    
+    filterLoad: function(loadRec){
+        // state
+        var states = [];
+        this.down('#stateFilter').menu.items.each(function(i){
+            if (i.checked){
+                if (i.state == 'X'){
+                    states.push('T');
+                    states.push('D');
+                    states.push('S');
+                    states.push('L');
+                } else {
+                    states.push(i.state);
+                }
+            }
+        });
+        if (states.length > 0){
+            if (states.indexOf(loadRec.data.state) == -1){
+                return false;
+            }
+        }
+        
+        // pilots
+        var pilots = [];
+        this.down('#pilotFilter').menu.items.each(function(i){
+            if (i.checked){
+                pilots.push(i.pilot_uuid);
+            }
+        });
+        if (pilots.length > 0){
+            if (pilots.indexOf(loadRec.data.pilot) == -1){
+                return false;
+            }
+        }
+        
+        // aircrafts
+        var aircrafts = [];
+        this.down('#aircraftFilter').menu.items.each(function(i){
+            if (i.checked){
+                aircrafts.push(i.aircraft_uuid);
+            }
+        });
+        if (aircrafts.length > 0){
+            if (aircrafts.indexOf(loadRec.data.aircraft) == -1){
+                return false;
+            }
+        }
+        
+        // members
+        var members = [];
+        var selected = this.down('#membersGrid').getSelectionModel().getSelection();
+        for (var i=0,m ; m=selected[i] ; i++){
+            members.push(m.data.person.uuid);
+        }
+        if (members.length > 0){
+            var member_found = false;
+            loadRec.Slots().each(function(s){
+                if (s.data.person && members.indexOf(s.data.person.uuid) != -1){
+                    member_found = true;
+                    return false;
+                }
+            });
+            if (!member_found){
+                return false;
+            }
+        }
+        
+        // workers
+        var workers = [];
+        var selected = this.down('#workersGrid').getSelectionModel().getSelection();
+        for (var i=0,w ; w=selected[i] ; i++){
+            workers.push(w.data.uuid);
+        }
+        if (workers.length > 0){
+            var worker_found = false;
+            loadRec.Slots().each(function(s){
+                if (s.data.worker && workers.indexOf(s.data.worker) != -1){
+                    worker_found = true;
+                    return false;
+                }
+            });
+            if (!worker_found){
+                return false;
+            }
+        }
+        
+        return true;
+    },
+    
+    doFilterLoads: function(){
+        if (!this.currentLocation){
+            return;
+        }
+        this.currentLocation.Loads().filterBy(this.filterLoad, this);
+    },
+    
+    clearFilterLoads: function(){
+        this.down('#stateFilter').menu.items.each(function(i){
+            i.setChecked(false);
+        });
+        if (!this.currentLocation){
+            return;
+        }
+        this.down('#pilotFilter').menu.items.each(function(i){
+            i.setChecked(false);
+        });
+        this.down('#aircraftFilter').menu.items.each(function(i){
+            i.setChecked(false);
+        });
+        this.down('#membersGrid').getSelectionModel().deselectAll();
+        this.down('#workersGrid').getSelectionModel().deselectAll();
+        this.currentLocation.Loads().clearFilter();
     },
                 
 });

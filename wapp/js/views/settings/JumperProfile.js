@@ -199,6 +199,7 @@ Ext.define('Sp.views.settings.JumperProfile', {
                             editable: true,
                             typeAhead: true,
                             valueField: 'uuid',
+                            displayField: 'code',
                             lastQuery: '',
                             tpl: Ext.create('Ext.XTemplate',
                                 '<tpl for=".">',
@@ -209,7 +210,7 @@ Ext.define('Sp.views.settings.JumperProfile', {
                                 '<tpl for=".">',
                                     '{code} - {name}',
                                 '</tpl>'
-                           ),
+                            ),
                         },
                     ],
                 },

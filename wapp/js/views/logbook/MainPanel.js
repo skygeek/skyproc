@@ -87,6 +87,10 @@ Ext.define('Sp.views.logbook.MainPanel', {
                     xtype: 'grid',
                     itemId: 'jumpsGrid',
                     margin: '5 0 0 0',
+                    emptyText: TR("No jump log found"),
+                    viewConfig: {
+                        deferEmptyText: true,
+                    },
                     store: Data.createStore('JumpLog', {
                         buffered: true,
                         pageSize: 70,

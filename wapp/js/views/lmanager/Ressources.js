@@ -22,12 +22,14 @@ Ext.define('Sp.views.lmanager.Ressources', {
     
     initComponent: function() {
         
+        this.res_stores = Sp.ui.data.getActiveRessources(this.locationRec);
+        
         Ext.apply(this, {
-            width: 640,
-            height: 380,
+            width: 580,
+            height: 420,
             modal: true,
-            //resizable: false,
-            title: TR("Ressources") + ' - ' + this.locationRec.data.name,
+            resizable: false,
+            title: TR("Resources") + ' - ' + this.locationRec.data.name,
             icon: '/static/images/icons/sheet.png',
             layout: {
                 type: 'hbox',
@@ -37,16 +39,21 @@ Ext.define('Sp.views.lmanager.Ressources', {
                 flex: 1,
                 layout: 'fit',
             },
+            bodyPadding: Sp.core.Globals.WINDOW_MARGIN,
             items: [
                 {
                     xtype: 'fieldset',
                     title: TR("Select active aircrafts"),
+                    margin: '0 8 0 0',
                     items: [
                         {
                             xtype: 'grid',
                             itemId: 'aircraftsGrid',
                             store: this.locationRec.Aircrafts(),
-                            selModel: Ext.create('Ext.selection.CheckboxModel'),
+                            selModel: Ext.create('Ext.selection.CheckboxModel', {
+                                checkOnly: true,
+                                injectCheckbox: 'last',
+                            }),
                             columns: [
                                 {
                                     dataIndex: 'registration',
@@ -66,12 +73,16 @@ Ext.define('Sp.views.lmanager.Ressources', {
                 {
                     xtype: 'fieldset',
                     title: TR("Select active staff members"),
+                    margin: 0,
                     items: [
                         {
                             xtype: 'grid',
                             itemId: 'workersGrid',
                             store: this.locationRec.Workers(),
-                            selModel: Ext.create('Ext.selection.CheckboxModel'),
+                            selModel: Ext.create('Ext.selection.CheckboxModel', {
+                                checkOnly: true,
+                                injectCheckbox: 'last',
+                            }),
                             columns: [
                                 {
                                     dataIndex: 'name',
@@ -110,9 +121,25 @@ Ext.define('Sp.views.lmanager.Ressources', {
     },
     
     apply: function(){
-        var aircraftsGrid = this.down('#aircraftsGrid');
-        var workersGrid = this.down('#workersGrid');
-        
+        var grids = ['#aircraftsGrid', '#workersGrid'],
+            grid, store, sel_model;
+        for (var i=0,g ; g=grids[i] ; i++){
+            grid = this.down(g);
+            store = grid.getStore();
+            sel_model = grid.getSelectionModel();
+            store.each(function(r){
+                var selected = sel_model.isSelected(r);
+                if (selected != r.data.available_fulltime){
+                    r.set('available_fulltime', selected);
+                    r.save();
+                }
+            });    
+        }
+        this.planner.res_stores = Sp.ui.data.getActiveRessources(this.locationRec);
+        this.workersGrid.getView().bindStore(this.planner.res_stores.workers);
+        this.updateCurrentLocation();
+        this.close();
     },
                 
 });
+

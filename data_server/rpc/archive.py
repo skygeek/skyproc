@@ -23,6 +23,7 @@ from django.http import HttpResponseForbidden
 
 JumpLog = models.get_model(settings.DATA_APP, 'JumpLog')
 Person = models.get_model(settings.DATA_APP, 'Person')
+LoadLog = models.get_model(settings.DATA_APP, 'LoadLog')
 
 def create_jump(jump_data):
     jump_data['owner'] = Person.objects.getOwn(req.user).uuid
@@ -47,3 +48,22 @@ def delete_jump(jump_uuid):
     if Person.objects.getOwn(req.user).uuid != jump_log.owner:
         return HttpResponseForbidden('Access denied')
     jump_log.delete()
+
+def delete_loads(values):    
+    try: filters = {'owner': Person.objects.getOwn(req.user).uuid}
+    except ObjectDoesNotExist: raise Http404
+    if isinstance(values, dict) and values.has_key('period') and values['period'] == 'subset':
+        try: start_date = values['startDate']
+        except: start_date = None
+        try: end_date = values['endDate']
+        except: end_date = None
+        if start_date and end_date:
+            filters['date__gte'] = start_date
+            filters['date__lte'] = end_date
+        elif start_date:
+            filters['date'] = start_date
+        elif end_date:
+            filters['date__lte'] = end_date
+    LoadLog.objects.filter(**filters).delete()
+        
+

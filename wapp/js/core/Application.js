@@ -378,6 +378,7 @@ Ext.define('Sp.core.Application', {
                                 {
                                     text: TR("Help Center"), 
                                     icon:'/static/images/icons/help.png',
+                                    disabled: true,
                                 },
                                 {
                                     text: TR("What's This"), 
@@ -385,6 +386,15 @@ Ext.define('Sp.core.Application', {
                                     activeCls: 'help-cursor',
                                     handler: function(){
                                         Sp.utils.help.startWhatsThis();
+                                    },
+                                    disabled: true,
+                                },
+                                '-',
+                                {
+                                    text: Ext.String.format(TR("About {0}"), Sp.core.Globals.BRAND), 
+                                    icon:'/static/images/icons/about.png',
+                                    handler: function(){
+                                        Sp.ui.misc.showAbout();
                                     },
                                 },
                                 '-',

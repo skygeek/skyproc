@@ -94,7 +94,7 @@ Sp.utils.getPositionLabel = function(position, positive, negative){
     var d = Math.abs(parseInt(position));
     var mm = (Math.abs(position)-d)*60;
     var m = parseInt(mm);
-    var s = Ext.util.Format.round((mm-m)*60, 1);
+    var s = parseInt((mm-m)*60);
     var dir = position < 0 ? negative : positive;
     return Ext.String.format("{0}°{1}′{2}″{3}", d, m, s, dir);
 }

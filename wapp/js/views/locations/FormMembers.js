@@ -128,13 +128,13 @@ Ext.define('Sp.views.locations.FormMembers', {
                                     itemId: 'searchField',
                                     width: 250, 
                                     emptyText: TR("Search for members"),
-                                    enableKeyEvents: true,
                                     listeners: {
-                                        keypress: Ext.bind(function(me, e){
-                                            if (e.getKey() == 13){
+                                        specialkey: function(me, e){
+                                            if (e.getKey() == e.ENTER){
                                                 this.doSearch();
                                             }
-                                        }, this),
+                                        },
+                                        scope: this,
                                     },
                                 },
                                 {
@@ -441,12 +441,12 @@ Ext.define('Sp.views.locations.FormMembers', {
                     a.AccountOperations().sync();
                 });
                 m.BuyedItems().sync();
-                m.MembershipCatalogs().sync();
-                m.MembershipExtraCatalogs().sync();
-                var person = m.getPerson();
-                if (!person.data.self_created && Ext.Object.getSize(person.getChanges()) > 0){
-                    person.save();
-                }
+            }
+            m.MembershipCatalogs().sync();
+            m.MembershipExtraCatalogs().sync();
+            var person = m.getPerson();
+            if (!person.data.self_created && Ext.Object.getSize(person.getChanges()) > 0){
+                person.save();
             }
         });
     },

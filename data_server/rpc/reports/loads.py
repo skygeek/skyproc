@@ -44,4 +44,3 @@ def get_grand_total(location_uuid, filters):
         ret['slots'] += load.total_slots
         misc.update_prices(load.prices, ret['prices'])
     return ret
-

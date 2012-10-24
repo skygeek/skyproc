@@ -172,7 +172,7 @@ Ext.define('Sp.views.locations.FormWorkers', {
     },
     
     doSearch: function(){
-        var search_text = this.query("#ctx #grid")[0].getDockedItems('toolbar[dock="top"]')[0].getComponent('searchText').getValue();
+        var search_text = this.down('#searchText').getValue();
         var store = this.locationRec.Workers();
         store.clearFilter(true);
         store.filter('name', new RegExp(search_text, 'i'));

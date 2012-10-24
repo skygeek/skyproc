@@ -410,7 +410,10 @@ GNU Affero General Public License for more details.",
 		    "name": "AccountsReport.js",
 		    "path": "/static/js/views/reports/"
 		},
-		
+		{
+            "name": "ClearData.js",
+            "path": "/static/js/views/reports/"
+        },
 		
 		
 		{

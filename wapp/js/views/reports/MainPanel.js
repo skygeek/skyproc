@@ -70,6 +70,10 @@ Ext.define('Sp.views.reports.MainPanel', {
     },
     
     showModule: function(module){
+        if (module == 'ClearData'){
+            Ext.create('Sp.views.reports.ClearData').show();
+            return;
+        }
         var m = this.down('#' + module);
         if (!m){
             m = Ext.create('Sp.views.reports.' + module, {

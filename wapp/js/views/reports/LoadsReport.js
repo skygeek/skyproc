@@ -326,6 +326,9 @@ Ext.define('Sp.views.reports.LoadsReport', {
             store.loadRawData(data);
             var r = store.getAt(0);
             this.setLocation(r.data.uuid);
+        } else {
+            this.getDockedItems('toolbar[dock="top"]')[0].disable();
+            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one."), TR("No dropzone"));
         }
     },
     

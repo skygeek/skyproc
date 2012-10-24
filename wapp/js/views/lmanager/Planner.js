@@ -862,8 +862,10 @@ Ext.define('Sp.views.lmanager.Planner', {
                     menu: [
                         {
                             loadRec: rec,
+                            itemId: 'validateBt',
                             text: TR("Validate Load"),
                             icon: '/static/images/icons/good.png',
+                            disabled: rec.data.state != 'P',
                             handler: function(me){
                                 this.validateLoad(me.loadRec, true);
                             },
@@ -887,7 +889,6 @@ Ext.define('Sp.views.lmanager.Planner', {
                     loadRec: rec,
                     emptyText: TR("Public note about this load."),
                     flex: 1,
-                    enableKeyEvents: true,
                     listeners: {
                         change: function(me, val){
                             var current_note = me.loadRec.data.note;
@@ -1052,6 +1053,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                                 undo_values['state'] = event.record.data.state;
                                 this.clearProblematic(event.record);
                                 event.record.set('state', 'B');
+                                this.loadStateChanged(event.record);
                                 // save
                                 this.actionOperation(event.record, 'save');
                                 // undo action
@@ -1232,6 +1234,10 @@ Ext.define('Sp.views.lmanager.Planner', {
         this.res_stores.aircrafts.each(function(a){
             usage_counts[a.data.uuid] = 0;
         });
+        if (Ext.Object.getSize(usage_counts) == 0){
+            Sp.ui.misc.warnMsg(TR("No aircraft available", TR("Missing resource")));
+            return;
+        }
         this.locationRec.Loads().each(function(l){
             usage_counts[l.data.aircraft] += 1;
         });
@@ -1251,6 +1257,10 @@ Ext.define('Sp.views.lmanager.Planner', {
         this.res_stores.pilot.each(function(p){
             usage_counts[p.data.uuid] = 0;
         });
+        if (Ext.Object.getSize(usage_counts) == 0){
+            Sp.ui.misc.warnMsg(TR("No pilot available", TR("Missing resource")));
+            return;
+        }
         this.locationRec.Loads().each(function(l){
             usage_counts[l.data.pilot] += 1;
         });
@@ -1272,10 +1282,18 @@ Ext.define('Sp.views.lmanager.Planner', {
     },
     
     newLoad: function(){
+        var next_aircraft = this.getNextAircraft();
+        if (!next_aircraft){
+            return;
+        }
+        var next_pilot = this.getNextPilot();
+        if (!next_pilot){
+            return;
+        }
         var load = Data.create('Load', {
             location: this.locationRec.data.uuid,
-            aircraft: this.getNextAircraft().data.uuid,
-            pilot: this.getNextPilot().data.uuid,
+            aircraft: next_aircraft.data.uuid,
+            pilot: next_pilot.data.uuid,
             number: this.getNextLoadNumber(),
         });
         load.Slots().sort({sorterFn: Sp.lmanager.slotsSorter});
@@ -1312,6 +1330,7 @@ Ext.define('Sp.views.lmanager.Planner', {
         var in_air = Sp.lmanager.isInTheAir(loadRec);
         grid.getDockedItems('toolbar[dock="bottom"]')[0].setDisabled(in_air);
         grid.down('#removeActionCol').setVisible(!in_air);
+        grid.down('#validateBt').setDisabled(loadRec.data.state != 'P'); 
     },
     
     setProblematic: function(rec, problematic, problem){
@@ -1552,7 +1571,7 @@ Ext.define('Sp.views.lmanager.Planner', {
             cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
         }).show();
     },
-    
+        
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     
