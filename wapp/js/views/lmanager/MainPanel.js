@@ -705,6 +705,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                 itemId: planner_id,
                 locationRec: locationRec,
                 storeAction: Ext.bind(this.storeAction, this),
+                resetActions: Ext.bind(this.resetActions, this),
                 statusBarOk: Ext.bind(this.statusBarOk, this),
                 statusBarBusy: Ext.bind(this.statusBarBusy, this),
                 statusBarText: Ext.bind(this.statusBarText, this),
@@ -731,6 +732,13 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         this.undo_stack[location_uuid].push(action);
         this.redo_stack[location_uuid] = [];
         this.down('#undoBt').enable();
+        this.down('#redoBt').disable();
+    },
+    
+    resetActions: function(location_uuid){
+        this.undo_stack[location_uuid] = [];
+        this.redo_stack[location_uuid] = [];
+        this.down('#undoBt').disable();
         this.down('#redoBt').disable();
     },
     
@@ -1121,6 +1129,8 @@ Ext.define('Sp.views.lmanager.MainPanel', {
             return;
         }
         this.currentLocation.Loads().filterBy(this.filterLoad, this);
+        this.getPlanner(this.currentLocation).collapseAll();
+        
     },
     
     clearFilterLoads: function(){

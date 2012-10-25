@@ -139,7 +139,7 @@ Ext.define('Sp.views.locations.Locator', {
                     enableColumnMove: false,
                     enableColumnResize: false,
                     sortableColumns: false,
-                    emptyText: TR("No dropzones matching your search criteria were found !"),
+                    emptyText: TR("No dropzone"),
                     store: Data.createStore('Location_P', {
                         storeId: 'mainLocationsStore',
                         sorters: [{

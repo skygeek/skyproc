@@ -371,7 +371,8 @@ Ext.define('Sp.core.Application', {
                                     text: TR("Settings"), 
                                     icon:'/static/images/icons/preferences.png', 
                                     handler: function(){
-                                        Sp.app.showModule({id:'settings'});
+                                        var module = Sp.app.showModule({id:'settings'});
+                                        module.showModule({id: 'home'});
                                     },
                                 },
                                 '-',
@@ -473,7 +474,7 @@ Ext.define('Sp.core.Application', {
     },
     
     showModule: function(config){
-        this.vp.getComponent('mainContainer').showModule(config);
+        return this.vp.getComponent('mainContainer').showModule(config);
     },
     
     onMainMenuCtxMenu: function(tree, rec, el, idx, ev){

@@ -724,6 +724,16 @@ Ext.define('Sp.views.locations.EditMember', {
                                                             scope: this,
                                                         },
                                                         {
+                                                            header: TR("Usage"),
+                                                            width: 100,
+                                                            renderer: function(v,o,r){
+                                                                var item = this.locationRec.LocationCatalogItems().getById(r.data.item);
+                                                                var total = Sp.ui.data.getItemTotalSlots(item);
+                                                                return Ext.String.format("{0}: {1}/{2}", TR("Usage"), r.data.usage_count, total);
+                                                            },
+                                                            scope: this,
+                                                        },
+                                                        {
                                                             xtype: 'actioncolumn',
                                                             width: 20,
                                                             items: [

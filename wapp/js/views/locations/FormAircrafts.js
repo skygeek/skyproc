@@ -70,7 +70,22 @@ Ext.define('Sp.views.locations.FormAircrafts', {
                                 {
                                     dataIndex: 'type',
                                     header: TR("Type"),
+                                    sortable: true,
                                     flex: 1,
+                                },
+                                {
+                                    dataIndex: 'min_slots',
+                                    header: TR("Minimum Slots"),
+                                    width: 110,
+                                    align: 'center',
+                                    sortable: true,
+                                },
+                                {
+                                    dataIndex: 'max_slots',
+                                    header: TR("Maximum Slots"),
+                                    width: 110,
+                                    align: 'center',
+                                    sortable: true,
                                 },
                                 {
                                     header: TR("Available"),

@@ -34,9 +34,7 @@ Sp.ui.data.selectFromStore = function(sm, store){
 
 Sp.ui.data.updateFromSelection = function(sm, record, field, store){
     var selected = sm.getSelection();
-    record.beginEdit();
     record.set(field, Data.getRawValues(selected));
-    record.endEdit();
     store.removeAll();
     store.add(Data.getCopies(selected));
 }
@@ -637,4 +635,12 @@ Sp.ui.data.updateTerrainInfos = function(location, viewer){
         });
     }
         
+}
+
+Sp.ui.data.getItemTotalSlots = function(item){
+    var slots = 0;
+    item.LocationCatalogElements().each(function(e){
+        slots += e.data.recurrence * e.data.slots;
+    });
+    return slots;
 }

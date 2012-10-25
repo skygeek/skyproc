@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public
 License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 */
 
+//FIXME: clean old and duplicate code here 
 
 Ext.define('Sp.views.locations.EditWorker', {
     extend: 'Ext.window.Window',
@@ -54,11 +55,9 @@ Ext.define('Sp.views.locations.EditWorker', {
                     items: [
                         {
                             xtype: 'tabpanel',
-                            itemId: 'tabs',
                             layout: 'anchor',
                             items: [
                                 {
-                                    itemId: 'id',
                                     title: TR("Identification"),
                                     icon: '/static/images/icons/person.png',
                                     padding: '5 5 0 5',
@@ -120,7 +119,6 @@ Ext.define('Sp.views.locations.EditWorker', {
                                         },
                                         {
                                             xtype: 'fieldset',
-                                            itemId: 'langs_fs',
                                             title: TR("Select the languages spoken by this staff member"),
                                             defaults: {
                                                 anchor: '100%',
@@ -128,7 +126,6 @@ Ext.define('Sp.views.locations.EditWorker', {
                                             items: [
                                                 {
                                                     xtype: 'fieldcontainer',
-                                                    itemId: 'ctx',
                                                     fieldLabel: TR("Languages"),
                                                     items: [
                                                         {
@@ -140,7 +137,9 @@ Ext.define('Sp.views.locations.EditWorker', {
                                                             stripeRows: false,
                                                             height: 100,
                                                             store: Data.spokenLangs,
-                                                            selModel: Ext.create('Ext.selection.CheckboxModel'),
+                                                            selModel: Ext.create('Ext.selection.CheckboxModel', {
+                                                                checkOnly: true,
+                                                            }),
                                                             columns: [
                                                                 {
                                                                     dataIndex: 'lang',
@@ -167,13 +166,11 @@ Ext.define('Sp.views.locations.EditWorker', {
                                 },
                                 {
                                     title: TR("Roles"),
-                                    itemId: 'roles',
                                     icon: '/static/images/icons/user_registered.png',
                                     padding: '5 5 0 5',
                                     items: [
                                         {
                                             xtype: 'fieldset',
-                                            itemId: 'fs',
                                             title: TR("Select one or more roles"),
                                             defaults: {
                                                 anchor: '100%',
@@ -181,7 +178,6 @@ Ext.define('Sp.views.locations.EditWorker', {
                                             items: [
                                                 {
                                                     xtype: 'fieldcontainer',
-                                                    itemId: 'ctx',
                                                     fieldLabel: TR("Roles"),
                                                     items: [
                                                         {
@@ -193,7 +189,9 @@ Ext.define('Sp.views.locations.EditWorker', {
                                                             rowLines: false,
                                                             stripeRows: false,
                                                             store: Data.workerTypes,
-                                                            selModel: Ext.create('Ext.selection.CheckboxModel'),
+                                                            selModel: Ext.create('Ext.selection.CheckboxModel', {
+                                                                checkOnly: true,
+                                                            }),
                                                             columns: [
                                                                 {
                                                                     dataIndex: 'type',
@@ -253,14 +251,12 @@ Ext.define('Sp.views.locations.EditWorker', {
             buttons: [
                 {
                     text: ok_text,
-                    itemId: 'okBt',
                     icon: '/static/images/icons/save.png',
                     handler: ok_handler,
                     scope: this,
                 },
                 {
                     text: TR("Cancel"),
-                    itemId: 'cancelBt',
                     icon: '/static/images/icons/cancel.png',
                     handler: this.close,
                     scope: this,
@@ -316,7 +312,7 @@ Ext.define('Sp.views.locations.EditWorker', {
         // update spoken langs
         if (this.spokenLangsGridRendered){
             Sp.ui.data.updateFromSelection(
-                this.query('#form #tabs #id #langs_fs #ctx #spoken_langs')[0].getSelectionModel(), 
+                this.down('#spoken_langs').getSelectionModel(),
                 r, 
                 'spoken_langs',
                 r.SpokenLangs()
@@ -326,7 +322,7 @@ Ext.define('Sp.views.locations.EditWorker', {
         // update roles
         if (this.RolesGridRendered){
             Sp.ui.data.updateFromSelection(
-                this.query('#form #tabs #roles #fs #ctx #roles')[0].getSelectionModel(), 
+                this.down('#roles').getSelectionModel(), 
                 r, 
                 'roles',
                 r.WorkerTypes()
@@ -348,7 +344,7 @@ Ext.define('Sp.views.locations.EditWorker', {
         // update spoken langs
         if (this.spokenLangsGridRendered){
             Sp.ui.data.updateFromSelection(
-                this.query('#form #tabs #id #langs_fs #ctx #spoken_langs')[0].getSelectionModel(), 
+                this.down('#spoken_langs').getSelectionModel(), 
                 this.workerRec, 
                 'spoken_langs',
                 this.workerRec.SpokenLangs()
@@ -358,7 +354,7 @@ Ext.define('Sp.views.locations.EditWorker', {
         // update roles
         if (this.RolesGridRendered){
             Sp.ui.data.updateFromSelection(
-                this.query('#form #tabs #roles #fs #ctx #roles')[0].getSelectionModel(), 
+                this.down('#roles').getSelectionModel(), 
                 this.workerRec, 
                 'roles',
                 this.workerRec.WorkerTypes()

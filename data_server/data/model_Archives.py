@@ -24,7 +24,6 @@ import base
 import fields
 from choices import *
 
-
 class LoadLog(base.ArchiveModel):
     archive = True
     

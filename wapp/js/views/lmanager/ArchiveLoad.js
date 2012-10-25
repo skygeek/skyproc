@@ -73,12 +73,14 @@ Ext.define('Sp.views.lmanager.ArchiveLoad', {
             buttons: [
                 {
                     text: TR("Archive"),
+                    itemId: 'archiveBt',
                     icon: '/static/images/icons/save.png',
                     handler: this.archive,
                     scope: this,
                 },
                 {
                     text: TR("Cancel"),
+                    itemId: 'cancelBt',
                     icon: '/static/images/icons/cancel.png',
                     handler: this.close,
                     scope: this,
@@ -92,12 +94,17 @@ Ext.define('Sp.views.lmanager.ArchiveLoad', {
     
     
     archive: function(){
-        if (this.loadRec.data.state == 'B'){
-            this.cancelBoardingTimerUpdater(this.loadRec);
-        }
-        Sp.utils.rpc('lmanager.archive_load', [this.loadRec.data.uuid, this.down('#note').getValue()]);
-        this.loadRec.store.remove(this.loadRec, true);
-        this.close();
+        this.down('#archiveBt').disable();
+        this.down('#cancelBt').disable();
+        this.body.mask(TR("Please wait"));
+        Sp.utils.rpc('lmanager.archive_load', [this.loadRec.data.uuid, this.down('#note').getValue()], function(){
+            if (this.loadRec.data.state == 'B'){
+                this.cancelBoardingTimerUpdater(this.loadRec);
+            }
+            this.loadRec.store.remove(this.loadRec, true);
+            this.resetActions(this.loadRec.data.location);
+            this.close();
+        }, this);
     },
                 
 });

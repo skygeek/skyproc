@@ -61,7 +61,14 @@ Ext.define('Sp.views.reports.MainPanel', {
                         text: TR("Clear Data"),
                         icon: '/static/images/icons/purge.png',
                         moduleClass: 'ClearData',
-                        margin: '0 7 0 0',
+                        margin: '0 0 0 0',
+                    },
+                    {
+                        text: TR("Export"),
+                        icon: '/static/images/icons/export.png',
+                        width: 60,
+                        margin: '0 10 0 0',
+                        disabled: true,
                     },
                 ]
             }],

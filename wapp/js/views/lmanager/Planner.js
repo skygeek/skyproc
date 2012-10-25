@@ -113,13 +113,16 @@ Ext.define('Sp.views.lmanager.Planner', {
                     header: Ext.String.format("{0} {1}", loads_count, loads_count > 1 ? TR("Loads") : TR("Load")),
                     flex: 1,
                     renderer: function(v,o,r){
+                        
                         var infos = this.getSlotsInfos(r);
-                        var free = infos.total - infos.used;
                         var label = '';
                         label += Ext.String.format("N° {0} &nbsp;-&nbsp; {1} {2} &nbsp;-&nbsp;&nbsp;",
-                                r.data.number, infos.total, (infos.total > 1 ? TR("Slots") : TR("Slot")));
-                        if (free > 0){
-                            label += Ext.String.format("{0}: <span class='bold'>{1}</span>", TR("Available"), free);
+                                    r.data.number, infos.total, (infos.total > 1 ? TR("Slots") : TR("Slot")));
+                        label += Ext.String.format("{0} {1} &nbsp;-&nbsp;&nbsp;", infos.used, TR("Used"));
+                        label += Ext.String.format("{0} &nbsp;-&nbsp;&nbsp;",
+                                    Sp.lmanager.getLoadWeight(this.locationRec, r));
+                        if (infos.free > 0){
+                            label += Ext.String.format("{0}: <span class='bold'>{1}</span>", TR("Available"), infos.free);
                         } else {
                             label += Ext.String.format("<span class='bold'>{0}</span>", TR("FULL"));
                         }
@@ -359,13 +362,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                     }
                 },
                 sortchange: function(){
-                    var expand_plugin = this.getPlugin('expand');
-                    var loads_store = this.locationRec.Loads();
-                    Ext.Object.each(this.slots_grids, function(k,v){
-                        if (v.bodyExpanded){
-                            expand_plugin.toggleRow(loads_store.indexOfId(k));
-                        }
-                    });
+                    this.collapseAll();
                 },
                 beforeedit: this.beforeLoadCellEdit,
                 validateedit: this.validateLoadCellEdit,
@@ -1361,6 +1358,18 @@ Ext.define('Sp.views.lmanager.Planner', {
         Log('=== BEGIN ====')
         Log(loadRec)
         
+        if (!this.res_stores.aircrafts.getById(loadRec.data.aircraft)){
+            Log('INACTIVE AIRCRAFT')
+            this.setProblematic(loadRec, true, TR("Aircraft is not active"));
+            return;
+        }
+        
+        if (!this.res_stores.pilot.getById(loadRec.data.pilot)){
+            Log('INACTIVE PILOT')
+            this.setProblematic(loadRec, true, TR("Pilot is not active"));
+            return;
+        }
+        
         if (!final_validation && !this.locationRec.data.lmanager_loads_auto_validate){
             Log('=== SKIPPED ====')
             return true;
@@ -1380,6 +1389,7 @@ Ext.define('Sp.views.lmanager.Planner', {
         var unpaid_slots = false;
         var unready_slots = false;
         var account_problem_slots = false;
+        var inactive_workers = false;
         var seen_jumpers = [], 
             jumper_uuid;
         
@@ -1407,6 +1417,13 @@ Ext.define('Sp.views.lmanager.Planner', {
                 Log('EMPTY')
                 empty_slots = true;
                 this.setProblematic(s, true, TR("Empty slot"));
+                return;
+            }
+            // worker active
+            if (s.data.worker && !this.res_stores.workers.getById(s.data.worker)){
+                Log('INACTIVE')
+                inactive_workers = true;
+                this.setProblematic(s, true, TR("Inactive staff member"));
                 return;
             }
             // duplicate slot
@@ -1464,6 +1481,11 @@ Ext.define('Sp.views.lmanager.Planner', {
             return;
         }
         
+        if (inactive_workers){
+            this.setProblematic(loadRec, true, TR("There are inactive staff members in this load"));
+            return;
+        }
+        
         if (duplicate_slots){
             this.setProblematic(loadRec, true, TR("There are duplicate slots in this load"));
             return;
@@ -1504,6 +1526,12 @@ Ext.define('Sp.views.lmanager.Planner', {
         return true;
     },
         
+    validateAllLoad: function(){
+        this.locationRec.Loads().each(function(l){
+            this.validateLoad(l);
+        }, this);
+    },
+    
     setupBoardingTimerUpdater: function(loadRec){
         var interval = Sp.core.Globals.DEBUG ? 1000 : 60000;
         if (!Ext.isDefined(this.tasks[loadRec.data.uuid])){
@@ -1562,6 +1590,7 @@ Ext.define('Sp.views.lmanager.Planner', {
         Ext.create('Sp.views.lmanager.ArchiveLoad', {
             loadRec: loadRec,
             cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
+            resetActions: this.resetActions,
         }).show();
     },
     
@@ -1569,7 +1598,18 @@ Ext.define('Sp.views.lmanager.Planner', {
         Ext.create('Sp.views.lmanager.DeleteLoad', {
             loadRec: loadRec,
             cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
+            resetActions: this.resetActions,
         }).show();
+    },
+    
+    collapseAll: function(){
+        var expand_plugin = this.getPlugin('expand');
+        var loads_store = this.locationRec.Loads();
+        Ext.Object.each(this.slots_grids, function(k,v){
+            if (v.bodyExpanded){
+                expand_plugin.toggleRow(loads_store.indexOfId(k));
+            }
+        });
     },
         
     ///////////////////////////////////////////////////////////////////////////

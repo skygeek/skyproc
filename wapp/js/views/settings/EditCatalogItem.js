@@ -375,7 +375,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                     header: TR("Altitude"),
                                                     align: 'center',
                                                     renderer: function(v,o,r){
-                                                        return r.data.altitude + ' ' + r.data.altitude_unit;
+                                                        return Ext.util.Format.number(r.data.altitude, '0,/i') + ' ' + r.data.altitude_unit;
                                                     },
                                                 },
                                                 {

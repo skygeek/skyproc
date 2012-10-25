@@ -136,6 +136,7 @@ Ext.define('Sp.views.lmanager.Ressources', {
             });    
         }
         this.planner.res_stores = Sp.ui.data.getActiveRessources(this.locationRec);
+        this.planner.validateAllLoad();
         this.workersGrid.getView().bindStore(this.planner.res_stores.workers);
         this.updateCurrentLocation();
         this.close();

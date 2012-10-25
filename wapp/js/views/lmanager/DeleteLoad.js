@@ -91,12 +91,14 @@ Ext.define('Sp.views.lmanager.DeleteLoad', {
             buttons: [
                 {
                     text: TR("Delete"),
+                    itemId: 'deleteBt',
                     icon: '/static/images/icons/ban.png',
                     handler: this.deleteLoad,
                     scope: this,
                 },
                 {
                     text: TR("Cancel"),
+                    itemId: 'cancelBt',
                     icon: '/static/images/icons/cancel.png',
                     handler: this.close,
                     scope: this,
@@ -110,12 +112,17 @@ Ext.define('Sp.views.lmanager.DeleteLoad', {
     
     
     deleteLoad: function(){
-        if (this.loadRec.data.state == 'B'){
-            this.cancelBoardingTimerUpdater(this.loadRec);
-        }
-        Sp.utils.rpc('lmanager.delete_load', [this.loadRec.data.uuid, this.down('#form').form.getValues()]);
-        this.loadRec.store.remove(this.loadRec, true);
-        this.close();
+        this.down('#deleteBt').disable();
+        this.down('#cancelBt').disable();
+        this.body.mask(TR("Please wait"));
+        Sp.utils.rpc('lmanager.delete_load', [this.loadRec.data.uuid, this.down('#form').form.getValues()], function(){
+            if (this.loadRec.data.state == 'B'){
+                this.cancelBoardingTimerUpdater(this.loadRec);
+            }
+            this.loadRec.store.remove(this.loadRec, true);
+            this.resetActions(this.loadRec.data.location);
+            this.close();
+        }, this);
     },
                 
 });

@@ -298,8 +298,8 @@ Ext.define('Sp.views.locations.FormWorkers', {
     post_save: function(){
         this.locationRec.Workers().sync();
         this.locationRec.Workers().each(function(w){
-            w.SpokenLangs().sync();
-            w.WorkerTypes().sync();
+            w.SpokenLangs().commitChanges();
+            w.WorkerTypes().commitChanges();
         });
     },
     

@@ -50,6 +50,7 @@ Ext.define('Sp.ui.CardContainer', {
             this.add(module);
         }
         this.getLayout().setActiveItem(module);
+        return module;
     },
         
     moduleAdded: function(me, module){

@@ -97,8 +97,11 @@ def get_data(location_uuid, start_date, end_date):
                         
     # calculate aircraft usage ratios
     for k,v in data['aircraft'].items():
-        aircraft = Aircraft.objects.get(owner=location.owner, deleted=False, registration=k)
-        v['usage'] = int(round((v['slots']*100)/(v['loads']*aircraft.max_slots), 0))
+        try:
+            aircraft = Aircraft.objects.get(owner=location.owner, deleted=False, registration=k)
+            v['usage'] = int(round((v['slots']*100)/(v['loads']*aircraft.max_slots), 0))
+        except:
+            v['usage'] = None
         
     return data
 

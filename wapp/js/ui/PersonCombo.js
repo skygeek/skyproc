@@ -113,6 +113,12 @@ Ext.define('Sp.ui.PersonCombo', {
                         direction: 'ASC'
                     }
                 ],
+                filters: [
+                    {
+                        property: 'location',
+                        value: this.locationRec.data.uuid,
+                    },
+                ],
                 proxy: {
                     extraParams: {
                         query_field: 'person__last_name',

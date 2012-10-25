@@ -34,4 +34,5 @@ def update(location_uuid):
         return HttpResponseForbidden('Access denied')
     rec = weather.update_location(location)
     if rec:
-        return serializers.serialize("json", [rec], use_natural_keys=True)
+        return serializers.serialize("json", [rec], use_natural_keys=True, \
+                            excludes=('created', 'modified', 'deleted', 'owner'))

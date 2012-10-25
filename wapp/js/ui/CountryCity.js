@@ -120,9 +120,11 @@ Sp.ui.countryChanged = function(records, city_cb, custom_city_field){
         custom_city_field.setValue('');
     }
     
+    city_store.removeAll(true);
+    city_store.remoteFilter = false;
     city_store.clearFilter(true);
     city_store.filter('country', r.data.uuid);
-    
+    city_store.remoteFilter = true;
 }
 
 Sp.ui.saveCustomCity = function(record, city_store){

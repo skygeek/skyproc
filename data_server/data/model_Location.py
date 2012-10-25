@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.conf import settings
 import base
 from choices import *
+
+from utils import demo
 
 class Location(base.Model):
     show_all = True
@@ -17,6 +20,7 @@ class Location(base.Model):
     
     name = models.CharField(max_length=128)
     type = models.CharField(max_length=1, choices=LOCATIONS_TYPE, default='D')
+    load_demo_data = models.BooleanField(default=False)
     
     country = models.ForeignKey('Country')
     city = models.ForeignKey('City', blank=True, null=True)
@@ -86,7 +90,21 @@ class Location(base.Model):
     
     def __unicode__(self):
         return self.name
-
+    
+    def save(self, *args, **kwargs):
+        super(Location, self).save(*args, **kwargs)
+        if kwargs.has_key('force_insert') and kwargs['force_insert']:
+            # create default profile
+            profile = models.get_model(settings.DATA_APP, 'MembershipProfile')()
+            profile.owner = self.owner
+            profile.location = self
+            profile.name = 'Default'
+            profile.default = True
+            profile.save()
+            # demo data
+            if self.load_demo_data:
+                demo.load_demo_data(self)
+            
 class MapObject(base.Model):
     isolated = True
     related_fields = '+all'

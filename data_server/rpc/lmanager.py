@@ -139,6 +139,7 @@ def __archive_person_slot(slot, del_options):
     return ret
 
 def archive_load(load_uuid, note, del_options={}):
+    
     try: load = Load.objects.get_by_natural_key(load_uuid)
     except ObjectDoesNotExist: raise Http404
     

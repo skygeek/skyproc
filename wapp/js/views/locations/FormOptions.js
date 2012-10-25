@@ -54,6 +54,7 @@ Ext.define('Sp.views.locations.FormOptions', {
                                     title: TR("Reservations"),
                                     icon: '/static/images/icons/calendar_small.png',
                                     padding: '5 8 5 8',
+                                    overflowY: 'auto',
                                     items: [
                                         {
                                             xtype: 'fieldset',
@@ -91,6 +92,7 @@ Ext.define('Sp.views.locations.FormOptions', {
                                     title: TR("Lift Manager"),
                                     icon: '/static/images/icons/plane_small.png',
                                     padding: '5 8 5 8',
+                                    overflowY: 'auto',
                                     items: [
                                         {
                                             xtype: 'fieldset',
@@ -231,9 +233,11 @@ Ext.define('Sp.views.locations.FormOptions', {
         this.callParent(arguments);
         
         if (rec.data.lmanager_default_catalog_price){
-            var priceCbx = this.down('#priceCbx');
+            var item = rec.LocationCatalogItems().getById(rec.data.lmanager_default_catalog_item);
+            if (item){
+                this.onCatalogItemSelect(null, [item]);
+            }
         }
-        
     },
     
     onCatalogItemSelect: function(cbx, recs){
@@ -257,12 +261,19 @@ Ext.define('Sp.views.locations.FormOptions', {
             });
         });
         priceCbx_store.loadRawData(prices);
-        priceCbx.clearValue();
-        var def = priceCbx_store.findRecord('default', true);
-        if (def){
-            priceCbx.setValue(def);
+        if (cbx){
+            priceCbx.clearValue();
+            var default_currency;
+            if (this.locationRec.data.default_currency){
+                default_currency = Data.currencies.getById(this.locationRec.data.default_currency);
+            }
+            var def = priceCbx_store.findBy(function(r){
+                return (r.data['default'] && default_currency && default_currency.data.code == r.data.currency);
+            });
+            if (def != -1){
+                priceCbx.setValue(priceCbx_store.getAt(def));
+            }    
         }
-         
     },
     
 });

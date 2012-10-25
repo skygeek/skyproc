@@ -24,10 +24,6 @@ import ephem
 from django.db import models
 from django.conf import settings
 
-Location = models.get_model(settings.DATA_APP, 'Location')
-MapObject = models.get_model(settings.DATA_APP, 'MapObject')
-WeatherObservation = models.get_model(settings.DATA_APP, 'WeatherObservation')
-
 def __geonames_request(service, params):
     try:
         params['username'] = settings.GEONAMES_USER
@@ -76,6 +72,8 @@ def __get_sun_infos(lat, lng, dt, location):
     return infos
 
 def update_location(location):
+    MapObject = models.get_model(settings.DATA_APP, 'MapObject')
+    WeatherObservation = models.get_model(settings.DATA_APP, 'WeatherObservation')
     lat = None
     lng = None
     weather_data = None
@@ -87,6 +85,7 @@ def update_location(location):
             weather_data = weather_data['weatherObservation']
             lat = weather_data['lat']
             lng = weather_data['lng']
+        else: weather_data = None
             
     # try to get a position (lat,lng) either from:
     # 1. landing map object
@@ -138,11 +137,11 @@ def update_location(location):
             except: pass
         # create record
         obs_record = WeatherObservation(**data)
-        obs_record.clean_fields()
         # update sunrise/sunset
         sun_infos = __get_sun_infos(lat, lng, obs_record.datetime, location)
         obs_record.sunrise = sun_infos['sunrise']
         obs_record.sunset = sun_infos['sunset']
+        obs_record.clean_fields()
         obs_record.save(force_insert=True)
         logging.info("Updated location weather for: %s" % location.name)
         return obs_record
@@ -156,6 +155,7 @@ def update_location(location):
         data['datetime'] = now
         data.update(__get_sun_infos(lat, lng, now, location))
         obs_record = WeatherObservation.objects.create(**data)
+        obs_record.clean_fields()
         logging.info("Updated location sun infos for: %s" % location.name)
         return obs_record
     else:
@@ -163,6 +163,7 @@ def update_location(location):
         logging.info("No weather update for location: %s" % location.name)
     
 def update():
+    Location = models.get_model(settings.DATA_APP, 'Location')
     logging.info("== Starting weather update task ==")
     for location in Location.objects.filter(deleted=False):
         update_location(location)

@@ -39,6 +39,7 @@ Ext.define('Sp.views.locations.FormDescription', {
                         type: 'vbox',
                         align: 'stretch',
                     },
+                    overflowY: 'auto',
                     items: [
                         {
                             xtype: 'label',
@@ -100,6 +101,7 @@ Ext.define('Sp.views.locations.FormDescription', {
                             title: TR("Detailed description"),
                             layout: 'fit',
                             flex: 1,
+                            minHeight: 160,
                             margin: '10 0 0 0',
                             items:[
                                 {

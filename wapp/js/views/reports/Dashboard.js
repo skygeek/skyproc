@@ -162,6 +162,7 @@ Ext.define('Sp.views.reports.Dashboard', {
     
     buildDashboard: function(data){
         var mainPanel = this.down('#mainPanel');
+        mainPanel.removeAll();
         
         if (data.totals.loads == 0){
             mainPanel.body.unmask();
@@ -255,7 +256,6 @@ Ext.define('Sp.views.reports.Dashboard', {
             ],
         });
         
-        mainPanel.removeAll();
         mainPanel.add({
             xtype: 'container',
             layout: {

@@ -371,3 +371,7 @@ Sp.lmanager.hasClearance = function(locationRec, person_uuid) {
         
     }
 }
+
+Sp.lmanager.getLoadWeight = function(locationRec, loadRec) {
+    return '0 Kg';
+}

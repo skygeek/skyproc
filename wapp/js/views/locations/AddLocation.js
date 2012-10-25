@@ -28,7 +28,7 @@ Ext.define('Sp.views.locations.AddLocation', {
         
         Ext.apply(this, {
             width: 450,
-            height: 185,
+            height: 215,
             modal: true,
             title: (lt == 'T') ? TR("New Tunnel") : TR("New Dropzone"),
             icon: '/static/images/icons/new_yellow.png',
@@ -57,6 +57,12 @@ Ext.define('Sp.views.locations.AddLocation', {
                                     {change: Ext.bind(this.onCityChange, this)}, 
                                     Data.me),
                                 Sp.ui.getCustomCityField('custom_city', 'customCity'),
+                                {
+                                    name: 'load_demo_data',
+                                    xtype: 'checkbox',
+                                    boxLabel: TR("Load demonstration data"),
+                                    margin: '15 0 0 0',
+                                },
                             ],
                         },
                     ],
@@ -106,40 +112,37 @@ Ext.define('Sp.views.locations.AddLocation', {
             return;
         }
         
+        // ui busy
+        this.down('#createBt').disable();
+        this.down('#cancelBt').disable();
+        this.body.mask(TR("Please wait"));
+        
         // update record
         form.form.updateRecord();
         
         // custom city
         var city_store = this.down('#city').getStore();
-        var is_custom_city = Sp.ui.saveCustomCity(this.locationRec, city_store);
+        var is_custom_city = Sp.ui.saveCustomCity(record, city_store);
         
         // save location
-        record.save();
-        
-        // update country & city related models
-        if (Sp.utils.isUuid(record.data.country)){
-            record.getCountry().copyFrom(Data.countries.getById(record.data.country));
-        }
-        if (is_custom_city !== true){
-            if (Sp.utils.isUuid(record.data.city)){
-                record.getCity().copyFrom(city_store.getById(record.data.city));
-            }                       
-        }
-        
-        // add to stores
-        Data.locations.add(record);
-        Ext.data.StoreManager.lookup('mainLocationsStore').add(record.copy());
-        
-        this.close();
-        
-        // show location
-        this.showModuleFunction({
-            id: record.data.uuid,
-            moduleClass: 'Viewer',
-            title: record.data.name,
-            data: record,
+        record.save({
+            callback: function(rec, op){
+                if (op.success){
+                    Data.load('Location', record.data.uuid, function(locationRec){
+                        Ext.data.StoreManager.lookup('mainLocationsStore').add(locationRec);
+                        Data.locations.add(locationRec);
+                        this.showModuleFunction({
+                            id: locationRec.data.uuid,
+                            moduleClass: 'Viewer',
+                            title: locationRec.data.name,
+                            data: locationRec,
+                        });
+                        this.close();
+                    }, this);
+                }
+            },
+            scope: this,
         });
-    
     },
     
 });
