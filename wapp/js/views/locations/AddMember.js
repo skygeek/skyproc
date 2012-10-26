@@ -105,7 +105,8 @@ Ext.define('Sp.views.locations.AddMember', {
                                 Sp.ui.getCountryCombo('country', 'country', TR("Country"), 
                                     {select: Ext.bind(this.onCountrySelect, this)}),
                                 Sp.ui.getCityCombo('city', 'city', TR("City"), 
-                                    {change: Ext.bind(this.onCityChange, this)}),
+                                    {change: Ext.bind(this.onCityChange, this)},
+                                    this.locationRec),
                                 Sp.ui.getCustomCityField('custom_city', 'customCity'),
                                 {
                                     name: 'postal_address',

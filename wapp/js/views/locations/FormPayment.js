@@ -101,6 +101,7 @@ Ext.define('Sp.views.locations.FormPayment', {
                                     editable: true,
                                     typeAhead: true,
                                     valueField: 'uuid',
+                                    displayField: 'code',
                                     lastQuery: '',
                                     tpl: Ext.create('Ext.XTemplate',
                                         '<tpl for=".">',
@@ -111,7 +112,7 @@ Ext.define('Sp.views.locations.FormPayment', {
                                         '<tpl for=".">',
                                             '{code} - {name}',
                                         '</tpl>'
-                                   ),
+                                    ),
                                 },
                             ],
                         },
@@ -253,3 +254,4 @@ Ext.define('Sp.views.locations.FormPayment', {
     },
     
 });
+

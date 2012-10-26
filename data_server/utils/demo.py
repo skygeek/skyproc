@@ -242,6 +242,8 @@ def load_demo_data(location):
     i.name = 'AFF Program'
     i.jump_type = aff_jump
     i.jump_type_auto = True
+    i.reuseable = True
+    i.min_use = 1
     i.save(force_insert=True)
     p = LocationCatalogPrice()
     p.owner = location.owner

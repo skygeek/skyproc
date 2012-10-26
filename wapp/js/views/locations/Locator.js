@@ -23,14 +23,26 @@ Ext.define('Sp.views.locations.Locator', {
     
     initComponent: function() {
         
-        var my_locations = [];
+        this.my_locations = [];
         if (Sp.app.isOp()){
-            my_locations = Data.locations.getRange();
+            this.my_locations = Data.locations.getRange();
         }
         Data.memberships.each(function(m){
-            my_locations.push(m.getLocation());
+            this.my_locations.push(m.getLocation());
         });
-                            
+        
+        var locator_store = Data.createStore('Location_P', {
+            storeId: 'mainLocationsStore',
+            sorters: [
+                {
+                    property: 'name',
+                    direction: 'ASC'
+                },
+            ],
+            remoteFilter: true,
+            pageSize: 20,
+        });
+                                    
         Ext.apply(this, {
             layout: {
                 type: 'border',
@@ -40,11 +52,12 @@ Ext.define('Sp.views.locations.Locator', {
                     region: 'north',
                     xtype: 'form',
                     itemId: 'form',
-                    title: TR("Find a dropzone"),
+                    title: TR("Find a dropzone &nbsp;(click to expand the search form)"),
+                    icon: '/static/images/icons/find.png',
                     collapsible: true,
                     collapseMode: 'header',
                     titleCollapse: true,
-                    collapsed: my_locations.length > 0,
+                    collapsed: this.my_locations.length > 0,
                     layout: {
                         type: 'hbox',
                     },
@@ -59,66 +72,79 @@ Ext.define('Sp.views.locations.Locator', {
                                 anchor: '100%',
                             },
                             items: [
-                                {
-                                    xtype: 'textfield',
-                                    name: 'name',
-                                    fieldLabel: TR("Name"),
-                                    enableKeyEvents: true,
-                                    listeners: {
-                                        keypress: Ext.bind(function(me, e){
-                                            if (e.getKey() == 13){
-                                                this.doSearch();
-                                            }
-                                        }, this),
-                                    },
-                                },
                                 Sp.ui.getCountryCombo('country', 'country', TR("Country"), 
                                     {select: Ext.bind(this.onCountrySelect, this)}),
-                                Sp.ui.getCityCombo('city', 'city', TR("City"), 
-                                    {}, 
-                                    Data.me),
+                                Sp.ui.getCityCombo('city', 'city', TR("City"), {}, Data.me),
                             ],
                         },
                         {
                             xtype: 'container',
-                            width: 360,
+                            width: 330,
                             margin: 5,
                             layout: 'form',
                             defaults: {
-                                labelWidth: 170,
+                                labelWidth: 110,
                                 anchor: '100%',
+                                listeners: {
+                                    specialkey: function(me, e){
+                                        if (e.getKey() == e.ENTER){
+                                            this.doSearch();
+                                        }
+                                    },
+                                    scope: this,
+                                },
                             },
                             margin: '5 5 5 15',
                             items: [
                                 {
+                                    xtype: 'textfield',
+                                    name: 'name',
+                                    fieldLabel: TR("Dropzone name"),
+                                    
+                                },
+                                {
                                     name: 'aircraft_name',
                                     xtype: 'textfield',
-                                    fieldLabel: TR("Aircraft name or type"),
+                                    fieldLabel: TR("Aircraft model"),
+                                },
+                            ],
+                        },
+                        {
+                            xtype: 'container',
+                            margin: 10,
+                            flex: 1,
+                            layout: {
+                                type: 'hbox',
+                                pack: 'end',
+                            },
+                            items: [
+                                {
+                                    xtype: 'button',
+                                    text: TR("Search"),
+                                    icon: '/static/images/icons/search.png',
+                                    margin: '0 4 0 0',
+                                    handler: this.doSearch,
+                                    scope: this, 
                                 },
                                 {
-                                    name: 'active_aircrafts',
-                                    xtype: 'numberfield',
-                                    fieldLabel: TR("Simultaneous active aircrafts"),
-                                    minValue: 1,
-                                    maxValue: 999,
+                                    xtype: 'button',
+                                    text: TR("Clear fields"),
+                                    icon: '/static/images/icons/clear_field.png',
+                                    margin: '0 8 0 0',
+                                    handler: function(){
+                                        this.down('#form').form.reset();
+                                        this.down('#grid').getStore().loadRawData(this.my_locations);
+                                    },
+                                    scope: this, 
                                 },
                                 {
-                                    name: 'total_slots',
-                                    xtype: 'numberfield',
-                                    fieldLabel: TR("Total aircraft slots capacity"),
-                                    minValue: 1,
-                                    maxValue: 9999,
+                                    xtype: 'button',
+                                    text: TR("More options"),
+                                    icon: '/static/images/icons/more_options.png',
+                                    disabled: true, 
                                 },
                                 
                             ],
-                        },
-                    ],
-                    buttons: [
-                        {
-                            text: TR("Search"),
-                            icon: '/static/images/icons/search.png',
-                            handler: this.doSearch,
-                            scope: this, 
                         },
                     ],
                 },
@@ -126,31 +152,14 @@ Ext.define('Sp.views.locations.Locator', {
                     region: 'center',
                     xtype: 'grid',
                     itemId: 'grid',
-                    margin: '10 0 0 0',
-                    selModel: {
-                        pruneRemoved: false
-                    },
-                    viewConfig: {
-                        trackOver: false,
-                        deferEmptyText: true,
-                    },
+                    margin: '12 0 0 0',
                     loadMask: true,
                     enableColumnHide: false,
                     enableColumnMove: false,
                     enableColumnResize: false,
                     sortableColumns: false,
                     emptyText: TR("No dropzone"),
-                    store: Data.createStore('Location_P', {
-                        storeId: 'mainLocationsStore',
-                        sorters: [{
-                            property: 'name',
-                            direction: 'ASC'
-                        }],
-                        remoteFilter: true,
-                        buffered: true,
-                        pageSize: 100,
-                        data: my_locations,
-                    }),
+                    store: locator_store,
                     columns: [
                         {
                             dataIndex: 'name',
@@ -213,6 +222,14 @@ Ext.define('Sp.views.locations.Locator', {
                             },
                         },
                     ],
+                    bbar: [
+                        {
+                            xtype: 'pagingtoolbar',
+                            itemId: 'pgTb',
+                            store: locator_store,
+                            displayInfo: true
+                        },
+                    ],
                     listeners: {
                         itemmouseenter: Ext.bind(this.onLocationMouseEnter, this),
                         itemmouseleave: Ext.bind(this.onLocationMouseLeave, this),
@@ -224,6 +241,27 @@ Ext.define('Sp.views.locations.Locator', {
         });
  
         this.callParent(arguments);
+
+        try {
+            this.down('#pgTb #refresh').hide();
+        } catch (e){}
+        locator_store.loadRawData(this.my_locations);
+        
+        // events
+        this.down('#country').on('specialkey', function(me, e){
+            if (e.getKey() == e.ENTER){
+                if (Sp.utils.isUuid(me.getValue())){
+                    this.doSearch();
+                }
+            }
+        }, this);
+        this.down('#city').on('specialkey', function(me, e){
+            if (e.getKey() == e.ENTER){
+                if (Sp.utils.isUuid(me.getValue())){
+                    this.doSearch();
+                }
+            }
+        }, this);
     },
     
     onCountrySelect: function(cb, records){
@@ -250,12 +288,12 @@ Ext.define('Sp.views.locations.Locator', {
     },
     
     doSearch: function(){
-        var store = Ext.data.StoreManager.lookup('mainLocationsStore');
-        var values = this.getComponent('form').getValues();
+        var store = this.down('#grid').getStore();
+        var values = this.down('#form').form.getValues();
         var filters = [];
         Ext.Object.each(values, function(k,v){
             if (!v){
-                return
+                return;
             }
             if (k == 'name'){
                 filters.push({property: 'name__icontains', value: v});
@@ -267,15 +305,19 @@ Ext.define('Sp.views.locations.Locator', {
                 } else {
                     filters.push({property: 'custom_city__icontains', value: v});
                 }
+            } else if (k == 'aircraft_name'){
+                filters.push({property: 'aircraft__type__icontains', value: v});
             }
+            
         });
         if (filters.length == 0){
-            Sp.ui.misc.errMsg(TR("Please specify at least one search term"), TR("Search error"));
+            Sp.ui.misc.warnMsg(TR("Please provide a search term"), TR("Search error"));
             return;
         }
+        
+        store.removeAll(true);
         store.clearFilter(true);
         store.filter(filters);
-        store.load();
     },
-
+    
 });

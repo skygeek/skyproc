@@ -254,7 +254,9 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                         handler : function(){
                                                             var idx = this.prices_store.getCount();
                                                             if (this.location_catalog){
-                                                                var r = Data.create('LocationCatalogPrice');
+                                                                var r = Data.create('LocationCatalogPrice', {
+                                                                    currency: this.locationRec.data.default_currency,
+                                                                });
                                                             } else {
                                                                 var r = Data.create('CatalogItemPrice');
                                                             }
@@ -296,7 +298,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                             flex: 1,
                                                             editor: {
                                                                 xtype: 'combobox',
-                                                                store: Data.currencies,
+                                                                store: this.locationRec ? this.locationRec.Currencies() : Data.currencies,
                                                                 queryMode: 'local',
                                                                 forceSelection: true,
                                                                 editable: true,
@@ -732,3 +734,4 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
     },
 
 });
+

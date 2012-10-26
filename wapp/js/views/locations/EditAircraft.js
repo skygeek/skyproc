@@ -80,7 +80,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                 {
                                                     name: 'type',
                                                     xtype: 'textfield',
-                                                    fieldLabel: TR("Type"),
+                                                    fieldLabel: TR("Model"),
                                                 },
                                                 {
                                                     name: 'registration',

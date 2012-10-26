@@ -137,7 +137,7 @@ Ext.define('Sp.views.locations.EditLocation', {
                 }
             ],
             buttons: [
-                /*{
+                {
                     text: TR("Save & Close"),
                     itemId: 'saveAndCloseBt',
                     icon: '/static/images/icons/save_exit.png',
@@ -148,7 +148,7 @@ Ext.define('Sp.views.locations.EditLocation', {
                     },
                     scope: this,
                 },
-                ' ',*/
+                ' ',
                 {
                     text: TR("Save"),
                     itemId: 'saveBt',
@@ -195,13 +195,16 @@ Ext.define('Sp.views.locations.EditLocation', {
         }
     },
     
-    save: function(){
+    save: function(close){
         
         // validation
         if (!Sp.ui.data.validateForm(this)){
             return;
         }
         
+        this.down('#saveAndCloseBt').disable();
+        this.down('#saveBt').disable();
+        this.down('#cancelBt').disable();
         this.body.mask(TR("Saving"));
         
         // update record
@@ -216,13 +219,13 @@ Ext.define('Sp.views.locations.EditLocation', {
         
         // save record if changed
         if (Ext.Object.getSize(this.locationRec.getChanges()) > 0){
-            this.locationRec.save({callback: Ext.bind(this.onLocationSaved, this)});    
+            this.locationRec.save({callback: Ext.bind(this.onLocationSaved, this, [close])});    
         } else {
-            this.onLocationSaved();
+            this.onLocationSaved(close);
         }
     },
     
-    onLocationSaved: function(){
+    onLocationSaved: function(close){
         
         // forms saves
         for (var i=0,p ; p = this.main_ctx_items[i] ; i++){
@@ -232,24 +235,27 @@ Ext.define('Sp.views.locations.EditLocation', {
         }
         
         // update location view
-        this.ownerCt.updateView(true, true);
+        if (close){
+            this.ownerCt.updateView(true);
+        } else {
+            // dont update toolbar buttons
+            this.ownerCt.updateView(true, true);
+        }
         
         // update nav tb button
         this.getTbFunction().getComponent(this.locationRec.data.uuid).setText(this.locationRec.data.name);
         
-        // update display store
-        var store = Ext.data.StoreManager.lookup('mainLocationsStore');
-        store.remove(store.getById(this.locationRec.data.uuid));
-        store.add(this.locationRec.copy());
-        
-        /*if (close){
+        if (close){
             this.save_close = true;
             this.close();
             return;
-        }*/
+        }
         
         // change cancel boutton label
         this.down('#cancelBt').setText(TR("Close"));
+        this.down('#saveAndCloseBt').enable();
+        this.down('#saveBt').enable();
+        this.down('#cancelBt').enable();
         this.body.unmask();
     },
         

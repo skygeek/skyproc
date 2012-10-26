@@ -199,7 +199,7 @@ Sp.ui.data.buildNewRequestsStore = function(){
     }); 
 }
 
-Sp.ui.data.getPersonClearance = function(location_uuid){
+Sp.ui.data.getPersonClearance = function(location_uuid, return_not_approved){
     var clr;
     Data.clearances.each(function(c){
         if (c.getLocation().data.uuid == location_uuid){
@@ -207,7 +207,7 @@ Sp.ui.data.getPersonClearance = function(location_uuid){
             return false;
         }
     });
-    if (clr && clr.data.approved){
+    if (clr && (clr.data.approved || return_not_approved)){
         var p = Sp.ui.misc.getClearancePeriod(clr);
         var now = new Date();
         if ((p.end_date && Ext.Date.between(now, p.start_date, p.end_date)) ||

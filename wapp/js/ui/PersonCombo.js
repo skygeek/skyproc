@@ -102,6 +102,13 @@ Ext.define('Sp.ui.PersonCombo', {
         var model;
         if (this.locationRec){
             model = 'LocationMembership';
+            var filters = [];
+            if (this.locationRec.data){
+                filters.push({
+                    property: 'location',
+                    value: this.locationRec.data.uuid,
+                });
+            }
             Ext.apply(cfg, {
                 sorters: [
                     {
@@ -113,12 +120,7 @@ Ext.define('Sp.ui.PersonCombo', {
                         direction: 'ASC'
                     }
                 ],
-                filters: [
-                    {
-                        property: 'location',
-                        value: this.locationRec.data.uuid,
-                    },
-                ],
+                filters: filters,
                 proxy: {
                     extraParams: {
                         query_field: 'person__last_name',

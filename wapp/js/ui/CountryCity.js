@@ -38,14 +38,20 @@ Sp.ui.getCountryCombo = function(name, itemId, fieldLabel, listeners){
 
 Sp.ui.getCityCombo = function(name, itemId, fieldLabel, listeners, record, required){
     
+    listeners = listeners || {};
+    var filters = [];
     if (record && record.data.country){
-        var country = record.getCountry();
-        var filters = [{
-            property: 'country',
-            value: country.data.uuid,
-        }];
-    } else {
-        var filters = [];
+        if (Ext.isObject(record.data.country)){
+            var country = record.getCountry();
+        } else {
+            var country = Data.countries.getById(record.data.country);
+        }
+        if (country){
+            filters.push({
+                property: 'country',
+                value: country.data.uuid,
+            });    
+        }
     }
 
     var cb = {

@@ -116,7 +116,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                 Sp.ui.getCountryCombo('country', 'country', TR("Country"), 
                                                     {select: Ext.bind(this.onCountrySelect, this)}),
                                                 Sp.ui.getCityCombo('city', 'city', TR("City"), 
-                                                    {change: Ext.bind(this.onCityChange, this)}),
+                                                    {change: Ext.bind(this.onCityChange, this)}, person),
                                                 Sp.ui.getCustomCityField('custom_city', 'customCity'),
                                                 {
                                                     name: 'postal_address',
@@ -428,6 +428,16 @@ Ext.define('Sp.views.locations.EditMember', {
                                                     forceSelection: true,
                                                     editable: true,
                                                     lastQuery: '',
+                                                    tpl: Ext.create('Ext.XTemplate',
+                                                        '<tpl for=".">',
+                                                            '<div class="x-boundlist-item">{code} - {name}</div>',
+                                                        '</tpl>'
+                                                    ),
+                                                    displayTpl: Ext.create('Ext.XTemplate',
+                                                        '<tpl for=".">',
+                                                            '{code} - {name}',
+                                                        '</tpl>'
+                                                    ),
                                                 },
                                                 {
                                                     name: 'credit_line',

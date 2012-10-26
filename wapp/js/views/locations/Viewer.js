@@ -21,7 +21,8 @@ Ext.define('Sp.views.locations.Viewer', {
     extend: 'Ext.panel.Panel',
     
     initComponent: function() {
-                
+        
+        this.taskRunner = new Ext.util.TaskRunner();
         this.next_loads_filter = null;
         this.locationRec = this.moduleData;
         this.getRelationship();
@@ -233,7 +234,6 @@ Ext.define('Sp.views.locations.Viewer', {
                         {
                             region: 'west',
                             xtype: 'container',
-                            itemId: 'west',
                             width: 180,
                             layout: {
                                 type: 'vbox',
@@ -262,7 +262,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                 },
                                 {
                                     xtype: 'panel',
-                                    itemId: 'ressources',
+                                    
                                     title: TR("Resources"),
                                     padding: '0 0 0 0',
                                     flex: 1,
@@ -270,7 +270,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                     items: [
                                         {
                                             xtype: 'grid',
-                                            itemId: 'grid',
+                                            itemId: 'ressourcesGrid',
                                             header: false,
                                             hideHeaders: true,
                                             border: 0,
@@ -318,14 +318,12 @@ Ext.define('Sp.views.locations.Viewer', {
                             items: [
                                 {
                                     xtype: 'toolbar',
-                                    hidden: (this.is_mine || !this.is_member || (
-                                        !this.locationRec.data.enable_self_manifesting &&
-                                        !this.locationRec.data.share_account_data
-                                    )),
+                                    itemId: 'contentTb',
                                     margin: '0 0 8 0',
                                     items: [
                                         {
                                             text: TR("Dropzone infos"),
+                                            itemId: 'infosTbBt',
                                             icon: '/static/images/icons/info_blue.png',
                                             toggleGroup: 'locationSubMenu',
                                             pressed: true,
@@ -337,24 +335,24 @@ Ext.define('Sp.views.locations.Viewer', {
                                         '-',
                                         {
                                             text: TR("Boarding"),
+                                            itemId: 'loadsTbBt',
                                             icon: '/static/images/icons/plane_small.png',
                                             toggleGroup: 'locationSubMenu',
                                             handler: function(){
                                                 this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzLoadsPage'));
                                             },
                                             scope: this,
-                                            hidden: !this.locationRec.data.enable_self_manifesting,
                                         },
                                         '-',
                                         {
                                             text: TR("Account"),
+                                            itemId: 'accountTbBt',
                                             icon: '/static/images/icons/bank.png',
                                             toggleGroup: 'locationSubMenu',
                                             handler: function(){
                                                 this.down('#dzPagesCtx').getLayout().setActiveItem(this.down('#dzAccountPage'));
                                             },
                                             scope: this,
-                                            hidden: !this.locationRec.data.share_account_data,
                                         },
                                         
                                     ],
@@ -444,7 +442,8 @@ Ext.define('Sp.views.locations.Viewer', {
                                                                     xtype: 'label',
                                                                     itemId: 'terrainLabel',
                                                                 },
-                                                            ],                                                        },
+                                                            ],                                                        
+                                                        },
                                                     ],
                                                 },
                                                 {
@@ -527,6 +526,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                             items: [
                                                 {
                                                     xtype: 'fieldset',
+                                                    itemId: 'clearanceFs',
                                                     title: TR("Clearance status"),
                                                     margin: '2 0 12 0',
                                                     padding: '4 6 8 6',
@@ -536,7 +536,6 @@ Ext.define('Sp.views.locations.Viewer', {
                                                             itemId: 'clrLabel',
                                                         },
                                                     ],
-                                                    hidden: !this.locationRec.data.use_clearances,
                                                 },
                                                 {
                                                     xtype: 'panel',
@@ -545,7 +544,6 @@ Ext.define('Sp.views.locations.Viewer', {
                                                     icon: '/static/images/icons/available_load.png',
                                                     flex: 1,
                                                     layout: 'fit',
-                                                    hidden: !this.has_clearance,
                                                     items: [
                                                         {
                                                             xtype: 'grid',
@@ -863,7 +861,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                 {
                                     xtype: 'panel',
                                     itemId: 'weatherPanel',
-                                    height: 230,
+                                    height: 235,
                                     padding: '0 0 5 0',
                                     layout: 'card',
                                     items: [
@@ -1007,6 +1005,14 @@ Ext.define('Sp.views.locations.Viewer', {
         this.callParent(arguments);
         
         this.updateView(true);
+        
+        this.weather_update_task = this.taskRunner.newTask({
+            run: this.updateWeatherData,
+            args: [true],
+            scope: this,
+            interval: 60*60*1000,
+        });
+        this.weather_update_task.start();
     },
     
     getRelationship: function(){
@@ -1020,18 +1026,20 @@ Ext.define('Sp.views.locations.Viewer', {
 
         // check ownership
         if (Sp.app.isOp()){
-            var my_rec = Data.locations.getById(rec.data.uuid);
-            if (my_rec){
+            var l = Data.locations.getById(rec.data.uuid);
+            if (l){
                 this.is_mine = true;
-                this.locationRec = rec = my_rec;
+                this.locationRec = l;
                 return;
             }
         }
         
         // check membership
         Data.memberships.each(function(m){
-            if (m.getLocation().data.uuid == rec.data.uuid){
+            var l = m.getLocation();
+            if (l.data.uuid == rec.data.uuid){
                 if (m.data.approved){
+                    this.locationRec = l;
                     this.is_member = true;
                 } else {
                     if (m.data.join_type == 'R'){
@@ -1046,7 +1054,7 @@ Ext.define('Sp.views.locations.Viewer', {
         
         // check clearance
         if (this.is_member){
-            var clr = Sp.ui.data.getPersonClearance(rec.data.uuid);
+            var clr = Sp.ui.data.getPersonClearance(rec.data.uuid, true);
             if (clr){
                 if (clr.data.approved){
                     this.has_clearance = true;
@@ -1105,19 +1113,17 @@ Ext.define('Sp.views.locations.Viewer', {
     },
     
     buildRessourcesStore: function(){
-        var store = this.query('#view #west #ressources #grid')[0].getStore();
+        var res_stores = Sp.ui.data.getActiveRessources(this.locationRec);
+        var store = this.down('#ressourcesGrid').getStore();
         store.removeAll();
         
         // aircrafts
         var aircrafts = {};
-        this.locationRec.Aircrafts().each(function(a){
+        res_stores.aircrafts.each(function(a){
             var label = a.data.type;
             if (a.data.max_slots){
-                if (a.data.max_slots == 1){
-                    label += Ext.String.format(' &nbsp;(1 {0})', TR("slot"));
-                } else {
-                    label += Ext.String.format(' &nbsp;({0} {1})', a.data.max_slots, TR("slots"));
-                }
+                label += Ext.String.format(' &nbsp;({0} {1})', a.data.max_slots, 
+                            a.data.max_slots == 1 ? TR("slot") : TR("slots"));
             }
             if (!Ext.isDefined(aircrafts[label])){
                 aircrafts[label] = {
@@ -1136,28 +1142,24 @@ Ext.define('Sp.views.locations.Viewer', {
                 
         // workers
         var roles = {};
-        this.locationRec.Workers().each(function(w){
-            if (w.data.available_fulltime){
-                w.WorkerTypes().each(function(wt){
-                    if (!Ext.isDefined(roles[wt.data.type])){
-                        roles[wt.data.type] = {
-                            order_index: wt.data.order_index,
-                            label: wt.data.plural_label,
-                            count: 0,
-                        };
-                    }
-                    roles[wt.data.type].count += 1;
-                });
-            }
+        res_stores.workers.each(function(w){
+            w.WorkerTypes().each(function(wt){
+                if (!Ext.isDefined(roles[wt.data.type])){
+                    roles[wt.data.type] = {
+                        order_index: wt.data.order_index,
+                        label: wt.data.plural_label,
+                        count: 0,
+                    };
+                }
+                roles[wt.data.type].count += 1;
+            });
         });
         Ext.Object.each(roles, function(k,v){
-            if (k != 'pilot'){
-                store.add({
-                    order_index: v.order_index,
-                    label: "<img src='/static/images/icons/roles/" + k + ".png'/> " + v.label,
-                    count: v.count,
-                }); 
-            }
+            store.add({
+                order_index: v.order_index,
+                label: "<img src='/static/images/icons/roles/" + k + ".png'/> " + v.label,
+                count: v.count,
+            }); 
         });
     },
     
@@ -1179,7 +1181,7 @@ Ext.define('Sp.views.locations.Viewer', {
         this.down('#leaveSep').hide();
         if (this.is_mine){
             //this.down('#makeReservationBt').show();
-            this.down('#clearancesBt').show();
+            this.down('#clearancesBt').setVisible(this.locationRec.data.use_clearances);
             this.down('#adminSep').show();
             this.down('#editBt').show();
             this.down('#manageSep').show();
@@ -1188,7 +1190,7 @@ Ext.define('Sp.views.locations.Viewer', {
             this.down('#actionSep').show();
             this.down('#leaveBt').show();
             this.down('#leaveSep').show();
-            if (!this.has_clearance){
+            if (!this.has_clearance && this.locationRec.data.use_clearances){
                 if (this.has_pending_clearance){
                     this.down('#cancelClrBt').show();                   
                 } else {
@@ -1294,22 +1296,29 @@ Ext.define('Sp.views.locations.Viewer', {
         }
     },
     
-    updateWeatherData: function(){
+    updateWeatherData: function(silent){
         var panel = this.down('#weatherPanel');
-        panel.body.mask(TR("Updating"));
+        if (!silent){
+            panel.body.mask(TR("Updating"));
+        }
         Sp.utils.rpc('weather.update', [this.locationRec.data.uuid], function(weather_data){
             if (weather_data){
                 weather_data = Ext.decode(weather_data);
             }
             if (weather_data && weather_data.length > 0){
+                var store = this.locationRec.WeatherObservations();
                 var r = Data.create('WeatherObservation', weather_data[0]);
                 r.commit();
-                this.locationRec.WeatherObservations().add(r);
+                store.removeAll(true);
+                store.add(r);
+                store.commitChanges();
                 this.updateWeather();
-            } else {
+            } else if (!silent){
                 Sp.ui.misc.warnMsg(TR("No weather data found"), TR("No data"));
             }
-            panel.body.unmask();
+            if (!silent){
+                panel.body.unmask();
+            }
         }, this);
     },
     
@@ -1342,6 +1351,55 @@ Ext.define('Sp.views.locations.Viewer', {
             this.updateButtons();           
         }
         
+        // members toolbar
+        var contentTb = this.down('#contentTb');
+        var loadsTbBt = this.down('#loadsTbBt');
+        var accountTbBt = this.down('#accountTbBt');
+        var tb_visible = !(this.is_mine || !this.is_member || (!rec.data.enable_self_manifesting && !rec.data.share_account_data));
+        contentTb.setVisible(tb_visible);
+        loadsTbBt.setVisible(rec.data.enable_self_manifesting);
+        accountTbBt.setVisible(rec.data.share_account_data);
+        
+        // active page
+        var pages_layout = this.down('#dzPagesCtx').getLayout();
+        var active_page = pages_layout.getActiveItem();
+        var return_to_infos = (
+            (active_page.itemId != 'dzInfosPage' && !tb_visible) ||
+            (active_page.itemId == 'dzLoadsPage' && !rec.data.enable_self_manifesting) ||
+            (active_page.itemId == 'dzAccountPage' && !rec.data.share_account_data)
+        );
+        if (return_to_infos){
+            this.down('#dzPagesCtx').getLayout().setActiveItem('dzInfosPage');
+            this.down('#infosTbBt').toggle();
+        }
+        
+        // clearance
+        this.down('#clearanceFs').setVisible(rec.data.use_clearances);
+        this.down('#nextLoadsPanel').setVisible(this.has_clearance || !rec.data.use_clearances);
+        // clearance label
+        if (rec.data.use_clearances){
+            var clr_label = "<span class='bold'>" + TR("No valid clearance") + "</span>";
+            if (this.has_clearance){
+                if (!this.clearance_period.end_date || 
+                Ext.Date.isEqual(Ext.Date.clearTime(new Date()), Ext.Date.clearTime(this.clearance_period.end_date, true))){
+                    var exp_str = TR("expires today");
+                } else {
+                    var exp_str = Ext.String.format(TR("expires on {0}"), 
+                            Ext.Date.format(this.clearance_period.end_date, Data.me.data.date_format));
+                }
+                var tpl = "<span class='bold'>{0}</span>&nbsp;&nbsp;({1})";
+                clr_label = Ext.String.format(tpl, TR("VALID"), exp_str);
+            } else if (this.has_pending_clearance){
+                clr_label = "<span class='bold'>" + TR("Clearance is pending") + "...</span>";
+            }
+            this.down('#clrLabel').setText(clr_label, false);    
+        }
+        
+        // balance label
+        if (this.is_member && rec.data.share_account_data){
+            this.updateBalanceLabel();
+        }
+        
         if (dont_update_infos){
             return;
         }
@@ -1349,20 +1407,19 @@ Ext.define('Sp.views.locations.Viewer', {
         // country
         var country = null;
         if (rec.data.country){
-            var country = rec.getCountry();
-            if (country.data.iso_code.length == 0){
-                country = null;
+            if (Ext.isObject(rec.data.country)){
+                country = rec.getCountry();
+            } else {
+                country = Data.countries.getById(rec.data.country);
             }   
         }
         
         // city
-        if (rec.data.city){
-            var city_name = rec.getCity().data.name;
-        } else {
-            var city_name = rec.data.custom_city;
-            if (city_name.length == 0){
-                city_name = null;
-            }
+        var city_name = null;
+        if (Ext.isObject(rec.data.city)){
+            city_name = rec.getCity().data.name;
+        } else if (rec.data.custom_city.length > 0){
+            city_name = rec.data.custom_city;
         }
         
         // title = Name ([city - ]country)
@@ -1412,30 +1469,14 @@ Ext.define('Sp.views.locations.Viewer', {
         // ressources
         this.buildRessourcesStore();
         
-        // clearance label
-        var clr_label = "<span class='bold'>" + TR("No valid clearance") + "</span>";
-        if (this.has_clearance){
-            var tpl = "<span class='bold'>{0}</span>&nbsp;&nbsp;(expires on {1})";
-            clr_label = Ext.String.format(tpl, TR("VALID"), 
-                        Ext.Date.format(this.clearance_period.end_date, Data.me.data.date_format));
-        } else if (this.has_pending_clearance){
-            clr_label = "<span class='bold'>" + TR("Clearance is pending") + "...</span>";
-        }
-        this.down('#clrLabel').setText(clr_label, false);
-        
-        // balance label
-        if (this.is_member){
-            this.updateBalanceLabel();
-        }
-        
         // weather infos
         this.updateWeather();
         
         // update map
         var map = this.down('#viewMap');
-        if (map.getMap()){
+        var gmap = map.getMap();
+        if (gmap){
             var map_infos = Sp.ui.data.getLocationMapInfos(rec, false);
-            var gmap = map.getMap();
             map.clearMapObjects();
             gmap.setMapTypeId(map_infos.map_type);
             gmap.setZoom(map_infos.map_zoom);
@@ -1465,7 +1506,6 @@ Ext.define('Sp.views.locations.Viewer', {
             val = Sp.utils.getUserUnit(rec.data.landing_area, 'area');
         }
         this.down('#landingArea').setText(val, false);
-        
     },
     
     onMapObjectMouseOver: function(object){
@@ -1539,11 +1579,11 @@ Ext.define('Sp.views.locations.Viewer', {
                     joinBt.enable();
                     if (membership.data.approved){
                         this.is_member = true;
-                        this.updateButtons();
+                        this.updateView(true, false, true);
                         Notify(TR("Welcome"), Ext.String.format(TR("You have successfully joined {0}"), this.locationRec.data.name));
                     } else {
                         this.has_pending_request = true;
-                        this.updateButtons();
+                        this.updateView(true, false, true);
                         Notify(TR("Request sent"), TR("Your join request has been successfully sent"));                     
                     }
                 }, this);
@@ -1566,7 +1606,7 @@ Ext.define('Sp.views.locations.Viewer', {
             leaveBt.hide();
             leaveBt.enable();
             leaveBt.setText(TR("Leave"));
-            this.updateButtons();
+            this.updateView(true, false, true);
         }, this);
     },
     
@@ -1584,7 +1624,7 @@ Ext.define('Sp.views.locations.Viewer', {
             cancelBt.hide();
             cancelBt.enable();
             cancelBt.setText(TR("Cancel join request"));
-            this.updateButtons();
+            this.updateView(true, false, true);
         }, this);
     },
     
@@ -1611,7 +1651,7 @@ Ext.define('Sp.views.locations.Viewer', {
             replyBt.hide();
             replyBt.enable();
             replyBt.setText(TR("Accept invitation"));
-            this.updateButtons();
+            this.updateView(true, false, true);
         }, this);
     },
     
@@ -1633,7 +1673,7 @@ Ext.define('Sp.views.locations.Viewer', {
             replyBt.hide();
             replyBt.enable();
             replyBt.setText(TR("Accept invitation"));
-            this.updateButtons();
+            this.updateView(true, false, true);
         }, this);
     },
     
@@ -1645,7 +1685,7 @@ Ext.define('Sp.views.locations.Viewer', {
     },
     
     cancelClearanceRequest: function(){
-        var clearance = Sp.ui.data.getPersonClearance(this.locationRec.data.uuid);
+        var clearance = Sp.ui.data.getPersonClearance(this.locationRec.data.uuid, true);
         if (!clearance){
             return;
         }
@@ -1658,7 +1698,7 @@ Ext.define('Sp.views.locations.Viewer', {
             cancelBt.hide();
             cancelBt.enable();
             cancelBt.setText(TR("Cancel clearance request"));
-            this.updateButtons();
+            this.updateView(true, false, true);
         }, this);
     },
     
@@ -1785,6 +1825,7 @@ Ext.define('Sp.views.locations.Viewer', {
     },
     
     onClose: function(){
+        this.taskRunner.destroy();
         this.ownerCt.getLayout().prev();
     },
     

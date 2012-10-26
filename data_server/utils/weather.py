@@ -56,19 +56,23 @@ def __get_map_object_position(mapdata):
 def __get_sun_infos(lat, lng, dt, location):
     infos = {}
     # get infos from geonames
+    now = datetime.datetime.now()
     tz_data = __geonames_request('timezoneJSON', {'lat':lat, 'lng':lng})
     if isinstance(tz_data, dict) and tz_data.has_key('time'):
         infos['sunrise'] = tz_data['sunrise']
         infos['sunset'] = tz_data['sunset']
+        tz_delta = datetime.datetime.strptime(tz_data['time'], '%Y-%m-%d %H:%M') - now
     else:
         # fallback to local calculation
         if location.timezone: utc_offset = float(location.timezone.utc_offset)
         else: utc_offset = 0
+        tz_delta = datetime.timedelta(hours=utc_offset)
         o = ephem.Observer()
         o.lat, o.long, o.date = str(lat), str(lng), dt
         sun = ephem.Sun(o)
         infos['sunrise'] = ephem.Date(o.next_rising(sun, start=o.date) + utc_offset*ephem.hour).datetime()
         infos['sunset'] = ephem.Date(o.next_setting(sun, start=o.date) + utc_offset*ephem.hour).datetime()
+    infos['datetime'] = dt + tz_delta
     return infos
 
 def update_location(location):
@@ -137,8 +141,10 @@ def update_location(location):
             except: pass
         # create record
         obs_record = WeatherObservation(**data)
+        obs_record.clean_fields()
         # update sunrise/sunset
         sun_infos = __get_sun_infos(lat, lng, obs_record.datetime, location)
+        obs_record.datetime = sun_infos['datetime']
         obs_record.sunrise = sun_infos['sunrise']
         obs_record.sunset = sun_infos['sunset']
         obs_record.clean_fields()
@@ -152,7 +158,6 @@ def update_location(location):
         data = {}
         data['owner'] = location.owner
         data['location'] = location
-        data['datetime'] = now
         data.update(__get_sun_infos(lat, lng, now, location))
         obs_record = WeatherObservation.objects.create(**data)
         obs_record.clean_fields()

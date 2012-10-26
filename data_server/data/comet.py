@@ -40,12 +40,12 @@ class Notifier:
         elif notify_owner:
             self.notifyOwner()
         
-    def postMessage(self, message):
+    def postMessage(self, message, url='/datachanged'):
         try:
             params = urllib.urlencode({'msg': base64.b64encode(cPickle.dumps(message))})
             headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
             conn = httplib.HTTPSConnection("%s:%s" % (settings.COMET_SERVER, settings.COMET_PORT))
-            conn.request("POST", "/datachanged", params, headers)
+            conn.request("POST", url, params, headers)
             r = conn.getresponse()
             conn.close()
             if r.status != 200 and settings.DEBUG:
@@ -115,17 +115,8 @@ class Notifier:
         # notify person
         else:
             self.notify()
-            # notify for reject
-            if self.operation == 'delete':
-                message = {}
-                message['model'] = 'Clearance_R'
-                message['operation'] = self.operation
-                message['uuid'] = self.record.uuid
-                message['user'] = self.record.person.owner.username
-                message['session'] = None
-                self.postMessage(message)
             # notify for accept
-            elif self.record.approved and self.record.new_approval:
+            if self.record.approved and self.record.new_approval:
                 notif_data = {}
                 notif_data['owner'] = self.record.person.owner
                 notif_data['type'] = 'got_clearance'
@@ -152,3 +143,12 @@ class Notifier:
                 # new_approval ==> false
                 self.record.new_approval = False
                 self.record.save(force_update=True)
+            # notify for operation by owner
+            else:
+                message = {}
+                message['model'] = 'Clearance_R'
+                message['operation'] = self.operation
+                message['uuid'] = self.record.uuid
+                message['user'] = self.record.person.owner.username
+                message['session'] = None
+                self.postMessage(message)

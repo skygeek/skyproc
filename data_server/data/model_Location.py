@@ -13,7 +13,7 @@ class Location(base.Model):
     relations = '+all -LocationMembership -Reservation -Account'
     
     public_fields = '+all'
-    public_relations = 'Country City Aircraft Worker'
+    public_relations = 'Country City Aircraft Worker MapObject WeatherObservation'
     
     related_fields = '+all'
     related_relations = 'Country City Aircraft Worker Load LocationCatalogItem MapObject WeatherObservation'
@@ -108,6 +108,7 @@ class Location(base.Model):
 class MapObject(base.Model):
     isolated = True
     related_fields = '+all'
+    public_fields = '+all'
     
     location = models.ForeignKey('Location')
     
@@ -118,6 +119,7 @@ class MapObject(base.Model):
     
 class WeatherObservation(base.Model):
     related_fields = '+all'
+    public_fields = '+all'
     
     location = models.ForeignKey('Location')
     

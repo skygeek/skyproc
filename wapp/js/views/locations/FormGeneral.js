@@ -64,8 +64,7 @@ Ext.define('Sp.views.locations.FormGeneral', {
                                 Sp.ui.getCountryCombo('country', 'country', TR("Country"), 
                                     {select: Ext.bind(this.onCountrySelect, this)}),
                                 Sp.ui.getCityCombo('city', 'city', TR("City"), 
-                                    {change: Ext.bind(this.onCityChange, this)}, 
-                                    Data.me),
+                                    {change: Ext.bind(this.onCityChange, this)}, rec),
                                 Sp.ui.getCustomCityField('custom_city', 'customCity'),
                                 {
                                     name: 'phone',
@@ -152,7 +151,11 @@ Ext.define('Sp.views.locations.FormGeneral', {
     pre_save: function(){
         // country
         if (Sp.utils.isUuid(this.locationRec.data.country)){
-            this.locationRec.getCountry().copyFrom(Data.countries.getById(this.locationRec.data.country));
+            var c = Data.countries.getById(this.locationRec.data.country);
+            if (c){
+                this.locationRec.getCountry().copyFrom(c);
+                this.locationRec.set('country', c.data);    
+            }
         }
         // custom city
         var city_store = this.down('#city').getStore();
@@ -160,7 +163,11 @@ Ext.define('Sp.views.locations.FormGeneral', {
         // listed city
         if (is_custom_city !== true){
             if (Sp.utils.isUuid(this.locationRec.data.city)){
-                this.locationRec.getCity().copyFrom(city_store.getById(this.locationRec.data.city));
+                var c = city_store.getById(this.locationRec.data.city);
+                if (c){
+                    this.locationRec.getCity().copyFrom(c);
+                    this.locationRec.set('city', c.data);
+                }
             }                       
         }
     },
