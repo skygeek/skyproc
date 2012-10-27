@@ -46,7 +46,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
         });
         
         Ext.apply(this, {
-            width: 660,
+            width: 630,
             height: 550,
             modal: true,
             resizable: false,
@@ -116,7 +116,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                     minValue: 1,
                                                     maxValue: 999,
                                                 },
-                                                {
+                                                /*{
                                                     name: 'max_altitude',
                                                     xtype: 'numberfield',
                                                     fieldLabel: TR("Max Altitude"),
@@ -140,7 +140,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                     editable: false,
                                                     displayField: 'label',
                                                     valueField: 'unit',
-                                                },
+                                                },*/
                                                 {
                                                     name: 'gross_weight',
                                                     xtype: 'numberfield',
@@ -185,7 +185,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                 },
                                                 {
                                                     xtype: 'fieldcontainer',
-                                                    fieldLabel: TR("Minimum Income"),
+                                                    fieldLabel: "<span class='disabled-text'>" + TR("Minimum Income") + "</span>",
                                                     layout: {
                                                         type: 'hbox',
                                                     },
@@ -248,13 +248,6 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                             },
                                             items: [
                                                 {
-                                                    name: 'takeoff_time',
-                                                    xtype: 'numberfield',
-                                                    fieldLabel: TR("Landing and takeoff time (in minutes)"),
-                                                    minValue: 0,
-                                                    maxValue: 9999,
-                                                },
-                                                {
                                                     name: 'climb_time',
                                                     xtype: 'numberfield',
                                                     fieldLabel: Ext.String.format(
@@ -267,6 +260,13 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                     xtype: 'numberfield',
                                                     fieldLabel: Ext.String.format(
                                                         TR("Time to descend 1000 {0} (in seconds)"), rec.data.altitude_unit),
+                                                    minValue: 0,
+                                                    maxValue: 9999,
+                                                },
+                                                {
+                                                    name: 'takeoff_time',
+                                                    xtype: 'numberfield',
+                                                    fieldLabel: TR("Taxiing time (in minutes)"),
                                                     minValue: 0,
                                                     maxValue: 9999,
                                                 },
@@ -373,7 +373,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                         },
                                                         {
                                                             xtype: 'actioncolumn',
-                                                            width: 30,
+                                                            width: 20,
                                                             items: [
                                                                 {
                                                                     icon: '/static/images/icons/delete.png',

@@ -44,6 +44,11 @@ def dispatch(req, rpc_path):
         if settings.DEBUG:
             msg += ": %s (%s)" % (e, rpc_path)
         return HttpResponseServerError(msg)
+    
+    # dont dispatch private methods
+    if func_name.startswith('__'):
+        raise Http404
+    
     try:
         module = __import__(path, globals(), locals(), [func_name], -1)
         module.req = req

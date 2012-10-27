@@ -366,15 +366,17 @@ Sp.ui.data.getPersonProfile = function(membershipRec, locationRec, override_valu
             price: price_uuid,
         };
     };
-    profile.catalog_access = ((md.override_profile && md.catalog_access) || p.data.catalog_access);
+    profile.catalog_access = ((md.override_profile && md.catalog_access) || (p && p.data.catalog_access));
     profile.available_catalog = [];
     if (profile.catalog_access){
         if (p && p.data.default_catalog_item){
             add_item(p.data.default_catalog_item, p.data.default_catalog_price);
         }
-        p.ProfileCatalogs().each(function(i){
-            add_item(i.data.item, i.data.price);
-        });
+        if (p){
+            p.ProfileCatalogs().each(function(i){
+                add_item(i.data.item, i.data.price);
+            });    
+        }
         if (md.default_catalog_item){
             add_item(md.default_catalog_item, md.default_catalog_price);
         }

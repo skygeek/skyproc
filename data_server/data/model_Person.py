@@ -12,11 +12,10 @@ class PersonManager(base.Manager):
 class Person(base.Model):
     objects = PersonManager()
 
-    fields = {
-        #'LocationMembership': 'first_name last_name gender picture',
-        'Location': 'first_name last_name gender picture', # via Clearance
-        'Reservation': 'first_name last_name', # via Clearance
-    }
+    #fields = {
+    #    'Location': 'first_name last_name gender picture',
+    #    'Reservation': 'first_name last_name',
+    #}
     
     rel = '+all -LocationMembership -MembershipProfile -Clearance -Reservation -ReservationItem -Slot'
     relations = {
@@ -29,7 +28,7 @@ class Person(base.Model):
     
     related_fields = 'first_name last_name'
     
-        
+
     is_consumer = models.BooleanField(default=True)
     is_pro_jumper = models.BooleanField(default=False)
     is_dz_operator = models.BooleanField(default=True)
@@ -54,6 +53,7 @@ class Person(base.Model):
     logged_jumps = models.IntegerField(default=0)
     total_jumps = models.IntegerField(default=0)
     jumper_level = models.CharField(max_length=1, choices=JUMPER_LEVEL, blank=True, null=True)
+    jump_licenses = models.CharField(max_length=250, blank=True, null=True)
     
     default_jump_type = models.ForeignKey('JumpType', blank=True, null=True, related_name='+')
     default_currency = models.ForeignKey('Currency', blank=True, null=True, related_name='+')
@@ -114,4 +114,4 @@ class Phantom(base.Model):
     
     name = models.CharField(max_length=128)
     phone = models.CharField(max_length=32, blank=True, null=True)
-    weight = models.IntegerField(default=100)
+    weight = models.IntegerField(default=80)

@@ -363,3 +363,49 @@ Sp.ui.misc.passwordAction = function(callback, previous_pwd, title){
     }, window, false, previous_pwd);
     msgbox.textField.inputEl.dom.type = 'password';
 }
+
+Sp.ui.misc.buildDefaultPricesStore = function(locationRec, record, item_uuid, currency_uuid, price_field, init){
+    var item_rec = locationRec.LocationCatalogItems().getById(item_uuid);
+    if (item_rec){
+        var prices = [],
+            def_currency = Data.currencies.getById(locationRec.data.default_currency),
+            pre_select_currency,
+            pre_select_price,
+            def_curr_price;
+        
+        if (currency_uuid){
+            pre_select_currency = currency_uuid;
+        } else if (def_currency){
+            pre_select_currency = def_currency.data.uuid;
+        }
+        item_rec.LocationCatalogPrices().each(function(p){
+            if (Ext.isObject(p.data.currency)){
+                var currency = p.getCurrency();
+            } else {
+                var currency = Data.currencies.getById(p.data.currency);
+            }
+            prices.push({
+                uuid: p.data.uuid,
+                price: p.data.price + ' ' + currency.data.code,
+            });
+            if (p.data['default'] && currency.data.uuid == pre_select_currency){
+                pre_select_price = p.data.uuid;
+            }
+            if (p.data['default'] && currency.data.uuid == def_currency.data.uuid){
+                def_curr_price = p.data.uuid;
+            }
+        });
+        var store = price_field.getStore();
+        store.loadRawData(prices);
+        if (init && record.data.default_catalog_price){
+            if (Ext.isObject(record.data.default_catalog_price)){
+                var price_uuid = record.data.default_catalog_price.uuid;
+            } else {
+                var price_uuid = record.data.default_catalog_price;
+            }
+            price_field.setValue(price_uuid);
+        } else if (pre_select_price || def_curr_price){
+            price_field.setValue(pre_select_price || def_curr_price);
+        }
+    }
+}

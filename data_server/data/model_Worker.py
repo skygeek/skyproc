@@ -27,6 +27,9 @@ class Worker(base.Model):
     email = models.CharField(max_length=64, blank=True, null=True)
     postal_address = models.CharField(max_length=250, blank=True, null=True)
     
+    weight_kg = models.SmallIntegerField(blank=True, null=True)
+    weight_lb = models.SmallIntegerField(blank=True, null=True)
+    
     spoken_langs = models.ManyToManyField('SpokenLang')
     roles = models.ManyToManyField('WorkerType')
     available_fulltime = models.BooleanField(default=True)

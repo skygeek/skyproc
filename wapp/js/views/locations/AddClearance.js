@@ -34,53 +34,13 @@ Ext.define('Sp.views.locations.AddClearance', {
                 items: [
                     {
                         name: 'person',
-                        xtype: 'combobox',
+                        xtype: 'personcombo',
                         itemId: 'personCbx',
                         fieldLabel: TR("Member's Name"),
                         emptyText: TR("search by member's last name"),
-                        store: Data.createStore('LocationMembership', {
-                            pageSize: 20,
-                            remoteSort: true,
-                            sorters: [
-                                {
-                                    property: 'person__last_name',
-                                    direction: 'ASC'
-                                },
-                                {
-                                    property: 'person__first_name',
-                                    direction: 'ASC'
-                                }
-                            ],
-                            proxy: {
-                                extraParams: {
-                                    query_field: 'person__last_name',
-                                },
-                            },
-                        }),
-                        valueField: 'uuid',
-                        hideTrigger: true,
-                        queryDelay: 250,
-                        typeAhead: true,
-                        forceSelection: true,
-                        minChars: 1,
-                        tpl: Ext.create('Ext.XTemplate',
-                            '<tpl for=".">',
-                                '<div class="x-boundlist-item">',
-                                "{person.last_name} {person.first_name}",
-                                '</div>',
-                            '</tpl>'
-                        ),
-                        displayTpl: Ext.create('Ext.XTemplate',
-                            '<tpl for=".">',
-                                '{person.last_name} {person.first_name}',
-                            '</tpl>'
-                        ),
-                       listConfig: {
-                            loadingText: TR("Searching..."),
-                            emptyText: TR("No matching members found"),
-                        },
-                        pageSize: 20,
-                   },
+                        locationRec: this.locationRec,
+                        allowBlank: false,
+                    },
                 ],
             });
         }
@@ -197,7 +157,7 @@ Ext.define('Sp.views.locations.AddClearance', {
     },
     
     addClearance: function(){
-        var form = this.getComponent('form');
+        var form = this.down('#form');
         var record = form.form.getRecord();
         
         // validation
@@ -206,17 +166,21 @@ Ext.define('Sp.views.locations.AddClearance', {
         }
         
         if (this.personRequest){
-            var p = Data.me;
+            var person_uuid = Data.me.data.uuid;
         } else {
-            var person_cbx = this.down('#personCbx');
-            var p = person_cbx.getStore().getById(person_cbx.getValue()).getPerson();
+            var v = form.form.findField('person').getValue();
+            if (v && v.uuid){
+                var person_uuid = v.uuid;
+            } else {
+                return;
+            }
         }
         
         // ui busy
         this.setBusy(true);
         
         // check duplicate
-        Sp.utils.rpc('clearance.hasOne', [this.locationRec.data.uuid, p.data.uuid], function(has_clearance){
+        Sp.utils.rpc('clearance.hasOne', [this.locationRec.data.uuid, person_uuid], function(has_clearance){
             if (has_clearance){
                 Ext.MessageBox.show({
                     title: TR("Clearance exists"),
@@ -230,12 +194,12 @@ Ext.define('Sp.views.locations.AddClearance', {
             }
             // save clearance
             form.form.updateRecord();
-            record.beginEdit();
-            record.set('location', this.locationRec.data.uuid);
-            record.set('person', p.data.uuid);
-            record.set('approved', !this.personRequest);
-            record.set('new_approval', this.personRequest);
-            record.endEdit();
+            record.set({
+                location: this.locationRec.data.uuid,
+                person: person_uuid,
+                approved: !this.personRequest,
+                new_approval: this.personRequest,
+            });
             record.save({
                 callback: function(r, op){
                     if (!op.success){

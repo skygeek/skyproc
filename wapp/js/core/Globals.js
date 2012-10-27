@@ -25,3 +25,6 @@ Sp.core.Globals.BLANK_ICON = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAA
                                 "/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wJDQMvIH1maqQAAAAZdEVYdENv" +
                                 "bW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAEklEQVQ4y2NgGAWjYBSMAggAAAQQAAGFP6py" +
                                 "AAAAAElFTkSuQmCC";
+
+Sp.core.Globals.PERSON_WEIGHT = 80
+Sp.core.Globals.RIGG_WEIGHT = 10

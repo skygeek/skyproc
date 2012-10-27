@@ -66,6 +66,7 @@ class BuyedItem(base.Model):
     consumed = models.BooleanField(default=False)
     consuming = models.BooleanField(default=False)
     usage_count = models.IntegerField(default=0)
+    operation_note_append = models.CharField(max_length=100, blank=True, null=True)
     
     class Meta:
         ordering = ["created"]
@@ -75,7 +76,9 @@ class BuyedItem(base.Model):
         if (kwargs.has_key('force_insert') and kwargs['force_insert']) or self.deleted:
             account = Account.objects.get(membership=self.membership, currency=self.price.currency)
             action = 'Refund' if self.deleted else 'Buyed'
+            note = "%s '%s'" % (action, self.item.name)
+            if self.operation_note_append:
+                note += self.operation_note_append
             AccountOperation.objects.create(owner=self.owner, account=account, 
                                             type='C' if self.deleted else 'B', amount=self.price.price,
-                                            note="%s '%s'" % (action, self.item.name))
-
+                                            note=note)

@@ -32,11 +32,10 @@ Ext.define('Sp.ui.PersonCombo', {
             returnMembership: false,
         });
         
-        var name_tpl = (Data.me.data.name_order == 'FL' ? 
+        if (this.locationRec){
+            var name_tpl = (Data.me.data.name_order == 'FL' ? 
                         "{person.first_name} {person.last_name}" : 
                         "{person.last_name} {person.first_name}");
-        
-        if (this.locationRec){
             Ext.apply(this, {
                 minChars: 1,
                 queryDelay: 250,
@@ -55,6 +54,9 @@ Ext.define('Sp.ui.PersonCombo', {
                 ),
             });
         } else {
+            var name_tpl = (Data.me.data.name_order == 'FL' ? 
+                        "{first_name} {last_name}" : 
+                        "{last_name} {first_name}");
             Ext.apply(this, {
                 minChars: 4,
                 queryDelay: 500,
@@ -167,6 +169,7 @@ Ext.define('Sp.ui.PersonCombo', {
     },
     
     setValue: function(value){
+        var store = this.getStore();
         if (Ext.isObject(value)){
             if (value.hasOwnProperty('first_name') && value.hasOwnProperty('last_name')){
                 if (this.locationRec){
@@ -174,9 +177,11 @@ Ext.define('Sp.ui.PersonCombo', {
                         person: value,
                     });
                 } else {
-                    var r = Data.create('Person_P', value);
+                    //var r = Data.create('Person_P', value);
+                    var r = Data.create('Person', value);
                 }
-                this.getStore().add(r);
+                store.removeAll(true);
+                store.add(r);
                 this.select(r);
                 return this;
             } else if (value.hasOwnProperty('name')){
@@ -185,7 +190,18 @@ Ext.define('Sp.ui.PersonCombo', {
             } else {
                 return this.callParent(arguments);
             }
-        } else if (Ext.isString(value)){
+        } else if (Sp.utils.isUuid(value)){
+            var masked = false;
+            if (this.bodyEl){
+                this.bodyEl.mask(TR("Loading"));
+                masked = true;
+            }
+            Data.load('Person_P', value, function(rec){
+                this.setValue(rec.data);
+                if (masked){
+                    this.bodyEl.unmask();
+                }
+            }, this);
             return this;
         } else {
             return this.callParent(arguments);
@@ -198,34 +214,33 @@ Ext.define('Sp.ui.PersonCombo', {
         if (Sp.utils.isUuid(value)){
             var r = this.getStore().getById(value);
             var model = Data.getSpModelName(r);
-            var new_value = {};
+            var new_value;
             if (model == 'LocationMembership'){
                 if (this.returnMembership){
                     new_value = r;
                 } else {
-                    new_value = {
-                        uuid: r.data.person.uuid,
-                        type: 'person',
-                        first_name: r.data.person.first_name,
-                        last_name: r.data.person.last_name,
-                    };  
+                    new_value = r.data.person;
+                    new_value.type = 'person';
                 }
             } else {
-                new_value = {
-                    uuid: r.data.uuid,
-                    type: 'person',
-                    first_name: r.data.first_name,
-                    last_name: r.data.last_name,
-                };
+                new_value = r.data;
+                new_value.type = 'person';
             }
         } else if (Ext.isString(value) && value.length > 0){
-            new_value = {
-                uuid: Ext.data.IdGenerator.get('uuid').generate(),
-                type: 'phantom',
+            var phantom = Data.create('Phantom', {
                 name: value,
-            };
+            });
+            new_value = phantom.data;
+            new_value.type = 'phantom';
         }
         return (new_value ? new_value : value);
+    },
+    
+    setFullValue: function(record){
+        var store = this.getStore();
+        store.removeAll(true);
+        store.add(record);
+        this.setValue(record);
     },
     
     getFullValue: function(){
@@ -234,5 +249,5 @@ Ext.define('Sp.ui.PersonCombo', {
             return this.getStore().getById(value);
         }
     },
-    
+        
 });

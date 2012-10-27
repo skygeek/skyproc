@@ -113,6 +113,8 @@ Ext.override(Ext.form.field.HtmlEditor, {
 // html encode form values
 Ext.override(Ext.form.Basic, {
     
+    trackResetOnLoad: true,
+    
     updateRecord: function(record) {
         var ret = this.callParent(arguments);
         record = record || this._record;

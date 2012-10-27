@@ -149,24 +149,10 @@ Sp.lmanager.getTimerLabel = function(m) {
 
 Sp.lmanager.checkAccount = function(slotRec, locationRec) {
     var membershipRec = slotRec.membershipRec;
+    
     // membershipRec is present only after adding a person
     // if the ui reloads, the slot record is reloaded.
-    // in this case we left the slot as is, the verification has
-    // been done prior. The problem is if meanwhile something change
-    // in the account or profile... also the slot can easily be removed
-    // and readded to redo verifications...
-    //
-    // when billing mode is set to 'other', no verification on limits is
-    // done on the payer. because checking payer would require a trip
-    // to the server and will slow the ui, we asume that when setting
-    // payement to another person, that person has an infinite credit
-    // line
-
-    // try: using the previous problematic and probem fields
-    // is case of no membershipRec, since the check account is
-    // the last check, if problematic flag is set, it must be
-    // related to accounts
-
+    // in this case restore the last pb, if any. 
     if (!membershipRec) {
         Log('NO membershipRec')
         if (slotRec.data.problematic) {
@@ -200,14 +186,21 @@ Sp.lmanager.checkAccount = function(slotRec, locationRec) {
         return TR("Error: catalog item has been removed !");
     }
 
-    // FIXME: what to do with catalog element ?
+    var element = item.LocationCatalogElements().getById(slotRec.data.element);
+    if (!element) {
+        return TR("Error: catalog element has been removed !");
+    }
 
     var price = item.LocationCatalogPrices().getById(slotRec.data.price);
     if (!price) {
         return TR("Error: catalog price has been removed !");
     }
 
-    // no more check is done for billing other
+    // when billing mode is set to 'other', no verification on limits is
+    // done on the payer. because checking payer would require a trip
+    // to the server and will slow the ui, we asume that when setting
+    // payement to another person, that person has an infinite credit
+    // line
     if (pp.billing_mode == 'other') {
         Log('billing mode is other')
         return;
@@ -225,6 +218,7 @@ Sp.lmanager.checkAccount = function(slotRec, locationRec) {
     } else {
         var currency_uuid = price.data.currency;
     }
+    
     var balance = Sp.ui.data.getPersonBalance(membershipRec, currency_uuid);
     if (!Ext.isNumber(balance)) {
         balance = 0;
@@ -233,7 +227,7 @@ Sp.lmanager.checkAccount = function(slotRec, locationRec) {
         Log('has > balance')
         return;
     }
-
+    
     // prepaid check stops here
     if (pp.billing_mode == 'pre') {
         return TR("Insufficient funds");
@@ -249,7 +243,6 @@ Sp.lmanager.checkAccount = function(slotRec, locationRec) {
     Log('balance: ' + balance)
     Log('credit: ' + credit_line)
     Log('price: ' + price.data.price)
-
 }
 
 Sp.lmanager.getSlotJumperName = function(slotRec, locationRec) {
@@ -289,6 +282,10 @@ Sp.lmanager.getSlotsInfos = function(loadRec, locationRec){
     var slots_infos = {};
     var aircraft = locationRec.Aircrafts().getById(loadRec.data.aircraft);
     var slots_store = loadRec.Slots();
+    slots_infos.altitude_unit = aircraft.data.altitude_unit;
+    slots_infos.weight_unit = aircraft.data.weight_unit;
+    slots_infos.max_altitude = aircraft.data.max_altitude;
+    slots_infos.gross_weight = aircraft.data.gross_weight;
     slots_infos.total = aircraft.data.max_slots;
     slots_infos.min = aircraft.data.min_slots;
     slots_infos.created = slots_store.getCount();
@@ -372,6 +369,31 @@ Sp.lmanager.hasClearance = function(locationRec, person_uuid) {
     }
 }
 
+Sp.lmanager.getWeight = function(rec_data) {
+    if (Ext.isNumber(rec_data.weight_kg)){
+        return rec_data.weight_kg + Sp.core.Globals.RIGG_WEIGHT;
+    }
+    if (Ext.isNumber(rec_data.weight_lb)){
+        return Math.round(rec_data.weight_lb/2.20462,0) + Sp.core.Globals.RIGG_WEIGHT;
+    }
+    return Sp.core.Globals.PERSON_WEIGHT + Sp.core.Globals.RIGG_WEIGHT;
+}
+
 Sp.lmanager.getLoadWeight = function(locationRec, loadRec) {
-    return '0 Kg';
+    var weight = {};
+    weight.total = 0;
+    loadRec.Slots().each(function(s){
+        if (s.data.worker){
+            var worker = locationRec.Workers().getById(s.data.worker);
+            if (worker){
+                weight.total += Sp.lmanager.getWeight(worker.data);
+            }
+        } else if (s.data.person){
+            weight.total += Sp.lmanager.getWeight(s.data.person);
+        } else if (s.data.phantom && Ext.isNumber(s.data.phantom.weight)){
+            weight.total += s.data.phantom.weight;
+        }
+    });
+    weight.label = Sp.utils.getUserUnit(weight.total, 'weight');
+    return weight;
 }

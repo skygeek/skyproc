@@ -490,7 +490,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                 },
                 {
                     'id': 3,
-                    'title': TR("Reservations made by others"),
+                    'title': TR("External reservations"),
                     'color': 22,
                 },
                 {

@@ -41,7 +41,7 @@ Ext.define('Sp.views.locations.EditWorker', {
         
         Ext.apply(this, {
             width: 700,
-            height: 500,
+            height: 520,
             modal: true,
             resizable: false,
             title: title,
@@ -98,6 +98,13 @@ Ext.define('Sp.views.locations.EditWorker', {
                                                             inputValue: 'F',
                                                         },
                                                     ]
+                                                },
+                                                {
+                                                    name: Data.me.data.weight_unit == 'kg' ? 'weight_kg' : 'weight_lb',
+                                                    xtype: 'numberfield',
+                                                    fieldLabel: Ext.String.format("{0} ({1})", TR("Weight"), Data.me.data.weight_unit),
+                                                    minValue: 0,
+                                                    maxValue: 999,
                                                 },
                                                 {
                                                     name: 'phone',

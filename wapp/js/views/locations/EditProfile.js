@@ -34,6 +34,7 @@ Ext.define('Sp.views.locations.EditProfile', {
         } else {
             rec = this.profileRec = Data.create('MembershipProfile', {
                 location: this.locationRec.data.uuid,
+                currency: this.locationRec.data.default_currency,
             });
             var title = TR("New membership profile");
             var ok_text = TR("Add");
@@ -138,75 +139,11 @@ Ext.define('Sp.views.locations.EditProfile', {
                                 },
                                 {
                                     name: 'bill_person',
-                                    xtype: 'combobox',
+                                    xtype: 'personcombo',
                                     itemId: 'billPerson',
                                     fieldLabel: TR("Member to bill"),
                                     hidden: true,
-                                    store: Data.createStore('LocationMembership', {
-                                        buffered: true,
-                                        pageSize: 20,
-                                        remoteSort: true,
-                                        sorters: [
-                                            {
-                                                property: 'person__last_name',
-                                                direction: 'ASC'
-                                            },
-                                            {
-                                                property: 'person__first_name',
-                                                direction: 'ASC'
-                                            }
-                                        ],
-                                        remoteFilter: true,
-                                        filters: [
-                                            {
-                                                property: 'location',
-                                                value: this.locationRec.data.uuid,
-                                            },
-                                        ],
-                                        proxy: {
-                                            extraParams: {
-                                                query_field: 'person__last_name',
-                                            },
-                                        },
-                                    }),
-                                    valueField: 'person',
-                                    hideTrigger: true,
-                                    queryDelay: 250,
-                                    typeAhead: true,
-                                    minChars: 3,
-                                    tpl: Ext.create('Ext.XTemplate',
-                                        '<tpl for=".">',
-                                            '<div class="x-boundlist-item">',
-                                            "{person.last_name} {person.first_name}",
-                                            '</div>',
-                                        '</tpl>'
-                                    ),
-                                    displayTpl: Ext.create('Ext.XTemplate',
-                                        '<tpl for=".">',
-                                            '{person.last_name} {person.first_name}',
-                                        '</tpl>'
-                                   ),
-                                   listConfig: {
-                                        loadingText: TR("Searching..."),
-                                        emptyText: TR("No matching members found"),
-                                    },
-                                    pageSize: 20,
-                                    listeners: {
-                                        afterrender: Ext.bind(function(cb){
-                                            if (this.profileRec.data.bill_person){
-                                                var store = cb.getStore();
-                                                var on_load_fn = Ext.bind(function(store, records, successful){
-                                                    if (successful && records[0]){
-                                                        cb.setValue(records[0]);
-                                                    }
-                                                    store.filters.removeAt(1);
-                                                    store.un('load', on_load_fn);
-                                                }, this)
-                                                store.on('load', on_load_fn);
-                                                store.filter('person', this.profileRec.data.bill_person);
-                                            }
-                                        }, this),
-                                    },
+                                    locationRec: this.locationRec,
                                 },
                                 {
                                     name: 'credit_line',
@@ -264,7 +201,10 @@ Ext.define('Sp.views.locations.EditProfile', {
                                     forceSelection: true,
                                     lastQuery: '',
                                     listeners: {
-                                        select: Ext.bind(this.buildDefaultPricesStore, this),
+                                        select: function(){
+                                            this.buildDefaultPricesStore();
+                                        },
+                                        scope: this,
                                     },
                                 },
                                 {
@@ -284,7 +224,7 @@ Ext.define('Sp.views.locations.EditProfile', {
                                 {
                                     name: 'catalog_access',
                                     xtype: 'checkbox',
-                                    boxLabel: TR("Let the member choose other items from the catalog (when self-manifesting)"),
+                                    boxLabel: TR("Let members choose other items from the catalog (when self-manifesting)"),
                                     listeners: {
                                         change: Ext.bind(function(me, value){
                                             this.down('#catalogItemsAvailBt').setDisabled(!value);
@@ -332,7 +272,7 @@ Ext.define('Sp.views.locations.EditProfile', {
                                     handler: function(){
                                         Ext.create('Sp.views.locations.CatalogItemsSelect', {
                                             locationRec: this.locationRec,
-                                            defaultCatalogStore: this.defaultCatalogStore,
+                                            defaultCatalogStore: this.locationRec.LocationCatalogItems(),
                                             store: this.profileRec.ProfileExtraCatalogs(),
                                             create_model: 'ProfileExtraCatalog',
                                             parent_field: 'profile',
@@ -369,48 +309,17 @@ Ext.define('Sp.views.locations.EditProfile', {
         });
  
         this.callParent(arguments);
-        
-        this.getComponent('form').form.loadRecord(rec);
-        
-        this.buildDefaultPricesStore();
+        this.down('#form').form.loadRecord(rec);
+        this.buildDefaultPricesStore(true);
     },
     
-    buildDefaultPricesStore: function(){
-        var form = this.getComponent('form').form;
+    buildDefaultPricesStore: function(init){
+        var form = this.down('#form').form;
         var item_uuid = form.findField('default_catalog_item').getValue();
-        var currency_field = form.findField('currency');
-        var currency_uuid = currency_field.getValue();
-        var currency_code = currency_field.getRawValue();
-        var price_field = this.down('#defaultPrice');
         if (item_uuid){
-            var item_rec = this.locationRec.LocationCatalogItems().getById(item_uuid);
-            if (item_rec){
-                var prices = [];
-                item_rec.LocationCatalogPrices().each(function(p){
-                    if (Ext.isObject(p.data.currency)){
-                        var currency = p.getCurrency();
-                    } else {
-                        var currency = Data.currencies.getById(p.data.currency);
-                    }
-                    prices.push({
-                        uuid: p.data.uuid,
-                        price: p.data.price + ' ' + currency.data.code,
-                    }); 
-                }, this);
-                var store = price_field.getStore();
-                store.loadRawData(prices);
-                if (this.profileRec.data.default_catalog_price){
-                    if (Ext.isObject(this.profileRec.data.default_catalog_price)){
-                        var price_uuid = this.profileRec.data.default_catalog_price.uuid;
-                    } else {
-                        var price_uuid = this.profileRec.data.default_catalog_price;
-                    }
-                    var r = store.findRecord('uuid', price_uuid);
-                    if (r){
-                        price_field.setValue(r);
-                    }
-                }
-            }
+            var currency_uuid = form.findField('currency').getValue();
+            var price_field = this.down('#defaultPrice');
+            Sp.ui.misc.buildDefaultPricesStore(this.locationRec, this.profileRec, item_uuid, currency_uuid, price_field, init);
         }
     },
 
@@ -428,23 +337,14 @@ Ext.define('Sp.views.locations.EditProfile', {
         if (form.form.findField('default').getValue() && !record.data['default']){
             this.locationRec.MembershipProfiles().each(function(p){
                 if (p.data['default']){
-                    p.beginEdit();
                     p.set('default', false);
-                    p.endEdit();
                 }
             });
         }
         
         // update record
         form.form.updateRecord();
-        
-        // person to bill
-        if (Ext.isObject(record.data.bill_person)){
-            record.beginEdit();
-            record.set('bill_person', record.data.bill_person.uuid);
-            record.endEdit();
-        }
-        
+
         if (create){
             // add record to the store
             this.locationRec.MembershipProfiles().add(record);

@@ -143,8 +143,8 @@ class Notifier:
                 # new_approval ==> false
                 self.record.new_approval = False
                 self.record.save(force_update=True)
-            # notify for operation by owner
-            else:
+            # notify for operation by owner on self created persons
+            elif self.record.person.self_created:
                 message = {}
                 message['model'] = 'Clearance_R'
                 message['operation'] = self.operation

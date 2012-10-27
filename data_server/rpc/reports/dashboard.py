@@ -85,15 +85,16 @@ def get_data(location_uuid, start_date, end_date):
                 data['role'][slot.catalog_item] += 1
             # jumper
             else:
-                data['totals'][slot.payment_type]['count'] += 1
-                misc.update_prices(slot.catalog_price, data['totals']['prices'])
-                misc.update_prices(slot.catalog_price, data['totals'][slot.payment_type]['prices'])
-                if not data['catalog'].has_key(slot.catalog_item):
-                    data['catalog'][slot.catalog_item] = {}
-                    data['catalog'][slot.catalog_item]['count'] = 0
-                    data['catalog'][slot.catalog_item]['prices'] = {}
-                data['catalog'][slot.catalog_item]['count'] += 1
-                misc.update_prices(slot.catalog_price, data['catalog'][slot.catalog_item]['prices'])
+                if slot.payment_type:
+                    data['totals'][slot.payment_type]['count'] += 1
+                    misc.update_prices(slot.catalog_price, data['totals']['prices'])
+                    misc.update_prices(slot.catalog_price, data['totals'][slot.payment_type]['prices'])
+                    if not data['catalog'].has_key(slot.catalog_item):
+                        data['catalog'][slot.catalog_item] = {}
+                        data['catalog'][slot.catalog_item]['count'] = 0
+                        data['catalog'][slot.catalog_item]['prices'] = {}
+                    data['catalog'][slot.catalog_item]['count'] += 1
+                    misc.update_prices(slot.catalog_price, data['catalog'][slot.catalog_item]['prices'])
                         
     # calculate aircraft usage ratios
     for k,v in data['aircraft'].items():

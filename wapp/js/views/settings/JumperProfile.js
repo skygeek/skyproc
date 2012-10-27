@@ -168,6 +168,12 @@ Ext.define('Sp.views.settings.JumperProfile', {
                             valueField: 'level',
                             displayField: 'label',
                         },
+                        {
+                            name: 'jump_licenses',
+                            xtype: 'textarea',
+                            fieldLabel: TR("Licenses"),
+                            rows: 4,
+                        },
                     ],
                 },
                 {

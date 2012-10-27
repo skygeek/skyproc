@@ -49,31 +49,70 @@ def __get_item_total_slots(item):
         total_slots += e.recurrence*e.slots
     return total_slots 
 
-def __bill_slot(slot, recurse=True, membership=None):
+def __bill_item(membership, item, price, bill_for_member):
+    # get account
+    try: account = Account.objects.get(membership=membership, currency=price.currency, deleted=False)
+    except ObjectDoesNotExist:
+        account = Account.objects.create(owner=membership.location.owner, membership=membership, 
+                                         currency=price.currency)
+    note_append = ''
+    if bill_for_member:
+        note_append += " for '%s'" % \
+            misc.formatFullname(bill_for_member.person, Person.objects.getOwn(req.user).name_order, True)        
+    if item.reuseable:
+        # BuyedItem save() method will create AccountOperation and update balance
+        BuyedItem.objects.create(owner=membership.location.owner, membership=membership, 
+                    item=item, price=price, consuming=True, usage_count=1, operation_note_append=note_append)
+    else:
+        # create operation to update balance
+        # one shot items are not saved in BuyedItem to save space on memberships because
+        # BuyedItem records are carried out with memberships records
+        AccountOperation.objects.create(owner=membership.location.owner, account=account, type='B', 
+                                        amount=price.price, note="Billed '%s'%s" % (item.name, note_append))
+
+def __bill_extra_items(membership, p, bill_for_member):
+    if bill_for_member: p = misc.get_person_profile(bill_for_member)
+    for i in p['extra_items']:
+        if i['price']:
+            __bill_item(membership, i['item'], i['price'], bill_for_member)
+    
+def __bill_slot(slot, membership=None, bill_for_member=None):
     ret = {}
+    
     if membership is None:
-        membership = LocationMembership.objects.get(person=slot.person, location=slot.load.location, deleted=False)    
+        membership = LocationMembership.objects.get(person=slot.person, location=slot.load.location, deleted=False)
+            
     pp = misc.get_person_profile(membership)
     billing_mode = pp['billing_mode']
     
-    if billing_mode == 'other' and not recurse:
+    if billing_mode == 'other' and bill_for_member:
         billing_mode = 'post'
     
     if billing_mode == 'other':
-        try: other_membership = LocationMembership.objects.get(person=pp['bill_person'], location=slot.load.location, deleted=False)
+        try: payer_membership = LocationMembership.objects.get(person=pp['bill_person'], location=slot.load.location, deleted=False)
         except:
-            other_membership = None
+            payer_membership = None
             billing_mode = 'post'
-        if other_membership:
+        if payer_membership:
             req_person = Person.objects.getOwn(req.user)
             ret['payer'] = misc.formatFullname(pp['bill_person'], req_person.name_order, True)
-            ret.update(__bill_slot(slot, False, other_membership))
+            ret.update(__bill_slot(slot, payer_membership, membership))
+            return ret
+
+    # bill extra items if any
+    # extra items are always billed even if billing mode is 'none'
+    __bill_extra_items(membership, pp, bill_for_member)
+    
+    # if item or price is not set, set billing to none
+    # only 'pre' and 'post' billing modes are processed
+    if not slot.item or not slot.price:
+        billing_mode = 'none'
 
     # at this stage prepaid and postpaid mode are the same
     # because even if limits are reached, user forced the
-    # load
+    # load. 
     if billing_mode in ('pre', 'post'):
-        ret['payment'] = 'Prepaid' if billing_mode == 'pre' else 'Postpaid'
+        ret['payment_type'] = 'prepaid' if billing_mode == 'pre' else 'postpaid'
         # buyed item
         buyed_item = None
         buyed_items_rs = BuyedItem.objects.filter(membership=membership, item=slot.item, price=slot.price, consumed=False, deleted=False)
@@ -96,22 +135,10 @@ def __bill_slot(slot, recurse=True, membership=None):
             else:
                 buyed_item.consumed = True
             buyed_item.save(force_update=True)
+            # item is already paid
+            ret['has_buyed_item'] = True
         else:
-            # get account
-            try: account = Account.objects.get(membership=membership, currency=slot.price.currency, deleted=False)
-            except ObjectDoesNotExist:
-                account = Account.objects.create(owner=membership.location.owner, membership=membership, 
-                                                 currency=slot.price.currency)
-            if slot.item.reuseable:
-                # BuyedItem save() method will create AccountOperation and update balance
-                BuyedItem.objects.create(owner=membership.location.owner, membership=membership, 
-                                         item=slot.item, price=slot.price, consuming=True, usage_count=1)
-            else:
-                # create operation to update balance
-                # one shot items are not saved in BuyedItem to save space on memberships because
-                # BuyedItem records are carried out with memberships records
-                AccountOperation.objects.create(owner=membership.location.owner, account=account, type='B', 
-                                                amount=slot.price.price, note="Billed '%s'" % slot.item.name)
+            __bill_item(membership, slot.item, slot.price, bill_for_member)
     
     return ret
 
@@ -130,11 +157,7 @@ def __archive_person_slot(slot, del_options):
         if slot.element: jump_log['altitude'] = '%s%s' % (slot.element.altitude, slot.element.altitude_unit)
         else: jump_log['altitude'] = 'N/A'
         JumpLog.objects.create(**jump_log)
-    # billing
-    # FIXME: if price not present, take the default price
-    # with the default person currency, if not found then set
-    # payment to None
-    if (not del_options.has_key('noBalance') or not del_options['noBalance']) and slot.item and slot.price:
+    if (not del_options.has_key('noBalance') or not del_options['noBalance']):
         ret.update(__bill_slot(slot))
     return ret
 
@@ -166,12 +189,16 @@ def archive_load(load_uuid, note, del_options={}):
     
     slots_log = []
     prices = {}
+    
     for slot in load.slot_set.filter(deleted=False):
+        
         # skip empty slot
         if not slot.person and not slot.phantom and not slot.worker and not slot.item:
             continue
+        
         slot_log = {}
         slot_log['owner'] = req_person.uuid
+        
         if slot.person:
             slot_log['jumper'] = slot.person.uuid
             slot_log['jumper_name'] = misc.formatFullname(slot.person, req_person.name_order, True)
@@ -182,6 +209,7 @@ def archive_load(load_uuid, note, del_options={}):
             slot_log['jumper_name'] = slot.worker.name
         else:
             slot_log['jumper_name'] = 'N/A'
+            
         if slot.worker_type:
             slot_log['catalog_item'] = slot.worker_type.label
             slot_log['is_worker'] = True
@@ -189,43 +217,53 @@ def archive_load(load_uuid, note, del_options={}):
             slot_log['catalog_item'] = slot.item.name
         else:
             slot_log['catalog_item'] = 'N/A'
+            
         slot_log['exit_order'] = slot.exit_order
-        if not slot.worker_type:
-            if slot.price:
-                slot_log['catalog_price'] = ujson.encode({slot.price.currency.code:slot.price.price})
-                if not prices.has_key(slot.price.currency.code):
-                    prices[slot.price.currency.code] = 0
-                prices[slot.price.currency.code] += slot.price.price
-            # FIXME: try to find a default price for the default currency
-            else:
-                slot_log['catalog_price'] = 'N/A'
-        
-        slot_log['payment'] = 'None'
+                
         slot_log['payment_type'] = 'none'
         
         if slot.person:
             slot_log.update(__archive_person_slot(slot, del_options))
         elif slot.phantom and slot.is_paid:
-            slot_log['payment'] = 'Prepaid'
+            slot_log['payment_type'] = 'prepaid'
         
-        slots_log.append(slot_log)
+        # slot price
+        if not slot.worker_type:
+            if slot.price:
+                price = slot.price.price
+                # zero price for buyed items, they are already paid
+                if slot_log.has_key('has_buyed_item') and slot_log['has_buyed_item']:
+                    price = 0
+                    del slot_log['has_buyed_item']
+                slot_log['catalog_price'] = ujson.encode({slot.price.currency.code:price})
+                if not prices.has_key(slot.price.currency.code):
+                    prices[slot.price.currency.code] = 0
+                prices[slot.price.currency.code] += price
+            else:
+                slot_log['catalog_price'] = 'N/A'
         
         # counters
         load_log['total_slots'] += 1
         if slot.worker_type:
             load_log['staff_slots'] += 1
-            slot_log['payment'] = ''
+            slot_log['payment_type'] = ''
+        elif slot_log['payment_type'] == 'none':
+            load_log['unpaid_slots'] += 1
+        elif slot_log['payment_type'] == '':
+            pass
         else:
-            if slot_log['payment'] == 'None':
-                load_log['unpaid_slots'] += 1
-                slot_log['payment'] = 'Unpaid'
-                slot_log['payment_type'] = 'unpaid'
-            elif slot_log['payment'] == 'Prepaid':
-                load_log['prepaid_slots'] += 1
-                slot_log['payment_type'] = 'prepaid'
-            elif slot_log['payment'] == 'Postpaid':
-                load_log['postpaid_slots'] += 1
-                slot_log['payment_type'] = 'postpaid'
+            load_log['%s_slots' % slot_log['payment_type']] += 1
+            
+        # label
+        labels = {
+            '': '',
+            'none': 'Unpaid',
+            'prepaid': 'Prepaid',
+            'postpaid': 'Postpaid',
+        }
+        slot_log['payment'] = labels[slot_log['payment_type']]
+        
+        slots_log.append(slot_log)
             
     load_log['prices'] = ujson.encode(prices)
         

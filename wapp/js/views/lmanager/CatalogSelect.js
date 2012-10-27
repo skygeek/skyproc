@@ -22,6 +22,9 @@ Ext.define('Sp.views.lmanager.CatalogSelect', {
     
     initComponent: function() {
         
+        Log('SSSSSSSSSS')
+        Log(this.slotRec)
+        
         Ext.apply(this, {
             width: 340,
             height: 180,
@@ -129,7 +132,6 @@ Ext.define('Sp.views.lmanager.CatalogSelect', {
                             fieldLabel: TR("Payer"),
                             emptyText: TR("search by member's last name"),
                             locationRec: this.locationRec,
-                            allowPhantom: false,
                         },
                     ],
                 },
@@ -179,20 +181,42 @@ Ext.define('Sp.views.lmanager.CatalogSelect', {
         var priceCbx_store = priceCbx.getStore();
         rec.LocationCatalogPrices().each(function(p){
             var currency = Ext.isObject(p.data.currency) ? p.getCurrency() : Data.currencies.getById(p.data.currency);
-            prices.push({
-                uuid: p.data.uuid,
-                price: p.data.price,
-                currency: currency.data.code,
-                'default': p.data['default'],
-            });
+            if (currency){
+                prices.push({
+                    uuid: p.data.uuid,
+                    price: p.data.price,
+                    currency: currency.data.code,
+                    'default': p.data['default'],
+                });    
+            }
         });
         priceCbx_store.loadRawData(prices);
         priceCbx.clearValue();
         priceCbx.show();
         priceCbx.clearInvalid();
-        var def = priceCbx_store.findRecord('default', true);
-        if (def){
-            priceCbx.setValue(def);
+        
+        // set a default price
+        var person_def_currency, 
+            def_currency, 
+            def_price_idx = -1;
+        if (this.slotRec.data.person && this.slotRec.data.person.default_currency){
+            person_def_currency = Data.currencies.getById(this.slotRec.data.person.default_currency);
+        } 
+        if (this.locationRec.data.default_currency){
+            def_currency = Data.currencies.getById(this.locationRec.data.default_currency);
+        }
+        if (person_def_currency){
+            def_price_idx = priceCbx_store.findBy(function(r){
+                return (r.data['default'] && r.data.currency == person_def_currency.data.code);
+            });    
+        }
+        if (def_price_idx == -1 && def_currency){
+            def_price_idx = priceCbx_store.findBy(function(r){
+                return (r.data['default'] && r.data.currency == def_currency.data.code);
+            });
+        }
+        if (def_price_idx != -1){
+            priceCbx.setValue(priceCbx_store.getAt(def_price_idx));
         }
         
         // element
@@ -226,6 +250,7 @@ Ext.define('Sp.views.lmanager.CatalogSelect', {
         if (!form.isValid()){
             return;
         }
+        
         // get values
         var slotRec = this.slotRec;
         var loadRec = this.locationRec.Loads().getById(slotRec.data.load);

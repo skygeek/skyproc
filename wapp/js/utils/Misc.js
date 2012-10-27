@@ -65,26 +65,36 @@ Sp.utils.getUserUnit = function(value, type){
     switch (type){
         case 'temperature':
             switch (d.temperature_unit){
-                case 'c': return Ext.String.format("{0} °C", parseInt(value));
+                case 'c': return Ext.String.format("{0} °C", parseInt(value)); break;
                 case 'f': return Ext.String.format("{0} °F", parseInt(value)*9/5+32);
             }
+            break;
         case 'wind_speed':
             switch (d.speed_unit){
-                case 'kts': return Ext.String.format("{0} Knots", parseInt(value));
-                case 'mph': return Ext.String.format("{0} mph", parseInt(parseInt(value)*1.150779));
-                case 'ms':  return Ext.String.format("{0} m/s", parseInt(parseInt(value)*0.514444));
+                case 'kts': return Ext.String.format("{0} Knots", parseInt(value)); break;
+                case 'mph': return Ext.String.format("{0} mph", parseInt(parseInt(value)*1.150779)); break;
+                case 'ms':  return Ext.String.format("{0} m/s", parseInt(parseInt(value)*0.514444)); break;
                 case 'kmh': return Ext.String.format("{0} km/h", parseInt(parseInt(value)*1.852));
             }
+            break;
         case 'altitude':
             switch (d.altitude_unit){
-                case 'm': return Ext.String.format("{0} m", Ext.util.Format.number(parseInt(value), '0,/i'));
+                case 'm': return Ext.String.format("{0} m", Ext.util.Format.number(parseInt(value), '0,/i')); break;
                 case 'ft': return Ext.String.format("{0} ft", Ext.util.Format.number(parseInt(parseInt(value)*3.28084), '0,/i'));
                 
             }
+            break;
         case 'area':
             switch (d.distance_unit){
-                case 'm': return Ext.String.format("{0} m<sup>2</sup>", Ext.util.Format.number(parseInt(value), '0,/i'));
+                case 'm': return Ext.String.format("{0} m<sup>2</sup>", Ext.util.Format.number(parseInt(value), '0,/i')); break;
                 case 'us': return Ext.String.format("{0} ft<sup>2</sup>", Ext.util.Format.number(parseInt(parseInt(value)*10.76391), '0,/i'));
+                
+            }
+            break;
+        case 'weight':
+            switch (d.weight_unit){
+                case 'kg': return Ext.String.format("{0} kg", Ext.util.Format.number(parseInt(value), '0,/i')); break;
+                case 'lb': return Ext.String.format("{0} lb", Ext.util.Format.number(parseInt(parseInt(value)*2.20462), '0,/i'));
                 
             }
     }

@@ -119,8 +119,9 @@ Ext.define('Sp.views.lmanager.Planner', {
                         label += Ext.String.format("N° {0} &nbsp;-&nbsp; {1} {2} &nbsp;-&nbsp;&nbsp;",
                                     r.data.number, infos.total, (infos.total > 1 ? TR("Slots") : TR("Slot")));
                         label += Ext.String.format("{0} {1} &nbsp;-&nbsp;&nbsp;", infos.used, TR("Used"));
-                        label += Ext.String.format("{0} &nbsp;-&nbsp;&nbsp;",
-                                    Sp.lmanager.getLoadWeight(this.locationRec, r));
+                        var load_weight = Sp.lmanager.getLoadWeight(this.locationRec, r);
+                        label += Ext.String.format("{0}{1} &nbsp;-&nbsp;&nbsp;", 
+                                   load_weight.total > 0 ? '~' : '' ,load_weight.label);
                         if (infos.free > 0){
                             label += Ext.String.format("{0}: <span class='bold'>{1}</span>", TR("Available"), infos.free);
                         } else {
@@ -584,7 +585,11 @@ Ext.define('Sp.views.lmanager.Planner', {
                                     focus: function(me){
                                         var r = this.slots_grids[me.loadRec.data.uuid].getView().clickedRec;
                                         if (r.data.person){
-                                            me.setValue(r.data.person);
+                                            if (r.membershipRec){
+                                                me.setFullValue(r.membershipRec);
+                                            } else {
+                                                me.setValue(r.data.person);
+                                            }
                                         } else if (r.data.phantom){
                                             me.setValue(r.data.phantom);
                                         }
@@ -630,7 +635,8 @@ Ext.define('Sp.views.lmanager.Planner', {
                             var label = '';
                             var item = this.locationRec.LocationCatalogItems().getById(r.data.item);
                             var element = item.LocationCatalogElements().getById(r.data.element);
-                            return Ext.String.format('{0} {1}', element.data.altitude, element.data.altitude_unit);
+                            var altitude = Ext.util.Format.number(element.data.altitude, '0,/i');
+                            return Ext.String.format('{0} {1}', altitude, element.data.altitude_unit);
                         } else {
                             return Ext.String.format("<span class='placeholder-color'>{0}</span>", TR("N/A"));                  
                         }
@@ -1459,7 +1465,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                 unready_slots = true;
                 this.setProblematic(s, true, TR("Jumper not ready"));
                 return;
-            }
+            } 
             // check person account
             if (s.data.person){
                 var err = Sp.lmanager.checkAccount(s, this.locationRec);
@@ -1516,6 +1522,22 @@ Ext.define('Sp.views.lmanager.Planner', {
             this.setProblematic(loadRec, true, 
                 Ext.String.format(TR("The aircraft used in this load has a minimum requirement of {0} slots"), infos.min));
             return;
+        }
+        
+        // check maximum weight
+        if (Ext.isNumber(infos.gross_weight)){
+            var load_weight = Sp.lmanager.getLoadWeight(this.locationRec, loadRec);
+            if (infos.weight_unit == 'lb'){
+                var gross_weight = Math.round(infos.gross_weight/2.20462,0);
+            } else {
+                var gross_weight = infos.gross_weight;
+            }
+            if (load_weight.total > gross_weight){
+                var max_label = Sp.utils.getUserUnit(gross_weight, 'weight');
+                this.setProblematic(loadRec, true, 
+                    Ext.String.format(TR("The aircraft is overloaded ! Gross weight is {0}"), max_label));
+                return;
+            }
         }
         
         Log('=== END ====')
@@ -1779,7 +1801,6 @@ Ext.define('Sp.views.lmanager.Planner', {
         var field = event.field;
         var originalValue = event.originalValue;
         var undo_values = {};
-        //var update_related = false;
         var loadRec = this.locationRec.Loads().getById(event.record.data.load);
         
         // update person/phantom/worker
@@ -1790,9 +1811,13 @@ Ext.define('Sp.views.lmanager.Planner', {
                 undo_values.person = event.record.get('person');
                 undo_values.membership_uuid = event.record.get('membership_uuid');
                 undo_values.phantom = event.record.get('phantom');
+                undo_values.is_paid = event.record.get('is_paid');
+                undo_values.is_ready = event.record.get('is_ready');
                 edit_values.person = null;
                 edit_values.membership_uuid = null;
                 edit_values.phantom = null;
+                edit_values.is_paid = true;
+                edit_values.is_ready = true;
             } else if (Ext.isObject(event.value)){
                 field = event.value.type;
                 delete event.value.type;
@@ -1802,9 +1827,13 @@ Ext.define('Sp.views.lmanager.Planner', {
                     event.record.membershipRec = membershipRec;
                     undo_values.worker = event.record.get('worker');
                     undo_values.phantom = event.record.get('phantom');
+                    undo_values.is_paid = event.record.get('is_paid');
+                    undo_values.is_ready = event.record.get('is_ready');
                     edit_values.membership_uuid = membershipRec.data.uuid;
                     edit_values.worker = null;
                     edit_values.phantom = null;
+                    edit_values.is_paid = true;
+                    edit_values.is_ready = true;
                 } else {
                     undo_values.worker = event.record.get('worker');
                     undo_values.person = event.record.get('person');
@@ -1826,7 +1855,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                     if (membershipRec){
                         var pp = Sp.ui.data.getPersonProfile(membershipRec, this.locationRec);
                         if (pp.catalog_item){
-                            undo_values.item = null;
+                            undo_values.item = event.record.data.item;
                             edit_values.item = pp.catalog_item;
                             var item = this.locationRec.LocationCatalogItems().getById(pp.catalog_item);
                             if (item && item.data.jump_type){
@@ -1840,35 +1869,39 @@ Ext.define('Sp.views.lmanager.Planner', {
                             }
                         }
                         if (pp.catalog_element){
-                            undo_values.element = null;
+                            undo_values.element = event.record.data.element;
                             edit_values.element = pp.catalog_element;
                         }
                         if (pp.catalog_price){
-                            undo_values.price = null;
+                            undo_values.price = event.record.data.price;
                             edit_values.price = pp.catalog_price;
                         }
                         if (pp.bill_person_data){
-                            undo_values.payer = null;
+                            undo_values.payer = event.record.data.payer;
                             edit_values.payer = pp.bill_person_data;
                         }
                     }
                 } else if (field == 'phantom'){ // default phantom catalog
                     if (this.locationRec.data.lmanager_default_catalog_item){
-                        undo_values.item = null;
-                        edit_values.item = this.locationRec.data.lmanager_default_catalog_item;
                         var item = this.locationRec.LocationCatalogItems().getById(this.locationRec.data.lmanager_default_catalog_item);
-                        if (item && item.data.jump_type){
+                        if (item){
+                            undo_values.item = event.record.data.item;
+                            edit_values.item = this.locationRec.data.lmanager_default_catalog_item;
+                            var jump_type;
                             if (Ext.isObject(item.data.jump_type)){
                                 var jump_type = item.data.jump_type.uuid;
-                            } else {
+                            } else if (item.data.jump_type){
                                 var jump_type = item.data.jump_type;
                             }
-                            undo_values.jump_type = event.record.data.jump_type;
-                            edit_values.jump_type = jump_type;
-                            // set the element if the item has one and only one element
-                            if (item.LocationCatalogElements().getCount() == 1){
-                                undo_values.element = null;
-                                edit_values.element = item.LocationCatalogElements().getAt(0).data.uuid;
+                            if (jump_type){
+                                undo_values.jump_type = event.record.data.jump_type;
+                                edit_values.jump_type = jump_type;    
+                            }
+                            // set the element (must me only one)
+                            var element = item.LocationCatalogElements().getAt(0);
+                            if (element){
+                                undo_values.element = event.record.data.element;
+                                edit_values.element = element.data.uuid;
                             }
                             // set paid and ready to false for phantoms
                             undo_values.is_paid = event.record.data.is_paid;
@@ -1878,7 +1911,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                         }
                     }
                     if (this.locationRec.data.lmanager_default_catalog_price){
-                        undo_values.price = null;
+                        undo_values.price = event.record.data.price;
                         edit_values.price = this.locationRec.data.lmanager_default_catalog_price;
                     }
                 }
@@ -1895,6 +1928,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                     }
                     
                     // FIXME: rewrite this code to check for slots availability before storing values
+                    
                     // no enough free slots 
                     if (needed > load_infos.free){
                         delete edit_values.item;
@@ -1908,6 +1942,11 @@ Ext.define('Sp.views.lmanager.Planner', {
                         delete undo_values.price;
                         delete undo_values.payer;
                     }
+                }
+                
+                // set default jump type from person record
+                if (!edit_values.jump_type && edit_values.person && edit_values.person.default_jump_type){
+                    edit_values.jump_type = edit_values.person.default_jump_type;
                 }
             }
             event.record.set(edit_values);
