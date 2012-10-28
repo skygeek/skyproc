@@ -58,8 +58,8 @@ Ext.define('Sp.views.settings.EditCatalogElement', {
         });
         
         Ext.apply(this, {
-            width: 440,
-            height: 430,
+            width: 480,
+            height: 520,
             modal: true,
             resizable: false,
             title: title,
@@ -149,6 +149,7 @@ Ext.define('Sp.views.settings.EditCatalogElement', {
                                             } else {
                                                 var r = Data.create('CatalogItemElementHire');
                                             }
+                                            r.set('count', 1);
                                             this.hires_store.insert(idx, r);
                                             this.workersEditing.startEditByPosition({row: idx, column: 0});
                                         },
@@ -187,6 +188,16 @@ Ext.define('Sp.views.settings.EditCatalogElement', {
                                                         '</div>',
                                                     '</tpl>'
                                                 ),
+                                                listeners: {
+                                                    focus: function(me){
+                                                        me.getStore().clearFilter();
+                                                        me.expand();
+                                                    },
+                                                    select: function(){
+                                                        this.workersEditing.completeEdit();
+                                                    },
+                                                    scope: this,
+                                                },
                                             },
                                         },
                                         {
@@ -199,6 +210,12 @@ Ext.define('Sp.views.settings.EditCatalogElement', {
                                                 allowBlank: false,
                                                 minValue: 1,
                                                 maxValue: 9999,
+                                                listeners: {
+                                                    focus: function(me){
+                                                        me.selectText();
+                                                    },
+                                                    scope: this,
+                                                },
                                             },
                                         },
                                         {

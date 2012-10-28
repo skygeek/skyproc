@@ -5,6 +5,7 @@ import base
 from choices import *
 
 class Aircraft(base.Model):
+    immediate_delete = True
     
     public_fields = 'type max_slots'
     
@@ -47,6 +48,9 @@ class Aircraft(base.Model):
     lifts_per_refuel = models.IntegerField(blank=True, null=True)
     available_fulltime = models.BooleanField(default=True)
     unrestricted_pilots = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ('location', 'registration')
         
     def __unicode__(self):
         return self.registration

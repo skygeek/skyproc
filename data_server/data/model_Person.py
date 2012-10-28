@@ -35,7 +35,7 @@ class Person(base.Model):
     is_tn_operator = models.BooleanField(default=False)
     self_created = models.BooleanField(default=False)
     
-    email = models.EmailField()
+    email = models.EmailField(blank=True, null=True)
     
     first_name = models.CharField(max_length=64, blank=True, null=True)
     last_name = models.CharField(max_length=64, blank=True, null=True)

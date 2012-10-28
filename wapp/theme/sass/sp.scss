@@ -333,6 +333,39 @@ Main settings container padding
 }
 
 /*=====================================
+Notifications popup
+=====================================*/
+
+#notif-el {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 20000;
+}
+#notif-el .msg {
+    width: 300px;
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    background: #FEFEFE;
+    border: 2px solid #666666;
+    margin: 4px auto;
+    padding: 10px 15px;
+    color: #555;
+    -moz-box-shadow: 0 5px 8px #ccc;
+    -webkit-box-shadow: 0 5px 8px #ccc;
+    box-shadow: 0 5px 8px #ccc;
+}
+#notif-el .msg h3 {
+    margin: 0 0 8px;
+    font-weight: bold;
+    font-size: 15px;
+}
+#notif-el .msg p {
+    margin: 0;
+}
+
+/*=====================================
 Ext overrides
 =====================================*/
 

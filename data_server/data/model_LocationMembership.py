@@ -9,6 +9,7 @@ from utils import misc
 
 class LocationMembership(base.Model):
     ignore_unexistant_delete = True
+    immediate_delete = True
     
     relations = 'Person Account BuyedItem MembershipCatalog MembershipExtraCatalog'
     
@@ -34,6 +35,9 @@ class LocationMembership(base.Model):
     default_catalog_item = models.ForeignKey('LocationCatalogItem', blank=True, null=True, related_name='+')
     default_catalog_price = models.ForeignKey('LocationCatalogPrice', blank=True, null=True, related_name='+')
     catalog_access = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ('location', 'person')
     
     def save(self, *args, **kwargs):
         notify_location = False

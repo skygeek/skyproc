@@ -46,11 +46,18 @@ Ext.define('Sp.ui.LockWindow', {
                             anchor: '100%',
                             margin: '20 10 0 10',
                             msgTarget: 'under',
-                        }
+                            listeners: {
+                                specialkey: function(me, e){
+                                    if (e.getKey() == e.ENTER){
+                                        this.unlock();
+                                    }
+                                },
+                                scope: this,
+                            },                            
+                        },
                     ],
-                }
+                },
             ],
-            
             buttons: [
                 {
                     text: TR("Unlock"),

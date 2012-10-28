@@ -747,10 +747,14 @@ def __DELETE(req, data_path):
     config = __execute_taks(req, config, tasks)
     if isinstance(config, HttpResponse):
         return config
-        
-    # mark the record as deleted
-    config['rec'].deleted = True
-    config['rec'].save(force_update=True)
+    
+    if hasattr(config['model'], 'immediate_delete') and config['model'].immediate_delete:
+        config['rec'].delete()
+    else:
+        # mark the record as deleted
+        config['rec'].deleted = True
+        config['rec'].save(force_update=True)
+    
     comet.Notifier(req, config['rec'], 'delete')
 
 """ Main

@@ -64,12 +64,14 @@ Sp.utils.rpc = function(){
         }
     }
     
-    // Three (or four) arguments,
+    // Three (or more) arguments,
     // first: function name
     // sencond: function arguments
     // third: callback or config object
     // Fourth (optional): callback scope
-    if (arguments.length == 3 || arguments.length == 4){
+    // Fifth (optional): error callback
+    // sixth (optional): silent error
+    if (arguments.length >= 3){
         if (!Ext.isString(arguments[0])){
             logError("Sp.utils.rpc(): invalid first argument: " + arguments[0]);
             return;
@@ -79,8 +81,14 @@ Sp.utils.rpc = function(){
         if (Ext.isFunction(arguments[2])){
             config.callback = arguments[2];
             config.async = true;
-            if (arguments.length == 4){
+            if (arguments.length > 3){
                 config.scope = arguments[3];
+            }
+            if (arguments.length > 4){
+                config.errorCallback = arguments[4];
+            }
+            if (arguments.length > 5){
+                config.silentError = arguments[5];
             }
         } else if (Ext.isObject(arguments[2])){
             Ext.apply(config, arguments[2]);
@@ -115,6 +123,19 @@ Sp.utils.rpc = function(){
     // rpc url
     var url = Sp.app.baseUrl + config.rpcBaseUrl + config.functionName.replace(/\./g,'/');
     
+    var handle_failure = function(config, response){
+        if (!config.silentError){
+            Sp.ui.misc.errMsg(TR(response.responseText));
+        }
+        if (Ext.isFunction(config.errorCallback)){
+            if (config.scope){
+                Ext.bind(config.errorCallback, config.scope)(response);
+            } else {
+                config.errorCallback(response);
+            }
+        }
+    }
+    
     // Do the request
     if (config.async){ // asynch request
         if (!Ext.isFunction(config.callback)){
@@ -130,17 +151,22 @@ Sp.utils.rpc = function(){
             params: config.functionArgs,
             headers: headers,
             timeout: Sp.core.Globals.AJAX_REQUEST_TIMEOUT,
-            success: function(response, opts) {
-                try {
-                    var rpc_response = Ext.decode(response.responseText);
-                } catch(e){
-                    logError("Sp.utils.rpc(): Cannot decode server response: " + e);
-                    return;
-                }
-                if (config.scope){
-                    Ext.bind(config.callback, config.scope)(rpc_response);
+            callback: function(options, success, response){
+                if (success){
+                    try {
+                        var rpc_response = Ext.decode(response.responseText);
+                    } catch(e){
+                        logError("Sp.utils.rpc(): Cannot decode server response: " + e);
+                        handle_failure(config, response);
+                        return;
+                    }
+                    if (config.scope){
+                        Ext.bind(config.callback, config.scope)(rpc_response);
+                    } else {
+                        config.callback(rpc_response);
+                    }
                 } else {
-                    config.callback(rpc_response);
+                    handle_failure(config, response);
                 }
             },
             scope: config.scope,

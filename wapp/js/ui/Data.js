@@ -646,3 +646,26 @@ Sp.ui.data.getItemTotalSlots = function(item){
     });
     return slots;
 }
+
+Sp.ui.data.getDefaultItemsStore = function(locationRec){
+    var store = Data.createStore('LocationCatalogItem');
+    locationRec.LocationCatalogItems().each(function(i){
+        var s = i.LocationCatalogElements();
+        if (s.getCount() == 1){
+            var e = s.getAt(0);
+            if (e.LocationCatalogHires().getCount() == 0){
+                store.add(i);
+            }
+        }
+    });
+    return store;
+}
+
+Sp.ui.data.getCurrency = function(record, field){
+    field = field || 'currency';
+    if (Ext.isObject(record.data[field])){
+        return record.getCurrency();
+    } else if (record.data[field]){
+        return Data.currencies.getById(record.data[field]);
+    }
+}

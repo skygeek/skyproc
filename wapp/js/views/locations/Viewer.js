@@ -648,10 +648,16 @@ Ext.define('Sp.views.locations.Viewer', {
                                                                             icon: '/static/images/icons/ban.png',
                                                                             tooltip: TR("Cancel slot"),
                                                                             handler: function(grid, rowIndex, colIndex) {
-                                                                                this.cancelSlot(grid.getStore().getAt(rowIndex));
+                                                                                var loadRec = grid.getStore().getAt(rowIndex);
+                                                                                if (loadRec.data.state == 'P'){
+                                                                                    this.cancelSlot(loadRec);
+                                                                                }
                                                                             },
                                                                             scope: this,
                                                                             getClass: function(v,o,r){
+                                                                                if (r.data.state != 'P'){
+                                                                                    return 'hidden-el';
+                                                                                } 
                                                                             },
                                                                         }
                                                                     ],
@@ -1786,7 +1792,11 @@ Ext.define('Sp.views.locations.Viewer', {
                         });
                         this.applyNextLoadsFilter();
                         grid.body.unmask();
-                    }, this);
+                        Sp.ui.misc.notify(TR("ROGER"), 
+                            Ext.String.format(TR("Your slot in load n°{0} has been canceled"), loadRec.data.number));
+                    }, this, function(){
+                        grid.body.unmask();
+                    });
                 }
         }, this);
     },

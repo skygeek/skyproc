@@ -88,5 +88,4 @@ class AccountOperationLog(base.ArchiveModel):
     type = models.CharField(max_length=1, choices=ACCOUNT_OPERATIONS)
     amount = models.CharField(max_length=64)
     currency = models.CharField(max_length=5)
-    note = models.CharField(max_length=200)
-
+    note = models.CharField(max_length=100)

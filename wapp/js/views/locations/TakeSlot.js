@@ -128,7 +128,11 @@ Ext.define('Sp.views.locations.TakeSlot', {
             this.loadRec.Slots().add(s);
             this.applyNextLoadsFilter();
             this.close();
-        }, this);
+            Sp.ui.misc.notify(TR("ROGER"), 
+                Ext.String.format(TR("You have taken one slot in load n°{0}"), this.loadRec.data.number));
+        }, this, function(){
+            this.close();
+        });
     },
         
 });

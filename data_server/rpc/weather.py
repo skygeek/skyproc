@@ -31,11 +31,10 @@ WeatherObservation = models.get_model(settings.DATA_APP, 'WeatherObservation')
 def update(location_uuid):
     try: location = Location.objects.get_by_natural_key(location_uuid)
     except ObjectDoesNotExist: raise Http404
-    if req.user != location.owner:
-        return HttpResponseForbidden('Access denied')
-    try:
-        rec = WeatherObservation.objects.filter(location=location)[0]
+    try: rec = WeatherObservation.objects.filter(location=location)[0]
     except:
+        if req.user != location.owner:
+            return HttpResponseForbidden('Access denied')
         rec = weather.update_location(location)
     if rec:
         return serializers.serialize("json", [rec], use_natural_keys=True, \

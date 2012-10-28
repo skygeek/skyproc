@@ -341,8 +341,14 @@ Ext.define('Sp.core.Application', {
                             iconCls: 'icon-requests',
                             tooltip: TR("New requests"),
                             handler: function(bt){
+                                if (Sp.RequestsWindowLastClose){
+                                    var elapsed = Ext.Date.getElapsed(Sp.RequestsWindowLastClose, new Date());
+                                    if (elapsed < 500){
+                                        return;
+                                    }
+                                }
                                 var el = bt.getEl();
-                                Ext.create('Sp.views.global.Requests').showAt(el.getX()-150, el.getY()+24);
+                                Ext.create('Sp.views.global.Requests').showAt(el.getX()-150, el.getY()+26);
                             },
                         },
                         { xtype: 'tbspacer', width: 5 },
@@ -353,8 +359,14 @@ Ext.define('Sp.core.Application', {
                             iconCls: 'icon-notifications',
                             tooltip: TR("New notifications"),
                             handler: function(bt){
+                                if (Sp.NotificationsWindowLastClose){
+                                    var elapsed = Ext.Date.getElapsed(Sp.NotificationsWindowLastClose, new Date());
+                                    if (elapsed < 500){
+                                        return;
+                                    }
+                                }
                                 var el = bt.getEl();
-                                Ext.create('Sp.views.global.Notifications').showAt(el.getX()-150, el.getY()+24);
+                                Ext.create('Sp.views.global.Notifications').showAt(el.getX()-150, el.getY()+26);
                             },
                         },
                         

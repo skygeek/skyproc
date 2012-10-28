@@ -95,6 +95,15 @@ Ext.define('Sp.ui.PersonCombo', {
                 },
                 scope: this,
             },
+            afterrender: {
+                fn: function(me){
+                    me.clearInvalid();
+                    if (this.delayMask){
+                        this.bodyEl.mask(TR("Loading"));
+                    }
+                },
+                scope: this,
+            },
         });
         this.callParent(arguments);
     },
@@ -170,6 +179,9 @@ Ext.define('Sp.ui.PersonCombo', {
     
     setValue: function(value){
         var store = this.getStore();
+        if (!store){
+            return;
+        }
         if (Ext.isObject(value)){
             if (value.hasOwnProperty('first_name') && value.hasOwnProperty('last_name')){
                 if (this.locationRec){
@@ -191,14 +203,14 @@ Ext.define('Sp.ui.PersonCombo', {
                 return this.callParent(arguments);
             }
         } else if (Sp.utils.isUuid(value)){
-            var masked = false;
+            this.delayMask = true;
             if (this.bodyEl){
                 this.bodyEl.mask(TR("Loading"));
-                masked = true;
             }
             Data.load('Person_P', value, function(rec){
+                this.delayMask = false;
                 this.setValue(rec.data);
-                if (masked){
+                if (this.bodyEl){
                     this.bodyEl.unmask();
                 }
             }, this);

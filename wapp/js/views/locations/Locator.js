@@ -29,7 +29,7 @@ Ext.define('Sp.views.locations.Locator', {
         }
         Data.memberships.each(function(m){
             this.my_locations.push(m.getLocation());
-        });
+        }, this);
         
         var locator_store = Data.createStore('Location_P', {
             storeId: 'mainLocationsStore',

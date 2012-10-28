@@ -131,7 +131,11 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
         }
         
         this.pricesEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-            clicksToEdit: 1
+            clicksToEdit: 1,
+            listeners: {
+                edit: this.onItemPriceEdit,
+                scope: this,
+            },
         });
         
         Ext.apply(this, {
@@ -279,6 +283,12 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                                 allowBlank: false,
                                                                 minValue: 0,
                                                                 maxValue: 999999999,
+                                                                listeners: {
+                                                                    focus: function(me){
+                                                                        me.selectText();
+                                                                    },
+                                                                    scope: this,
+                                                                },
                                                             },
                                                         },
                                                         {
@@ -311,6 +321,16 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                                         '<div class="x-boundlist-item">{code} - {name}</div>',
                                                                     '</tpl>'
                                                                 ),
+                                                                listeners: {
+                                                                    focus: function(me){
+                                                                        me.getStore().clearFilter();
+                                                                        me.expand();
+                                                                    },
+                                                                    select: function(){
+                                                                        this.pricesEditing.completeEdit();
+                                                                    },
+                                                                    scope: this,
+                                                                },
                                                             },
                                                         },
                                                         {
@@ -324,6 +344,13 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                             },
                                                             editor: {
                                                                 xtype: 'checkbox',
+                                                                listeners: {
+                                                                focus: function(me){
+                                                                    me.setValue(!me.getValue());
+                                                                    this.pricesEditing.completeEdit();
+                                                                },
+                                                                scope: this,
+                                                            },
                                                             },
                                                         },
                                                         {
@@ -718,6 +745,30 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
     
     onElementsStoreChange: function(){
         this.filterWorkersStore();
+    },
+    
+    onItemPriceEdit: function(editor, e){ 
+        var is_default = e.record.data.default;
+        var no_default = true;
+        var currency = Sp.ui.data.getCurrency(e.record);
+        if (!currency){
+            return;
+        }
+        e.record.store.each(function(p){
+            if (p.data.uuid == e.record.data.uuid){
+                return;
+            }
+            var c = Sp.ui.data.getCurrency(p);
+            if (p.data.default && currency && c && currency.data.uuid == c.data.uuid){
+                no_default = false;
+                if (is_default){
+                    p.set('default', false);
+                }
+            }
+        });
+        if (!is_default && no_default){
+            e.record.set('default', true);
+        }
     },
     
     onClose: function(){

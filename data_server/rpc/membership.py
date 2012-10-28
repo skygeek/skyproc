@@ -66,6 +66,7 @@ def cancelRequest(membership_uuid):
     return __delete_membership(membership_uuid)
 
 def emailExists(email):
+    if not email: return False
     try:
         Person.objects.get(email=email, deleted=False)
         return True

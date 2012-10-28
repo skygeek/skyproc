@@ -115,6 +115,7 @@ Ext.define('Sp.views.locations.EditWorker', {
                                                     name: 'email',
                                                     xtype: 'textfield',
                                                     fieldLabel: TR("Email"),
+                                                    vtype: 'email',
                                                 },
                                                 {
                                                     name: 'postal_address',

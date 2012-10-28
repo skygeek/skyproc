@@ -84,6 +84,8 @@ class Location(base.Model):
     enable_self_manifesting = models.BooleanField(default=True)
     share_account_data = models.BooleanField(default=True)
     pwd_protect_manage = models.BooleanField(default=False)
+    archive_loads_period = models.SmallIntegerField(default=365)
+    archive_accounts_period = models.SmallIntegerField(default=365)
     
     class Meta:
         ordering = ["name"]

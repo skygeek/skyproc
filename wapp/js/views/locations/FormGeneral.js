@@ -75,11 +75,13 @@ Ext.define('Sp.views.locations.FormGeneral', {
                                     name: 'email',
                                     xtype: 'textfield',
                                     fieldLabel: TR("Email"),
+                                    vtype: 'email',
                                 },
                                 {
                                     name: 'website',
                                     xtype: 'textfield',
                                     fieldLabel: TR("Website"),
+                                    vtype: 'url',
                                 },
                             ],
                         },

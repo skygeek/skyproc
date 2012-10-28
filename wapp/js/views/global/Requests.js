@@ -132,6 +132,10 @@ Ext.define('Sp.views.global.Requests', {
                         scope:this
                     }
                 },
+                close: {
+                    fn: this.onClose,
+                    scope: this,
+                },
             },
         });
  
@@ -320,6 +324,10 @@ Ext.define('Sp.views.global.Requests', {
                 this.focus();
             }, this
         );
+    },
+    
+    onClose: function(){
+        Sp.RequestsWindowLastClose = new Date();
     },
     
 });

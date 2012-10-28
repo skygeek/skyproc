@@ -222,6 +222,38 @@ Ext.define('Sp.views.locations.FormOptions', {
                                         },
                                     ],
                                 },
+                                {
+                                    title: TR("Archives"),
+                                    icon: '/static/images/icons/archive.png',
+                                    padding: '5 8 5 8',
+                                    overflowY: 'auto',
+                                    items: [
+                                        {
+                                            xtype: 'fieldset',
+                                            title: TR("Archiving periods"),
+                                            defaults: {
+                                                anchor: '100%',
+                                                labelWidth: 220,
+                                            },
+                                            items: [
+                                                {
+                                                    name: 'archive_loads_period',
+                                                    xtype: 'numberfield',
+                                                    fieldLabel: TR("Loads archive duration (in days)"),
+                                                    minValue: 1,
+                                                    maxValue: 3650,
+                                                },
+                                                {
+                                                    name: 'archive_accounts_period',
+                                                    xtype: 'numberfield',
+                                                    fieldLabel: TR("Accounts archive duration (in days)"),
+                                                    minValue: 1,
+                                                    maxValue: 3650,
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
                             ],
                         },
                     ],

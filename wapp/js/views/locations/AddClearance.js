@@ -40,6 +40,8 @@ Ext.define('Sp.views.locations.AddClearance', {
                         emptyText: TR("search by member's last name"),
                         locationRec: this.locationRec,
                         allowBlank: false,
+                        validateOnChange: false,
+                        validateOnBlur: false,
                     },
                 ],
             });
@@ -157,20 +159,21 @@ Ext.define('Sp.views.locations.AddClearance', {
     },
     
     addClearance: function(){
-        var form = this.down('#form');
-        var record = form.form.getRecord();
-        
-        // validation
-        if (!Sp.ui.data.validateForm(form)){
+        var form = this.down('#form').form;
+        var record = form.getRecord();
+               
+        if (!form.isValid()){
             return;
         }
         
         if (this.personRequest){
             var person_uuid = Data.me.data.uuid;
+            var person_name = Sp.ui.misc.formatFullname(Data.me, Data.me.data.name_order, true);
         } else {
-            var v = form.form.findField('person').getValue();
+            var v = form.findField('person').getValue();
             if (v && v.uuid){
                 var person_uuid = v.uuid;
+                var person_name = Sp.ui.misc.formatFullname({data:v}, Data.me.data.name_order, true);
             } else {
                 return;
             }
@@ -184,8 +187,7 @@ Ext.define('Sp.views.locations.AddClearance', {
             if (has_clearance){
                 Ext.MessageBox.show({
                     title: TR("Clearance exists"),
-                    msg: Ext.String.format(TR("Member '{0}' already has a clearance"), 
-                    Sp.ui.misc.formatFullname(p, Data.me.data.name_order, true)),
+                    msg: Ext.String.format(TR("Member '{0}' already has a clearance"), person_name),
                     buttons: Ext.MessageBox.OK,
                     icon: Ext.MessageBox.ERROR,
                 });
@@ -193,7 +195,7 @@ Ext.define('Sp.views.locations.AddClearance', {
                 return;
             }
             // save clearance
-            form.form.updateRecord();
+            form.updateRecord();
             record.set({
                 location: this.locationRec.data.uuid,
                 person: person_uuid,

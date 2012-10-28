@@ -45,7 +45,7 @@ LocationCatalogPrice = models.get_model(settings.DATA_APP, 'LocationCatalogPrice
 
 def __get_item_total_slots(item):
     total_slots = 0
-    for e in item.locationcatalogelement_set.all():
+    for e in item.locationcatalogelement_set.filter(deleted=False):
         total_slots += e.recurrence*e.slots
     return total_slots 
 
@@ -167,8 +167,7 @@ def archive_load(load_uuid, note, del_options={}):
     except ObjectDoesNotExist: raise Http404
     
     req_person = Person.objects.getOwn(req.user)
-    load_person = Person.objects.getOwn(load.owner)
-    if load_person != req_person:
+    if req.user != load.owner:
         return HttpResponseForbidden('Access denied')
         
     load_log = {}
@@ -280,18 +279,34 @@ def delete_load(load_uuid, del_options):
     archive_load(load_uuid, None, del_options)
 
 # members functions
-# FIXME: security checks
 
 def take_slot(person_uuid, load_uuid, user_data):
+    
+    req_person = Person.objects.getOwn(req.user)
+    if req_person.uuid != person_uuid:
+        return HttpResponseForbidden('Access denied')
+    
+    try: load = Load.objects.get_by_natural_key(load_uuid)
+    except ObjectDoesNotExist: raise Http404
+    
+    if not load.location.enable_self_manifesting or load.state != 'P':
+        raise Http404
+    
+    try: membership = LocationMembership.objects.get(location=load.location, person=req_person, deleted=False)
+    except ObjectDoesNotExist: return HttpResponseForbidden('Access denied')
+    
+    if not misc.is_clear_member(membership):
+        return HttpResponseForbidden('Access denied')
+    
+    pp = misc.get_person_profile(membership)
     
     if not isinstance(user_data, dict):
         user_data = {}
     
     slot_data = {}
-    slot_data['load'] = Load.objects.get_by_natural_key(load_uuid)
-    slot_data['owner'] = slot_data['load'].owner
-    slot_data['person'] = Person.objects.getOwn(req.user)
-    membership = LocationMembership.objects.get(location=slot_data['load'].location, person=slot_data['person'], deleted=False)
+    slot_data['load'] = load
+    slot_data['owner'] = load.owner
+    slot_data['person'] = req_person
     slot_data['membership_uuid'] = membership.uuid
     
     slot_data['item'] = None
@@ -299,29 +314,51 @@ def take_slot(person_uuid, load_uuid, user_data):
     slot_data['price'] = None
     slot_data['payer'] = None
     
-    if user_data.has_key('item') and user_data['item']:
-        slot_data['item'] = LocationCatalogItem.objects.get_by_natural_key(user_data['item'])
-        if user_data.has_key('price') and user_data['price']:
-            slot_data['price'] = LocationCatalogPrice.objects.get_by_natural_key(user_data['price'])
-        else:
-            # FIXME: set a default price
-            pass
-        # set first element, since default items must have one and olny one element
-        slot_data['element'] = slot_data['item'].locationcatalogelement_set.all()[0]
-    else:
-        pass
-        # FIXME default catalog item
+    # item and price
+    user_default_item = None
+    if pp['catalog_access']:
+        try: user_default_item = LocationCatalogItem.objects.get_by_natural_key(user_data['item'])
+        except: pass 
+    if user_default_item and pp['available_items'].has_key(user_default_item.uuid):
+        slot_data['item'] = user_default_item
+        slot_data['price'] = pp['available_items'][user_default_item.uuid]
+    elif pp['default_item']:
+        slot_data['item'] = pp['default_item']
+        if pp['default_price']: slot_data['price'] = pp['default_price']
+        else: slot_data['price'] = misc.get_default_price(membership, pp['default_item'])
         
-    if user_data.has_key('jump_type') and user_data['jump_type']:
-        slot_data['jump_type'] = JumpType.objects.get_by_natural_key(user_data['jump_type'])
+    # account check
+    if slot_data['item'] and slot_data['price']:
+        if not misc.check_member_account(membership, pp, slot_data['item'], slot_data['price']):
+            return HttpResponseForbidden('Boarding denied')
     else:
-        slot_data['jump_type'] = None
+        return HttpResponseForbidden('No default catalog item')
+        
+    # element
+    if slot_data['item'] and not slot_data['element']:
+        try: slot_data['element'] = slot_data['item'].locationcatalogelement_set.filter(deleted=False)[0]
+        except: pass
+        
+    # payer
+    if pp['billing_mode'] == 'other':
+        slot_data['payer'] = pp['bill_person']
+        
+    # jump type
+    try: user_jump_type = JumpType.objects.get_by_natural_key(user_data['jump_type'])
+    except: user_jump_type = None
+    if user_jump_type: slot_data['jump_type'] = user_jump_type
+    if slot_data['item'] and slot_data['item'].jump_type and slot_data['item'].jump_type_auto:
+        slot_data['jump_type'] = slot_data['item'].jump_type
     
+    # exit order
     max_exit_order = Slot.objects.filter(load__uuid=load_uuid, deleted=False).aggregate(Max('exit_order'))['exit_order__max']
     if max_exit_order is None: slot_data['exit_order'] = 1
     else: slot_data['exit_order'] = max_exit_order+1 
     
+    # save slot
     s = Slot.objects.create(**slot_data)
+    
+    # notify
     comet.Notifier(None, s, 'create', True)
     return serializers.serialize("json", [s],
         use_natural_keys=True, 
@@ -332,6 +369,15 @@ def take_slot(person_uuid, load_uuid, user_data):
     )
 
 def cancel_slot(person_uuid, load_uuid):
+    req_person = Person.objects.getOwn(req.user)
+    if req_person.uuid != person_uuid:
+        return HttpResponseForbidden('Access denied')    
+    try: load = Load.objects.get_by_natural_key(load_uuid)
+    except ObjectDoesNotExist: raise Http404
+    
+    if not load.location.enable_self_manifesting or load.state != 'P':
+        raise Http404
+    
     removed_slots = []
     for s in Slot.objects.filter(person__uuid=person_uuid, load__uuid=load_uuid, deleted=False):
         for r in Slot.objects.filter(load__uuid=load_uuid, related_slot=s, deleted=False):

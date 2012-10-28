@@ -4,10 +4,9 @@ from django.db import models
 import base
 from choices import *
 
-import logging
-
 class Clearance(base.Model):
     ignore_unexistant_delete = True
+    immediate_delete = True
     
     relations = 'Person'
     
@@ -27,6 +26,7 @@ class Clearance(base.Model):
     unit = models.CharField(max_length=1, choices=PERIOD_UNITS, default='d')
 
     class Meta:
+        unique_together = ('location', 'person')
         ordering = ["created"]
         
     def save(self, *args, **kwargs):

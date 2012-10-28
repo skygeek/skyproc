@@ -76,6 +76,7 @@ Ext.define('Sp.views.locations.AddMember', {
                                     name: 'email',
                                     xtype: 'textfield',
                                     fieldLabel: TR("Email"),
+                                    vtype: 'email',
                                 },
                                 {
                                     xtype: 'radiogroup',

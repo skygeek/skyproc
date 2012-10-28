@@ -219,6 +219,12 @@ Ext.define('Sp.views.lmanager.Planner', {
                         xtype: 'numberfield',
                         minValue: 1,
                         maxValue: 9999,
+                        listeners: {
+                            focus: function(me){
+                                me.selectText();
+                            },
+                            scope: this,
+                        },
                     },
                     listeners: this.getLoadColListeners(),
                 },
@@ -686,6 +692,12 @@ Ext.define('Sp.views.lmanager.Planner', {
                         xtype: 'numberfield',
                         minValue: 1,
                         maxValue: 999,
+                        listeners: {
+                            focus: function(me){
+                                me.selectText();
+                            },
+                            scope: this,
+                        },
                     },
                     listeners: this.getSlotColListeners(),
                 },
@@ -1876,9 +1888,9 @@ Ext.define('Sp.views.lmanager.Planner', {
                             undo_values.price = event.record.data.price;
                             edit_values.price = pp.catalog_price;
                         }
-                        if (pp.bill_person_data){
+                        if (pp.bill_person_data || pp.bill_person){
                             undo_values.payer = event.record.data.payer;
-                            edit_values.payer = pp.bill_person_data;
+                            edit_values.payer = pp.bill_person_data || pp.bill_person;
                         }
                     }
                 } else if (field == 'phantom'){ // default phantom catalog

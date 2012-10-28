@@ -41,12 +41,7 @@ Ext.define('Sp.views.locations.EditProfile', {
             var ok_handler = this.createProfile;
         }
         
-        this.defaultCatalogStore = Data.createStore('LocationCatalogItem');
-        this.locationRec.LocationCatalogItems().each(function(i){
-            if (i.LocationCatalogElements().getCount() == 1){
-                this.defaultCatalogStore.add(i);
-            }
-        }, this);
+        this.defaultCatalogStore = Sp.ui.data.getDefaultItemsStore(this.locationRec);
         
         Ext.apply(this, {
             width: 550,

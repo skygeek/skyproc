@@ -20,6 +20,8 @@ import logging
 import ujson
 import random
 import time
+import datetime
+from django.db import models
 from django.conf import settings
 
 def validate_uuid(uuid_str):
@@ -69,12 +71,31 @@ def get_default_price(membership, item):
 def get_person_profile(membership):
     ret = {}
     ret['billing_mode'] = 'pre'
+    ret['currency'] = None
+    ret['credit_line'] = 0
+    ret['default_item'] = None
+    ret['default_price'] = None
+    ret['default_price'] = None
+    ret['catalog_access'] = False
+    ret['available_items'] = {}
     
     # billing mode
     if membership.override_profile and membership.billing_mode:
         ret['billing_mode'] = membership.billing_mode
     elif membership.profile:
         ret['billing_mode'] = membership.profile.billing_mode
+    
+    # currency
+    if membership.override_profile and membership.currency:
+        ret['currency'] = membership.currency
+    elif membership.profile and membership.profile.currency:
+        ret['currency'] = membership.profile.currency
+        
+    # credit line
+    if membership.override_profile and membership.credit_line:
+        ret['credit_line'] = membership.credit_line
+    elif membership.profile and membership.profile.credit_line:
+        ret['credit_line'] = membership.profile.credit_line
     
     # payer
     if ret['billing_mode'] == 'other':
@@ -83,7 +104,34 @@ def get_person_profile(membership):
         elif membership.profile and membership.profile.bill_person:
             ret['bill_person'] = membership.profile.bill_person
         else:
-            ret['billing_mode'] = 'pre'
+            ret['billing_mode'] = 'post'
+    
+    # catalog access
+    ret['catalog_access'] = (membership.override_profile and membership.catalog_access) \
+                            or (membership.profile and membership.profile.catalog_access)
+    
+    # default item
+    if membership.override_profile and membership.default_catalog_item:
+        ret['default_item'] = membership.default_catalog_item
+        ret['default_price'] = membership.default_catalog_price
+    elif membership.profile and membership.profile.default_catalog_item:
+        ret['default_item'] = membership.profile.default_catalog_item
+        ret['default_price'] = membership.profile.default_catalog_price
+
+    # available items
+    items = {}
+    if membership.profile:
+        for i in membership.profile.profilecatalog_set.filter(deleted=False):
+            if i.price: items[i.item.uuid] = i.price
+            else:
+                def_price = get_default_price(membership, i.item)
+                if def_price: items[i.item.uuid] = def_price
+    for i in membership.membershipcatalog_set.filter(deleted=False):
+        if i.price: items[i.item.uuid] = i.price
+        else:
+            def_price = get_default_price(membership, i.item)
+            if def_price: items[i.item.uuid] = def_price
+    ret['available_items'] = items
     
     # extra items
     extra_items = {}
@@ -123,3 +171,41 @@ def fake_processing(a, b):
     for i in range(random.randint(a, b)):
         time.sleep(random.random())
     
+def is_clear_member(membership):
+    if not membership.approved:
+        return
+    if not membership.location.use_clearances:
+        return True
+    try: clr = models.get_model(settings.DATA_APP, 'Clearance').objects.get(location=membership.location, person=membership.person)
+    except: return
+    if not clr.approved:
+        return
+    if clr.end_date:
+        end_date = clr.end_date
+    elif clr.duration:
+        if clr.unit == 'd': period = datetime.timedelta(days=1)
+        elif clr.unit == 'w': period = datetime.timedelta(weeks=1)
+        elif clr.unit == 'm': period = datetime.timedelta(days=30)
+        elif clr.unit == 'y': period = datetime.timedelta(days=365)
+        else: period = datetime.timedelta()
+        end_date = clr.start_date + period
+    else:
+        end_date = clr.start_date
+    return end_date >= datetime.date.today()
+    
+def check_member_account(membership, p, item, price, recurse=True):    
+    if p['billing_mode'] == 'none': return True
+    if p['billing_mode'] == 'other' and recurse:
+        try:
+            payer_membership = models.get_model(settings.DATA_APP, 'LocationMembership').objects.get( \
+                                                location=membership.location, person=p['bill_person'], deleted=False)
+            if not is_clear_member(payer_membership): raise Exception 
+            return check_member_account(payer_membership, get_person_profile(payer_membership), item, price, recurse=False)
+        except: pass
+    # check if member has enough balance
+    try:
+        account = models.get_model(settings.DATA_APP, 'Account').objects.get( \
+                    membership=membership, currency=price.currency, deleted=False, balance__gte=price.price)
+        return True
+    except: pass
+    return p['billing_mode'] == 'post' and p['credit_line'] >= price.price and p['currency'] == price.currency

@@ -22,6 +22,8 @@ Ext.define('Sp.views.reports.AccountsReport', {
     
     initComponent: function() {
         
+        ff = Ext.bind(this.updateGridsLayout, this);
+        
         this.operations_grids = [];
         this.sort_field = 'names';
         this.sort_direction = 'ASC';
@@ -169,8 +171,25 @@ Ext.define('Sp.views.reports.AccountsReport', {
                         },
                     ],
                     store: store,
+                    scroll: false,
                     viewConfig: {
                         deferEmptyText: true,
+                        listeners: {
+                            expandbody: function(row, rec, expandRow){
+                                this.onExpand(row, rec, expandRow);
+                                if (this.operations_grids[rec.data.uuid]){
+                                    this.operations_grids[rec.data.uuid].bodyExpanded = true;
+                                }
+                                //this.updateGridsLayout();
+                            },
+                            collapsebody: function(row, rec, expandRow){
+                                if (this.operations_grids[rec.data.uuid]){
+                                    this.operations_grids[rec.data.uuid].bodyExpanded = false;
+                                }
+                                //this.updateGridsLayout();
+                            },
+                            scope: this,
+                        },
                     },
                     enableColumnHide: false,
                     enableColumnResize: false,
@@ -273,6 +292,7 @@ Ext.define('Sp.views.reports.AccountsReport', {
                         },
                     ],
                     listeners: {
+                        resize: this.updateGridsLayout,
                         scope: this,
                     },
                 },
@@ -281,8 +301,6 @@ Ext.define('Sp.views.reports.AccountsReport', {
         });
         this.callParent(arguments);
         this.buildLocationsStore();
-        
-        this.down('#grid').getView().on('expandbody', this.onExpand, this);
     },
     
     buildLocationsStore: function(){
@@ -439,6 +457,9 @@ Ext.define('Sp.views.reports.AccountsReport', {
             ],
             renderTo: body_div,
         });
+        
+        this.operations_grids[rec.data.uuid].bodyExpanded = true;
+        
     },
     
     getSelectedCurrencies: function(){
@@ -600,6 +621,19 @@ Ext.define('Sp.views.reports.AccountsReport', {
             documentTitle: TR("Accounts Listing"),
             mainTitle: header,
         }).show();
+    },
+    
+    updateGridsLayout: function(){
+        Log('UUUUUUUUUUUUUUUUU')
+        return;
+        this.down('#grid').doLayout();
+        Ext.Object.each(this.operations_grids, function(k,v){
+            if (v.bodyExpanded){
+                Log('LLLLLLLLLLLLL')
+                Log(k)
+                v.doLayout();
+            }
+        });
     },
 
 });

@@ -217,15 +217,31 @@ Sp.ui.misc.readPicture = function(e, callback){
     reader.readAsDataURL(e.target.files[0]);
 }
 
-Sp.ui.misc.notify = function(title, format){
-    if(!this.msgCt){
-        this.msgCt = Ext.core.DomHelper.insertFirst(document.body, {id:'msg-div'}, true);
+Sp.ui.misc.notify = function(title, msg){
+    if(!Sp.ui.misc.notifyEl){
+        Sp.ui.misc.notifyEl = Ext.core.DomHelper.insertFirst(document.body, {id:'notif-el'}, true);
+        Sp.ui.misc.notifyEl.alignTo(document, 't-t');
     }
-    this.msgCt.alignTo(document, 't-t');
-    var s = Ext.String.format.apply(String, Array.prototype.slice.call(arguments, 1));
-    var m = Ext.core.DomHelper.append(this.msgCt, {html:'<div class="msg"><h3>' + title + '</h3><p>' + s + '</p></div>'}, true);
-
-    m.slideIn('t').pause(2500).ghost('t', {remove:true});
+    if (title && msg){
+        var notif_html = Ext.String.format("<div class='msg'><h3>{0}</h3><p>{1}</p></div>", title, msg);
+    } else {
+        var notif_html = Ext.String.format("<div class='msg'>{0}</div>", title);
+    }
+    var notif_el = Ext.core.DomHelper.append(Sp.ui.misc.notifyEl, {html:notif_html}, true);
+    notif_el.setOpacity(0);
+    notif_el.fadeIn({
+        opacity: 1,
+        easing: 'easeIn',
+        duration: 500,
+        callback: function(){
+            notif_el.ghost('t', {
+                easing: 'easeOut',
+                duration: 500,
+                delay: 3500,
+                remove: true,
+            });
+        },
+    });    
 }
 Notify = Sp.ui.misc.notify;
 

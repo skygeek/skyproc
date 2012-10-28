@@ -257,6 +257,7 @@ Ext.define('Sp.views.global.Notifications', {
         
     onClose: function(){
         Data.notifications.un('datachanged', this.handleButtonsState, this);
+        Sp.NotificationsWindowLastClose = new Date();
     },
     
 });

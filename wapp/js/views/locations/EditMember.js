@@ -31,12 +31,7 @@ Ext.define('Sp.views.locations.EditMember', {
         
         this.membershipRec.BuyedItems().sort('created', 'DESC');
         
-        this.defaultCatalogStore = Data.createStore('LocationCatalogItem');
-        this.locationRec.LocationCatalogItems().each(function(i){
-            if (i.LocationCatalogElements().getCount() == 1){
-                this.defaultCatalogStore.add(i);
-            }
-        }, this);
+        this.defaultCatalogStore = Sp.ui.data.getDefaultItemsStore(this.locationRec);
                 
         Ext.apply(this, {
             width: 510,
@@ -85,6 +80,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                     name: 'email',
                                                     xtype: 'textfield',
                                                     fieldLabel: TR("Email"),
+                                                    vtype: 'email',
                                                 },
                                                 {
                                                     xtype: 'radiogroup',
@@ -836,7 +832,7 @@ Ext.define('Sp.views.locations.EditMember', {
         var person = record.getPerson();
         
         // validation
-        if (!Sp.ui.data.validateForm(form)){
+        if (!form.form.isValid()){
             return;
         }
         

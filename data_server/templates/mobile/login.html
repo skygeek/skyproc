@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Skyproc.com - Mobile Login</title>
+        <title>Skyproc.com - (Mobile)</title>
     
         <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css" />
@@ -16,41 +16,26 @@
         <script src="/static/js/lib/jquery.validate.min.js"> </script>
         <script src="/static/js/lib/bootstrap.min.js"> </script>
         
-        <script src='/static/js/srp-all.js'> </script>
-        <!--<script type="text/javascript" src='/static/js/login/srp.js'> </script>
-        <script type="text/javascript" src='/static/js/login/srp_register.js'> </script>-->
-        <script type="text/javascript" src='/static/js/login/login.js'> </script>
+        <script>
+            $(document).ready(function(){
+                var form_wrapper = $('.login_box');
+                form_wrapper.css({ marginTop : ( - ( form_wrapper.height() / 2) - 24) });
+            });
+        </script>
+    
     </head>
     
     <body>
-
-        <div class="login_box">
-            
-            <form id="login" onsubmit="return login()">{% csrf_token %}
-                <div class="top_b">Log in to Skyproc <sup>(beta)</sup> (Mobile)</div>
-                <div class="cnt_b">
-                    <div class="formRow">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-user"></i></span><input type="text" id="email" name="email" placeholder="Email address" autocorrect="off" autocapitalize="off" />
-                        </div>
-                    </div>
-                    <div class="formRow">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-lock"></i></span><input type="password" id="password" name="password" placeholder="Password" />
-                        </div>
-                    </div>
-                    <div style="height: 18px;">
-                    </div>
-                </div>
-                <div class="btm_b clearfix" style="text-align:center">
-                    <button class="btn btn-inverse" type="submit">Log in</button>
-                </div>  
-            </form>
-            
-            <div class="links_b links_btm clearfix">
-                <span class="linkform"><a href="?v=full">Desktop login</a></span>
+		<div class="login_box">
+    		<div class="top_b">Skyproc (Mobile)</div>    
+    		<div class="alert alert-info alert-login">
+               will be available very soon...
             </div>
-        </div>
-        
+    		<div style="height: 10px"> </div>
+			<div class="links_b links_btm clearfix">
+				<span class="linkform">Return to <a href="?v=full">Desktop login</a></span>
+			</div>
+		</div>
     </body>
+
 </html>

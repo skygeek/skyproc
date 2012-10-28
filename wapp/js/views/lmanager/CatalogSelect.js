@@ -21,10 +21,7 @@ Ext.define('Sp.views.lmanager.CatalogSelect', {
     extend: 'Ext.window.Window',
     
     initComponent: function() {
-        
-        Log('SSSSSSSSSS')
-        Log(this.slotRec)
-        
+                
         Ext.apply(this, {
             width: 340,
             height: 180,
