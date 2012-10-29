@@ -57,7 +57,19 @@ function SRP_REGISTER()
 	            if (operation && operation.change_password){
 	                operation.callback(true);
 	            } else {
-	                window.location = '/registration-succeeded/';
+	                var auto_login = false;
+	                try {
+	                    var auto_login = document.getElementById("auto_login").value == 1;
+	                } catch(e){}
+	                if (auto_login){
+	                    var s = new SRP(null, {
+                            email: document.getElementById("r_email").value,
+                            password: document.getElementById("r_password").value, 
+                        });
+                        s.identify();
+	                } else {
+	                    window.location = '/registration-succeeded/';
+	                }
 	            }
             }
             else if(xhr.responseXML.getElementsByTagName("error").length > 0)

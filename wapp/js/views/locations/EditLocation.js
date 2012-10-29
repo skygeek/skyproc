@@ -42,7 +42,7 @@ Ext.define('Sp.views.locations.EditLocation', {
                 {id: 'Delete', label:TR("Delete"), icon: '/static/images/icons/trash.png'},
             ],
         });
-        if (Sp.core.Globals.GOOGLE_MAPS_API_KEY === null){
+        if (!Sp.app.hasGMap()){
             store.removeAt(store.find('id', 'GeoLocation'));
         }
         return store;

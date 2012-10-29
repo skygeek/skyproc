@@ -459,7 +459,19 @@ GNU Affero General Public License for more details.",
                     "name": "srp_register.js"
                 },
             ]
-        }
+        },
+        
+        {
+            "name": "login",
+            "target": "login.js",
+            "compress": true,
+            "files": [
+                {
+                    "path": "/static/js/login/",
+                    "name": "login.js"
+                },
+            ]
+        },
     ],
     "resources": []
 }

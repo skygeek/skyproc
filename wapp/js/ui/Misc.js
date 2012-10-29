@@ -363,14 +363,14 @@ Sp.ui.misc.passwordAction = function(callback, previous_pwd, title){
     var msgbox = Ext.Msg.prompt(title, '', function(btn, pwd){
         if (btn == 'ok'){
             s = new SRP(null, {
-                email: Data.me.data.email,
+                email: Sp.app.getUsername(),
                 password: pwd,
                 csrf: Ext.util.Cookies.get('csrftoken'), 
                 callback: function(verified){
                     if (verified){
                         callback(pwd);
                     } else {
-                        Sp.ui.misc.passwordAction(callback, pwd);
+                        Sp.ui.misc.passwordAction(callback, pwd, title);
                     }
                 },
             });

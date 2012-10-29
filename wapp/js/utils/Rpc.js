@@ -20,15 +20,16 @@ License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 Ext.ns('Rpc');
 
 Sp.utils.rpc = function(){
-    var config = {
-        rpcBaseUrl: 'rpc/',
-    };
     
     // if no arguments, return an error
     if (arguments.length == 0){
         logError("Sp.utils.rpc() cannot be called without arguments");
         return;
     }
+    
+    var config = {
+        rpcBaseUrl: 'rpc/',
+    };
     
     // single argument, can be :
     // - a string representing the function name
@@ -121,7 +122,7 @@ Sp.utils.rpc = function(){
     }
     
     // rpc url
-    var url = Sp.app.baseUrl + config.rpcBaseUrl + config.functionName.replace(/\./g,'/');
+    var url = Sp.app.getBaseUrl() + config.rpcBaseUrl + config.functionName.replace(/\./g,'/');
     
     var handle_failure = function(config, response){
         if (!config.silentError){

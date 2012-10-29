@@ -26,7 +26,7 @@ Sp.core.comet.connect = function(){
     }
     
     Sp.core.comet.socket = io.connect(Sp.app.getCometUrl(), {
-        secure: Sp.core.Globals.COMET_SECURE,
+        secure: true,
         'connect timeout': 30000,
         'max reconnection attempts': 20,
     });

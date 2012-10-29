@@ -964,8 +964,8 @@ Ext.define('Sp.views.lmanager.Planner', {
         this.updateJumpersHeader(rec, infos);
         
         this.doLayout();
-        this.updateSlotsGridsLayout();
         this.slots_grids[rec.data.uuid].bodyExpanded = true;
+        this.updateSlotsGridsLayout();
         
         // disable some ui parts when load is in the air
         var in_air = Sp.lmanager.isInTheAir(rec);

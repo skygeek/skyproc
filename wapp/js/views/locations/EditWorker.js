@@ -17,8 +17,6 @@ You should have received a copy of the GNU Affero General Public
 License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//FIXME: clean old and duplicate code here 
-
 Ext.define('Sp.views.locations.EditWorker', {
     extend: 'Ext.window.Window',
     
@@ -27,16 +25,18 @@ Ext.define('Sp.views.locations.EditWorker', {
         this.spokenLangsGridRendered = false;
         this.RolesGridRendered = false;
         
-        var rec = this.workerRec;
-        
-        if (rec){
+        if (this.workerRec){
+            var rec = this.workerRec;
             var title = rec.data.name + ' - ' + TR("Edit staff member");
             var ok_text = TR("Apply");
-            var ok_handler = this.editWorker;
         } else {
+            this.workerRec = Data.create('Worker', {
+                location: this.locationRec.data.uuid,
+            });
+            var rec = this.workerRec;
             var title = TR("New staff member");
             var ok_text = TR("Add");
-            var ok_handler = this.createWorker;
+            this.new_worker = true;
         }
         
         Ext.apply(this, {
@@ -73,6 +73,7 @@ Ext.define('Sp.views.locations.EditWorker', {
                                                     name: 'name',
                                                     xtype: 'textfield',
                                                     fieldLabel: TR("Name"),
+                                                    allowBlank: false,
                                                 },
                                                 {
                                                     name: 'birthday',
@@ -260,7 +261,7 @@ Ext.define('Sp.views.locations.EditWorker', {
                 {
                     text: ok_text,
                     icon: '/static/images/icons/save.png',
-                    handler: ok_handler,
+                    handler: this.save,
                     scope: this,
                 },
                 {
@@ -307,58 +308,22 @@ Ext.define('Sp.views.locations.EditWorker', {
             );
         }
     },
-
-    createWorker: function(){
-        
-        // create record
-        var r = Sp.ui.data.createFormRecord(this.getComponent('form'), 'Worker');
-        
-        if (!r){
+    
+    save: function(){
+        var form = this.down('#form').form;
+        if (!form.isValid()){
             return;
         }
-        
+        form.updateRecord();
         // update spoken langs
         if (this.spokenLangsGridRendered){
             Sp.ui.data.updateFromSelection(
                 this.down('#spoken_langs').getSelectionModel(),
-                r, 
-                'spoken_langs',
-                r.SpokenLangs()
-            );
-        }
-        
-        // update roles
-        if (this.RolesGridRendered){
-            Sp.ui.data.updateFromSelection(
-                this.down('#roles').getSelectionModel(), 
-                r, 
-                'roles',
-                r.WorkerTypes()
-            );
-        }
-        
-        // add record to the store
-        this.locationRec.Workers().add(r);
-        
-        // close window
-        this.close();
-    },
-    
-    editWorker: function(){
-        
-        // update record
-        this.getComponent('form').form.updateRecord();
-        
-        // update spoken langs
-        if (this.spokenLangsGridRendered){
-            Sp.ui.data.updateFromSelection(
-                this.down('#spoken_langs').getSelectionModel(), 
                 this.workerRec, 
                 'spoken_langs',
                 this.workerRec.SpokenLangs()
             );
         }
-        
         // update roles
         if (this.RolesGridRendered){
             Sp.ui.data.updateFromSelection(
@@ -368,11 +333,11 @@ Ext.define('Sp.views.locations.EditWorker', {
                 this.workerRec.WorkerTypes()
             );
         }
-        
-        // update view
-        this.workerRec.afterCommit();
-        
-        // close window
+        if (this.new_worker){
+            this.locationRec.Workers().add(this.workerRec);
+        } else {
+            this.workerRec.afterCommit();
+        }
         this.close();
     },
 

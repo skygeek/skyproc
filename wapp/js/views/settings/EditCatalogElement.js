@@ -59,7 +59,7 @@ Ext.define('Sp.views.settings.EditCatalogElement', {
         
         Ext.apply(this, {
             width: 480,
-            height: 520,
+            height: 500,
             modal: true,
             resizable: false,
             title: title,

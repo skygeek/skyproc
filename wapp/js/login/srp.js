@@ -1770,7 +1770,7 @@ function SRP(register, operation)
     };
 
     function success() {
-        if (operation){
+        if (operation && operation.callback){
             operation.callback(true);
         } else {
             window.location.reload();

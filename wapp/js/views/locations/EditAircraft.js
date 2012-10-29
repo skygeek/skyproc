@@ -23,24 +23,22 @@ Ext.define('Sp.views.locations.EditAircraft', {
     
     initComponent: function() {
         
-        this.cancel_close = true;
-        var rec;
-        
         if (this.aircraftRec){
-            rec = this.aircraftRec;
+            var rec = this.aircraftRec;
             var title = rec.data.registration + ' - ' + TR("Edit aircraft");
             var ok_text = TR("Apply");
-            var ok_handler = this.editAircraft;
         } else {
-            rec = this.aircraftRec = Data.create('Aircraft', {
+            this.aircraftRec = Data.create('Aircraft', {
+                location: this.locationRec.data.uuid,
                 altitude_unit: Data.me.data.altitude_unit,
                 weight_unit: Data.me.data.weight_unit,
             });
+            var rec = this.aircraftRec;
             var title = TR("New aircraft");
             var ok_text = TR("Add");
-            var ok_handler = this.createAircraft;
+            this.new_aircraft = true;
         }
-
+        
         this.exitRulesEditing = Ext.create('Ext.grid.plugin.CellEditing', {
             clicksToEdit: 1
         });
@@ -81,11 +79,13 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                     name: 'type',
                                                     xtype: 'textfield',
                                                     fieldLabel: TR("Model"),
+                                                    allowBlank: false,
                                                 },
                                                 {
                                                     name: 'registration',
                                                     xtype: 'textfield',
                                                     fieldLabel: TR("Registration"),
+                                                    allowBlank: false,
                                                 },
                                                 {
                                                     name: 'name',
@@ -115,6 +115,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                     fieldLabel: TR("Max Slots"),
                                                     minValue: 1,
                                                     maxValue: 999,
+                                                    allowBlank: false,
                                                 },
                                                 /*{
                                                     name: 'max_altitude',
@@ -334,6 +335,12 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                                 allowBlank: false,
                                                                 minValue: 0,
                                                                 maxValue: 99999,
+                                                                listeners: {
+                                                                    focus: function(me){
+                                                                        me.selectText();
+                                                                    },
+                                                                    scope: this,
+                                                                },
                                                             },
                                                         },
                                                         {
@@ -346,6 +353,12 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                                 allowBlank: false,
                                                                 minValue: 0,
                                                                 maxValue: 999,
+                                                                listeners: {
+                                                                    focus: function(me){
+                                                                        me.selectText();
+                                                                    },
+                                                                    scope: this,
+                                                                },
                                                             },
                                                         },
                                                         {
@@ -358,6 +371,12 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                                 allowBlank: false,
                                                                 minValue: 0,
                                                                 maxValue: 999,
+                                                                listeners: {
+                                                                    focus: function(me){
+                                                                        me.selectText();
+                                                                    },
+                                                                    scope: this,
+                                                                },
                                                             },
                                                         },
                                                         {
@@ -369,6 +388,12 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                                 xtype: 'numberfield',
                                                                 minValue: 0,
                                                                 maxValue: 9999,
+                                                                listeners: {
+                                                                    focus: function(me){
+                                                                        me.selectText();
+                                                                    },
+                                                                    scope: this,
+                                                                },
                                                             },
                                                         },
                                                         {
@@ -427,7 +452,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                     text: ok_text,
                     itemId: 'okBt',
                     icon: '/static/images/icons/save.png',
-                    handler: ok_handler,
+                    handler: this.save,
                     scope: this,
                 },
                 {
@@ -438,59 +463,31 @@ Ext.define('Sp.views.locations.EditAircraft', {
                     scope: this,
                 },
             ],
-            listeners: {
-                close: Ext.bind(this.onClose, this),
-            },
         });
  
         this.callParent(arguments);
-        this.getComponent('form').form.loadRecord(rec);
+        this.down('#form').form.loadRecord(this.aircraftRec);
     },
     
-    createAircraft: function(){
-                
-        var form = this.getComponent('form');
-        
-        // validation
-        if (!Sp.ui.data.validateForm(form)){
+    save: function(){
+        var form = this.down('#form').form;
+        if (!form.isValid()){
             return;
         }
-        
-        // update record
-        form.form.updateRecord();
-                
-        // add record to the store
-        this.locationRec.Aircrafts().add(form.form.getRecord());
-        
-        // close window
-        this.cancel_close = false;
+        var store = this.locationRec.Aircrafts();
+        var reg = form.findField('registration').getValue();
+        var r = store.findRecord('registration', reg);
+        if (r && r.data.uuid != this.aircraftRec.data.uuid){
+            Sp.ui.misc.errMsg(Ext.String.format(TR("Registration number '{0}' is already in use"), reg));
+            return;
+        }
+        form.updateRecord();
+        if (this.new_aircraft){
+            store.add(this.aircraftRec);
+        } else {
+            this.aircraftRec.afterCommit();
+        }
         this.close();
     },
     
-    editAircraft: function(){
-        
-        var form = this.getComponent('form');
-        
-        // validation
-        if (!Sp.ui.data.validateForm(form)){
-            return;
-        }
-        
-        // update record
-        form.form.updateRecord();
-        
-        // update view
-        this.aircraftRec.afterCommit();
-        
-        // close window
-        this.cancel_close = false;
-        this.close();
-    },
-    
-    onClose: function(){
-        if (this.cancel_close){
-            this.aircraftRec.ExitRules().rejectChanges();
-        }
-    },
-
 });

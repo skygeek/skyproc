@@ -52,10 +52,19 @@ Ext.define('Sp.views.locations.MakeDeposit', {
                                 {
                                     name: 'amount',
                                     xtype: 'numberfield',
+                                    itemId: 'amount',
                                     allowBlank: false,
                                     minValue: -999999999,
                                     maxValue: 999999999,
                                     flex: 1,
+                                    listeners: {
+                                        specialkey: function(me, e){
+                                            if (e.getKey() == e.ENTER){
+                                                this.makeDeposit();
+                                            }
+                                        },
+                                        scope: this,    
+                                    },
                                 },
                                 {
                                     name: 'currency',
@@ -98,6 +107,12 @@ Ext.define('Sp.views.locations.MakeDeposit', {
                     scope: this,
                 },
             ],
+            listeners: {
+                show: function(){
+                    this.down('#amount').focus(true, 100);
+                },
+                scope: this,
+            },
         });
         
         this.callParent(arguments);

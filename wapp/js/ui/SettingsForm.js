@@ -118,7 +118,7 @@ Ext.define('Sp.ui.SettingsForm', {
         
         // notify
         if (!dontNotify){
-            Notify(TR("Saved"), this.title + ' ' + TR("updated"));  
+            Notify(TR("Your settings has been saved"));
         }
         
         // quit

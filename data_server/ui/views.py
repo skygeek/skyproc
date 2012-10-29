@@ -33,22 +33,36 @@ Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
 PasswordResetRequest = models.get_model(settings.DATA_APP, 'PasswordResetRequest')
 
-def login(req, prod=None):
-    if req.user.is_authenticated() and not req.session.has_key('locked'):
-        if prod is None:
-            prod = not settings.DEBUG
-        u = Person.objects.getOwn(req.user)
-        t = 'wapp_prod.html' if prod else 'wapp_dev.html'
-        r = render_to_response(t)
-        r.set_cookie('sp_user', req.user.username, secure=True)
-        r.set_cookie('sp_session', req.COOKIES['sessionid'], secure=True)
-        r.set_cookie('sp_id', u.uuid, secure=True)
-        return r
+def login(req):
+    c = context_processors.csrf(req)
+    if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL:
+        c['require_email'] = 1
+        c['auto_login'] = 1 if (not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL) else 0
+        c['username_placeholder'] = 'Email address'
+        c['reset_username_placeholder'] = 'Your email address'
     else:
-        return render_to_response('login.html', context_processors.csrf(req))
+        c['require_email'] = 0
+        c['auto_login'] = 1
+        c['username_placeholder'] = 'Login name'
+        c['reset_username_placeholder'] = 'Your login name'
+    c['self_register'] = hasattr(settings, 'ALLOW_SELF_REGISTERING') and settings.ALLOW_SELF_REGISTERING
+    t = 'login_dev.html' if settings.DEBUG else 'login.html'
+    return render_to_response(t, c)
 
-def prod(req):
-    return login(req, True)
+def wapp(req):
+    person = Person.objects.getOwn(req.user)
+    t = 'wapp_dev.html' if settings.DEBUG else 'wapp.html'
+    r = render_to_response(t)
+    r.set_cookie('sp_user', req.user.username, secure=True)
+    r.set_cookie('sp_session', req.COOKIES['sessionid'], secure=True)
+    r.set_cookie('sp_id', person.uuid, secure=True)
+    return r
+
+def home(req):
+    if req.user.is_authenticated() and not req.session.has_key('locked'):
+        return wapp(req)
+    else:
+        return login(req)
 
 def logout(req):
     django.contrib.auth.logout(req)
@@ -60,6 +74,9 @@ def logout(req):
     return r
 
 def registration_succeeded(req):
+    if not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL:
+        raise Http404
+    
     c = {}
     c['title'] = "Registration succeeded !"
     c['msg'] = "Check your email inbox, you will have received an email containing the link to activate your account."
@@ -67,6 +84,9 @@ def registration_succeeded(req):
     return render_to_response('login_msg.html', c)
 
 def validate_email(req, validation_link):
+    if not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL:
+        raise Http404
+    
     try: v = EmailValidation.objects.get(validation_link=validation_link)
     except EmailValidation.DoesNotExist: raise Http404
     v.delete()
@@ -79,6 +99,8 @@ def validate_email(req, validation_link):
     return render_to_response('login_msg.html', c)
 
 def reset_password(req, reset_link):
+    if not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL:
+        raise Http404
     
     if req.method == 'GET' and reset_link:
         try: r = PasswordResetRequest.objects.get(reset_link=reset_link)
@@ -104,18 +126,31 @@ def reset_password(req, reset_link):
     raise Http404
 
 def password_reset_succeeded(req):
+    if not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL:
+        raise Http404
     c = {}
     c['title'] = "Password changed !"
     c['msg'] = "Your new password has been saved."
     c['link_text'] = "Enter Skyproc"
     return render_to_response('login_msg.html', c)
 
+def page_404(req):
+    c = {}
+    c['title'] = "Page not found !"
+    c['msg'] = "The page you've requested does not exist at this address"
+    c['link_text'] = "Skyproc login page"
+    return render_to_response('login_msg.html', c)
 
+def page_500(req):
+    c = {}
+    c['title'] = "Oops !"
+    c['msg'] = "Sorry, something went wrong. Please try again."
+    c['link_text'] = "Skyproc home"
+    return render_to_response('login_msg.html', c)
+    
 # webcron
 def weather_update(req):
     if req.META['REMOTE_ADDR'] != '127.0.0.1':
         raise Http404
     weather.update()
     return HttpResponse()
-
-

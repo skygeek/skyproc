@@ -14,6 +14,8 @@ $(document).ready(function(){
         $('#register').find('#captcha').hide();    
     }
     
+    require_email = document.getElementById("require_email").value == 1;
+    
     $('.linkform a,.link_reg a').on('click',function(e){
         var target  = $(this).attr('href'),
             target_height = $(target).actual('height');
@@ -54,11 +56,11 @@ $(document).ready(function(){
         errorClass: 'error',
         validClass: 'valid',
         rules: {
-            email: { required: true, email: true },
+            email: { required: true, email: require_email },
             password: { required: true },
         },
         messages: {
-            email: "Please enter your email address",
+            email: require_email ? "Please enter your email address" : "Please enter your login name",
             password: "Please enter your password",
         },
         highlight: function(element) {
@@ -84,14 +86,17 @@ $(document).ready(function(){
         validClass: 'valid',
         rules: {
             r_fullname: { required: true },
-            r_email: { required: true, email: true },
+            r_email: require_email ? { required: true, email: true } : { required: true, minlength: 4 },
             r_password: { required: true, minlength: 6 },
             confirm_password: { required: true, minlength: 6, equalTo: "#r_password" },
             recaptcha_response_field: { required: true },
         },
         messages: {
             r_fullname: "Please enter your name",
-            r_email: "Please enter your email address",
+            r_email: require_email ? "Please enter your email address" : {
+                required: "Please provide a login name",
+                minlength: "Login name must be at least 4 characters long"
+            },
             r_password: {
                 required: "Please provide a password",
                 minlength: "Password must be at least 6 characters long"
@@ -225,20 +230,6 @@ function register() {
     srp.setBusy(true);
     srp.register();
     return false;
-}
-
-
-
-function doRegister(srp){
-    xhr = srp.getxhr();
-    if(xhr.readyState == 4 && xhr.status == 200) {
-        if (xhr.responseText.length == 0){
-            srp.register();
-        } else {
-            Recaptcha.reload();
-            srp.setBusy(false);
-        }
-    }
 }
 
 function reset_pwd() {

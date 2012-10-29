@@ -4,13 +4,15 @@ from utils import auth
 from django.contrib import admin
 admin.autodiscover()
 
+handler404 = 'ui.views.page_404'
+handler500 = 'ui.views.page_500'
+
 urlpatterns = patterns('',
     # admin
     (r'^admin/', include(admin.site.urls)),
 
     # wapp
-    (r'^$', 'ui.views.login'),
-    (r'^prod/$', 'ui.views.prod'), # prod test
+    (r'^$', 'ui.views.home'),
     (r'^rpc/(?P<rpc_path>.*$)', 'rpc.__dispatcher__.dispatch'), # rpc dispatcher
     (r'^data/(?P<data_path>.*$)', 'data.__dispatcher__.dispatch'), # data dispatcher
     

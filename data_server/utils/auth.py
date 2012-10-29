@@ -69,29 +69,36 @@ def register_sp_user(req, user):
             first_name = fullname[0]
             last_name = ' '.join(fullname[1:])
     except:
-        first_name = last_name = ''
+        first_name = 'John'
+        last_name = 'DOE'
+        
     # create Person record owned by the associated django user
-    p = Person.objects.create(first_name=first_name, last_name=last_name, \
-                              email=req.session["srp_name"], owner=user, self_created=True)
-    
-    # do not require email validation when debuggin
-    if settings.DEBUG:
-        return
-    
-    # email validation record
-    validation_link = misc.get_tmp_link()
-    EmailValidation.objects.create(person=p, email=p.email, validation_link=validation_link)
-    
-    # send confirmation email
-    subject = "Confirm email address for Skyproc.com"
-    name = "%s %s" % (p.first_name, p.last_name)
-    msg = "Hi %s,\n\n" % name.strip()
-    msg += "You're using this inbox as an email address on Skyproc.com.\n\n"
-    msg += "To confirm this is correct, please go to https://%s/validate/email/%s\n\n" % \
-            (settings.SP_HOME_URL, validation_link)
-    msg += "____________\n"
-    msg += "Skyproc.com"
-    send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
+    person_data = {
+        'owner': user,
+        'self_created': True,
+        'first_name': first_name,
+        'last_name': last_name,
+    }
+    if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL:
+        person_data['email'] = req.session["srp_name"]
+    p = Person.objects.create(**person_data)
+        
+    if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL and \
+    hasattr(settings, 'CONFIRM_EMAIL') and settings.CONFIRM_EMAIL:
+        # email validation record
+        validation_link = misc.get_tmp_link()
+        EmailValidation.objects.create(person=p, email=p.email, validation_link=validation_link)
+        
+        # send confirmation email
+        subject = "Confirm email address for Skyproc.com"
+        name = "%s %s" % (p.first_name, p.last_name)
+        msg = "Hi %s,\n\n" % name.strip()
+        msg += "You're using this inbox as an email address on Skyproc.com.\n\n"
+        msg += "To confirm this is correct, please go to https://%s/validate/email/%s\n\n" % \
+                (settings.SP_HOME_URL, validation_link)
+        msg += "____________\n"
+        msg += "Skyproc.com"
+        send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
 
 def create_pwd_reset_request(user):
     p = Person.objects.getOwn(user)

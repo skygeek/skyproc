@@ -30,6 +30,7 @@ Ext.define('Sp.ui.PersonCombo', {
             matchFieldWidth: false,
             allowPhantom: false,
             returnMembership: false,
+            selfCreated: false,
         });
         
         if (this.locationRec){
@@ -58,7 +59,7 @@ Ext.define('Sp.ui.PersonCombo', {
                         "{first_name} {last_name}" : 
                         "{last_name} {first_name}");
             Ext.apply(this, {
-                minChars: 4,
+                minChars: 2,
                 queryDelay: 500,
                 tpl: Ext.create('Ext.XTemplate',
                     '<tpl for=".">',
@@ -123,37 +124,45 @@ Ext.define('Sp.ui.PersonCombo', {
             Ext.apply(cfg, {
                 sorters: [
                     {
-                        property: 'person__last_name',
+                        property: Data.me.data.name_order == 'FL' ? 'person__first_name' : 'person__last_name',
                         direction: 'ASC'
                     },
                     {
-                        property: 'person__first_name',
+                        property: Data.me.data.name_order == 'FL' ? 'person__last_name' : 'person__first_name',
                         direction: 'ASC'
                     }
                 ],
                 filters: filters,
                 proxy: {
                     extraParams: {
-                        query_field: 'person__last_name',
+                        query_field: this.queryField ? this.queryField : ['person__last_name', 'person__first_name'],
                     },
                 },
             });
         } else {
             model = 'Person_P';
+            var filters = [];
+            if (this.selfCreated){
+                filters.push({
+                    property: 'self_created',
+                    value: true,
+                });
+            }
             Ext.apply(cfg, {
                 sorters: [
                     {
-                        property: 'last_name',
+                        property: Data.me.data.name_order == 'FL' ? 'first_name' : 'last_name',
                         direction: 'ASC'
                     },
                     {
-                        property: 'first_name',
+                        property: Data.me.data.name_order == 'FL' ? 'last_name' : 'first_name',
                         direction: 'ASC'
                     }
                 ],
+                filters: filters,
                 proxy: {
                     extraParams: {
-                        query_field: 'last_name',
+                        query_field: this.queryField ? this.queryField : ['last_name', 'first_name'],
                     },
                 },
             });
@@ -180,7 +189,7 @@ Ext.define('Sp.ui.PersonCombo', {
     setValue: function(value){
         var store = this.getStore();
         if (!store){
-            return;
+            return this.callParent(arguments);
         }
         if (Ext.isObject(value)){
             if (value.hasOwnProperty('first_name') && value.hasOwnProperty('last_name')){
@@ -189,8 +198,7 @@ Ext.define('Sp.ui.PersonCombo', {
                         person: value,
                     });
                 } else {
-                    //var r = Data.create('Person_P', value);
-                    var r = Data.create('Person', value);
+                    var r = Data.create('Person_P', value);
                 }
                 store.removeAll(true);
                 store.add(r);

@@ -452,6 +452,7 @@ Ext.define('Sp.views.locations.FormMembers', {
     },
         
     post_save: function(){
+        // profiles
         var profiles_store = this.locationRec.MembershipProfiles();
         profiles_store.sync({
             success: function(){
@@ -461,6 +462,7 @@ Ext.define('Sp.views.locations.FormMembers', {
                 });        
             },
         });
+        // memberships
         var membersGrid = this.down('#membersGrid');
         if (membersGrid){
             var store = membersGrid.getStore();
@@ -478,15 +480,22 @@ Ext.define('Sp.views.locations.FormMembers', {
     },
     
     reject: function(){
+        // profiles
         this.locationRec.MembershipProfiles().rejectChanges();
         this.locationRec.MembershipProfiles().each(function(p){
             p.ProfileCatalogs().rejectChanges();
             p.ProfileExtraCatalogs().rejectChanges();
         });
+        // memberships
         var membersGrid = this.down('#membersGrid');
         if (membersGrid){
             membersGrid.getStore().rejectChanges();
             membersGrid.getStore().each(function(m){
+                m.Accounts().rejectChanges();
+                m.Accounts().each(function(a){
+                    a.AccountOperations().rejectChanges();
+                });
+                m.BuyedItems().rejectChanges();
                 m.MembershipCatalogs().rejectChanges();
                 m.MembershipExtraCatalogs().rejectChanges();
                 var person = m.getPerson();

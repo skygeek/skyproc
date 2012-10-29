@@ -231,7 +231,7 @@ def get(model_name):
     return ret
 
 def getAll():
-    ret = {}
+    ret = {}    
     for m in models.get_models(__import__(settings.DATA_APP).models):
         if hasattr(m, 'private') and m.private:
             continue
@@ -240,4 +240,10 @@ def getAll():
             ret[m._meta.object_name+'_P'] = get(m._meta.object_name+'_P')
         if hasattr(m, 'related_field'):
             ret[m._meta.object_name+'_R'] = get(m._meta.object_name+'_R')
+    
+    ret['__additional_data__'] = {}
+    if hasattr(settings, 'GOOGLE_MAPS_API_KEY') and settings.GOOGLE_MAPS_API_KEY:
+        ret['__additional_data__']['gmk'] = settings.GOOGLE_MAPS_API_KEY
+    ret['__additional_data__']['require_email'] = hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL
+            
     return ret

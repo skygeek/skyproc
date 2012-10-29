@@ -514,6 +514,9 @@ Sp.ui.data.updateMapData = function(o, data){
 }
 
 Sp.ui.data.getLocationMapInfos = function(location, editable){
+    if (!Sp.app.hasGMap()){
+        return {};
+    }
     var infos = {};
     infos.map_center = new google.maps.LatLng(37.0625, -95.677068); // world center :)
     infos.map_zoom = 2;

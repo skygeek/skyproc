@@ -77,7 +77,7 @@ Ext.define('Sp.ui.LockWindow', {
         this.down('#unlockBt').disable();
         this.body.mask(TR("Unlocking"));
         s = new SRP(null, {
-            email: Data.me.data.email,
+            email: Sp.app.getUsername(),
             password: this.down('#pwd').getValue(),
             csrf: Ext.util.Cookies.get('csrftoken'), 
             callback: Ext.bind(this.onPasswordChecked, this),

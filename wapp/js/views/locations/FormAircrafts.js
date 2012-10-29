@@ -267,16 +267,21 @@ Ext.define('Sp.views.locations.FormAircrafts', {
     },
     
     post_save: function(){
-        this.locationRec.Aircrafts().sync();
-        this.locationRec.Aircrafts().each(function(r){
-            r.ExitRules().sync();
+        var store = this.locationRec.Aircrafts();
+        store.sync({
+            success: function(){
+                store.each(function(a){
+                    a.ExitRules().sync();
+                });
+            },
         });
     },
     
     reject: function(){
-        this.locationRec.Aircrafts().rejectChanges();
-        this.locationRec.Aircrafts().each(function(r){
-            r.ExitRules().rejectChanges();
+        var store = this.locationRec.Aircrafts();
+        store.rejectChanges();
+        store.each(function(a){
+            a.ExitRules().rejectChanges();
         });
     },
     

@@ -296,16 +296,20 @@ Ext.define('Sp.views.locations.FormWorkers', {
     },
     
     post_save: function(){
-        this.locationRec.Workers().sync();
-        this.locationRec.Workers().each(function(w){
+        var store = this.locationRec.Workers();
+        store.sync();
+        // those stores are saved as m2m fields
+        // there is no need to sync them
+        store.each(function(w){
             w.SpokenLangs().commitChanges();
             w.WorkerTypes().commitChanges();
         });
     },
     
     reject: function(){
-        this.locationRec.Workers().rejectChanges();
-        this.locationRec.Workers().each(function(w){
+        var store = this.locationRec.Workers();
+        store.rejectChanges();
+        store.each(function(w){
             w.SpokenLangs().rejectChanges();
             w.WorkerTypes().rejectChanges();
         });

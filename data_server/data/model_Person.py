@@ -79,7 +79,7 @@ class Person(base.Model):
     picture = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
-        return self.email
+        return self.email if self.email else self.uuid 
     
     def save(self, *args, **kwargs):
         if not hasattr(self, 'jumps_update') or not self.jumps_update:

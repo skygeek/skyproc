@@ -239,6 +239,24 @@ def __handle_m2m_fields(config):
         m2m_field.clear()
         if v: m2m_field.add(*v)
 
+def __handle_filter(config, field, value, transform=''):
+    if isinstance(field, list):
+        q_filter = models.Q()
+        for f in field:
+            if isinstance(value, list):
+                for v in value:
+                    q_filter = q_filter | models.Q(**{'%s%s' % (f, transform): v})
+            else:
+                q_filter = q_filter | models.Q(**{'%s%s' % (f, transform): value})
+        config['q_filters'].append(q_filter)
+    elif isinstance(value, list):
+        q_filter = models.Q()
+        for v in value:
+            q_filter = q_filter | models.Q(**{'%s%s' % (field, transform): v})
+        config['q_filters'].append(q_filter)
+    else:
+        config['filters']['%s%s' % (field, transform)] = value
+    
 def __execute_taks(req, config, tasks):
     #DEBUG_TASKS = settings.DEBUG
     DEBUG_TASKS = False
@@ -354,10 +372,10 @@ def __construct_filters(req, config):
             if field and isinstance(field, models.ForeignKey):
                 config['filters']['%s__uuid' % filter['property']] = misc.validate_uuid(filter['value'])
                 continue
-            config['filters'][filter['property']] = filter['value']
+            __handle_filter(config, filter['property'], filter['value']) 
     # query filter
     if config['params'].has_key('query_field') and config['params'].has_key('query') and config['params']['query']:
-        config['filters']['%s__istartswith' % config['params']['query_field']] = config['params']['query']
+        __handle_filter(config, config['params']['query_field'], config['params']['query'], '__istartswith')
     # filter by ownership, unless public_view, related_view or anonymous is True
     if not config['anonymous'] and not config['public_view'] and not config['related_view'] and not config['archive']:
         config['filters']['owner'] = req.user
@@ -372,7 +390,7 @@ def __construct_filters(req, config):
         config['filters']['owner'] = __get_model('Person').objects.getOwn(req.user).uuid
     # check show_all flag if filters is empty in a GET request
     # otherwise this would return all rows in the table !
-    if req.method == 'GET' and not config['filters'] and \
+    if req.method == 'GET' and not config['filters'] and not config['q_filters'] and \
     (not hasattr(config['model'], 'show_all') or not config['model'].show_all): 
         return HttpResponseNotAllowed('Not Allowed')
     # hide rows marked as deleted. anonymous and archive models doesn't have a deleted field
@@ -557,6 +575,7 @@ def __GET(req, data_path):
         'params': {},
         'fields': [],
         'filters': {},
+        'q_filters': [],
         'relations': [],
     }
     
@@ -578,7 +597,7 @@ def __GET(req, data_path):
         return config
     
     # construct QuerySet object with filters
-    qs = config['model'].objects.filter(**config['filters'])
+    qs = config['model'].objects.filter(*config['q_filters'], **config['filters'])
     
     # set order if any
     if config.has_key('order_by'):

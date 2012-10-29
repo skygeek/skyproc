@@ -49,19 +49,26 @@ def generate_verifier(salt, username, password):
 # Step 1. A client submits a username. If the username is available, we generate a salt, store it, and return it.
 # Otherwise, we return an error.
 def register_salt(request):
-    if settings.CAPTCHA_KEY is not None:
+    if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
+        raise Http404
+    if hasattr(settings, 'CAPTCHA_KEY') and settings.CAPTCHA_KEY is not None:
         try:
             result = captcha.submit(request.POST["C"], request.POST["R"], settings.CAPTCHA_KEY, request.META['REMOTE_ADDR'])
             if not result.is_valid: raise Exception
         except:
             return HttpResponse("<error>Invalid captcha</error>", mimetype="text/xml")
     if User.objects.filter(username=request.POST["I"]).count() > 0:
-        return HttpResponse("<error>This email address is already in use</error>", mimetype="text/xml")
+        if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL:
+            error = "This email address is already in use"
+        else: error = "This login name is already in use"
+        return HttpResponse("<error></error>", mimetype="text/xml")
     request.session["srp_name"] = request.POST["I"]
     request.session["srp_salt"] = generate_salt()
     return HttpResponse("<salt>%s</salt>" % request.session["srp_salt"], mimetype="text/xml")
 
 def alter_salt(request):
+    if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
+        raise Http404
     try: User.objects.get(username=request.POST["I"])
     except ObjectDoesNotExist: raise Http404
     request.session["srp_name"] = request.POST["I"]
@@ -70,6 +77,8 @@ def alter_salt(request):
 
 # Step 2. The client creates the password verifier and sends it to the server, along with a username.
 def register_user(request):
+    if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
+        raise Http404
     u = SRPUser(salt=request.session["srp_salt"], username=request.session["srp_name"], verifier=request.POST["v"])
     u.save()
     utils.auth.register_sp_user(request, u)
@@ -79,6 +88,8 @@ def register_user(request):
 
 # alter user password
 def alter_user(request):
+    if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
+        raise Http404
     try: u = SRPUser.objects.get(username=request.session["srp_name"])
     except ObjectDoesNotExist: raise Http404
     u.salt = request.session["srp_salt"]
@@ -152,8 +163,10 @@ def verify(request):
         else:
             response = "<error>Email not verified</error>"
     else:
-        response = "<error>Incorrect password or email address</error>"
-
+        if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL:
+            response = "<error>Incorrect password or email address</error>"
+        else: response = "<error>Incorrect password or login name</error>"
+        
     try:
         del request.session["srp_I"]
         del request.session["srp_M"]

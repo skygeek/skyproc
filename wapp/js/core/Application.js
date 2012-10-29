@@ -72,8 +72,8 @@ Ext.define('Sp.core.Application', {
     extend: 'Ext.app.Application',
         
     config: {
-        baseUrl: Sp.core.Globals.BASE_URL,
-        cometUrl: Sp.core.Globals.COMET_URL,
+        baseUrl: window.location.pathname,
+        cometUrl: 'https://' + window.location.hostname + ':8080',
     },
     
     constructor: function(config){
@@ -93,6 +93,7 @@ Ext.define('Sp.core.Application', {
                 e.preventDefault();
             });
         }
+        this.additional_data = {};
         // variable for auto collapse menu on first clisk
         this.menu_never_clicked = true;
     },
@@ -116,17 +117,17 @@ Ext.define('Sp.core.Application', {
     },
         
     loadDataModels: function(){
-        try {
-            Data;
+        if (typeof Data !== 'undefined'){
             this.loadMyProfile();
-            return;
-        } catch(e){
-            var fn = Ext.bind(this.onDataModelsLoad, this);
-            Sp.utils.rpc('models.getAll', fn);  
+        } else {
+            Sp.utils.rpc('models.getAll', [], this.onDataModelsLoad, this);
         }
     },
     
     onDataModelsLoad: function(modelsDef){
+        // additional data
+        this.additional_data = Ext.clone(modelsDef.__additional_data__);
+        delete modelsDef.__additional_data__;
         // Data manager
         Ext.ns('Data');
         Data = Ext.create('Sp.data.Manager', {modelsDef: modelsDef});
@@ -134,8 +135,7 @@ Ext.define('Sp.core.Application', {
     },
     
     loadMyProfile: function(){
-        var fn = Ext.bind(this.onMyProfileLoad, this);
-        Data.load('Person', Ext.util.Cookies.get('sp_id'), fn);
+        Data.load('Person', Ext.util.Cookies.get('sp_id'), this.onMyProfileLoad, this);
     },
     
     onMyProfileLoad: function(myProfile){
@@ -320,7 +320,7 @@ Ext.define('Sp.core.Application', {
                         
                         { xtype: 'tbspacer', width: 60 },
                         
-                        {
+                        /*{
                             xtype: 'textfield',
                             width: 360,
                             emptyText: TR("Global Search..."),
@@ -330,7 +330,7 @@ Ext.define('Sp.core.Application', {
                             ui: 'top-toolbar',
                             iconCls: 'icon-search',
                             iconAlign: 'right',
-                        },
+                        },*/
                         
                         '->',
                         
@@ -528,20 +528,19 @@ Ext.define('Sp.core.Application', {
         var country_name_field = Sp.utils.i18n.getCountryNameField();
         
         // load google maps api
-        if (Sp.core.Globals.GOOGLE_MAPS_API_KEY !== null){
-            var api_url = Ext.String.format(
-                        "https://maps.googleapis.com/maps/api/js" + 
-                        "?v=3.9&key={0}&sensor=false&libraries=drawing&language={1}&callback=Ext.emptyFn",
-                        Sp.core.Globals.GOOGLE_MAPS_API_KEY, Data.me.data.lang);
-            if (Data.me.data.country){
-                var country = Data.me.getCountry();
-                api_url += "&region=" + country.data.iso_code;
-            }  
-            var script = document.createElement("script");
-            script.type = "text/javascript";
-            script.src = api_url;
-            document.body.appendChild(script);    
-        }
+        var api_url = Ext.String.format(
+                    "https://maps.googleapis.com/maps/api/js" + 
+                    "?v=3.9&key={0}&sensor=false&libraries=drawing&language={1}&callback=Ext.emptyFn",
+                    this.additional_data.gmk ? this.additional_data.gmk : '', Data.me.data.lang);
+        delete this.additional_data.gmk;
+        if (Data.me.data.country){
+            var country = Data.me.getCountry();
+            api_url += "&region=" + country.data.iso_code;
+        }  
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = api_url;
+        document.body.appendChild(script);
         
         // data loading
         this.storesLoader = new Sp.data.StoresLoader();
@@ -746,6 +745,18 @@ Ext.define('Sp.core.Application', {
     
     isTnOp: function(){
         return Data.me.data.is_tn_operator;
+    },
+    
+    hasGMap: function(){
+        return typeof google !== 'undefined' && typeof google.maps !== 'undefined';
+    },
+    
+    getUsername: function(){
+        var username = Ext.clone(Ext.util.Cookies.get('sp_user'));
+        if (username[0] == '"' && username[username.length-1] == '"'){
+            return username.slice(1, username.length-1);
+        }
+        return username;
     },
     
     lock: function(){

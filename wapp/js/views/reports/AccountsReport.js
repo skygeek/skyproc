@@ -22,8 +22,6 @@ Ext.define('Sp.views.reports.AccountsReport', {
     
     initComponent: function() {
         
-        ff = Ext.bind(this.updateGridsLayout, this);
-        
         this.operations_grids = [];
         this.sort_field = 'names';
         this.sort_direction = 'ASC';
@@ -39,6 +37,9 @@ Ext.define('Sp.views.reports.AccountsReport', {
                 },
             },
             listeners: {
+                beforeload: function(){
+                    this.collapseAll();
+                },
                 datachanged: function(me){
                     this.down('#pagingTb').setDisabled(me.getCount() == 0);
                 },
@@ -168,26 +169,16 @@ Ext.define('Sp.views.reports.AccountsReport', {
                         {
                             ptype: 'rowexpander',
                             rowBodyTpl : [],
+                            pluginId: 'expand',
                         },
                     ],
                     store: store,
-                    scroll: false,
+                    scroll: 'vertical',
                     viewConfig: {
                         deferEmptyText: true,
                         listeners: {
-                            expandbody: function(row, rec, expandRow){
-                                this.onExpand(row, rec, expandRow);
-                                if (this.operations_grids[rec.data.uuid]){
-                                    this.operations_grids[rec.data.uuid].bodyExpanded = true;
-                                }
-                                //this.updateGridsLayout();
-                            },
-                            collapsebody: function(row, rec, expandRow){
-                                if (this.operations_grids[rec.data.uuid]){
-                                    this.operations_grids[rec.data.uuid].bodyExpanded = false;
-                                }
-                                //this.updateGridsLayout();
-                            },
+                            expandbody: this.onExpand,
+                            collapsebody: this.onCollapse,
                             scope: this,
                         },
                     },
@@ -292,7 +283,7 @@ Ext.define('Sp.views.reports.AccountsReport', {
                         },
                     ],
                     listeners: {
-                        resize: this.updateGridsLayout,
+                        resize: this.onGridResize,
                         scope: this,
                     },
                 },
@@ -356,8 +347,10 @@ Ext.define('Sp.views.reports.AccountsReport', {
     
     onExpand: function(row, rec, exp_row){
         var body_div = new Ext.dom.Element(exp_row.getElementsByClassName('x-grid-rowbody')[0]);
-        if (body_div.dom.innerHTML.length > 0){
-            this.operations_grids[rec.data.uuid].doLayout();
+        
+        if (this.operations_grids[rec.data.uuid] && body_div.dom.innerHTML.length > 0){
+            this.operations_grids[rec.data.uuid].bodyExpanded = true;
+            this.updateGridsLayout();
             return;
         }
         
@@ -458,8 +451,16 @@ Ext.define('Sp.views.reports.AccountsReport', {
             renderTo: body_div,
         });
         
+        this.down('#grid').doLayout();
         this.operations_grids[rec.data.uuid].bodyExpanded = true;
-        
+        this.updateGridsLayout();
+    },
+    
+    onCollapse: function(row, rec, exp_row){
+        if (this.operations_grids[rec.data.uuid]){
+            this.operations_grids[rec.data.uuid].bodyExpanded = false;
+        }
+        this.updateGridsLayout();
     },
     
     getSelectedCurrencies: function(){
@@ -624,14 +625,24 @@ Ext.define('Sp.views.reports.AccountsReport', {
     },
     
     updateGridsLayout: function(){
-        Log('UUUUUUUUUUUUUUUUU')
-        return;
-        this.down('#grid').doLayout();
         Ext.Object.each(this.operations_grids, function(k,v){
             if (v.bodyExpanded){
-                Log('LLLLLLLLLLLLL')
-                Log(k)
                 v.doLayout();
+            }
+        });
+    },
+    
+    onGridResize: function(){
+        this.updateGridsLayout();
+    },
+    
+    collapseAll: function(){
+        var grid = this.down('#grid');
+        var store = grid.getStore();
+        var expand_plugin = grid.getPlugin('expand');
+        Ext.Object.each(this.operations_grids, function(k,v){
+            if (v.bodyExpanded){
+                expand_plugin.toggleRow(store.indexOfId(k));
             }
         });
     },

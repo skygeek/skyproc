@@ -160,6 +160,13 @@ Ext.define('Sp.views.settings.PersonalProfile', {
                     },
                     items:[
                         {
+                            name: 'email',
+                            xtype: 'textfield',
+                            fieldLabel: TR("Email"),
+                            hidden: Sp.app.additional_data.require_email,
+                            vtype: 'email',
+                        },
+                        {
                             name: 'phone',
                             xtype: 'textfield',
                             fieldLabel: TR("Phone"),

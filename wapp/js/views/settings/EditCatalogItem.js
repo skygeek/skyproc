@@ -748,7 +748,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
     },
     
     onItemPriceEdit: function(editor, e){ 
-        var is_default = e.record.data.default;
+        var is_default = e.record.data['default'];
         var no_default = true;
         var currency = Sp.ui.data.getCurrency(e.record);
         if (!currency){
@@ -759,7 +759,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                 return;
             }
             var c = Sp.ui.data.getCurrency(p);
-            if (p.data.default && currency && c && currency.data.uuid == c.data.uuid){
+            if (p.data['default'] && currency && c && currency.data.uuid == c.data.uuid){
                 no_default = false;
                 if (is_default){
                     p.set('default', false);

@@ -16,14 +16,27 @@ Ext.define('Sp.ui.GMapPanel', {
             gmapType : 'map',
             border : false,
         });
-
+        if (!Sp.app.hasGMap()){
+            this.layout = {
+                type: 'hbox',
+                align: 'middle',
+                pack: 'center',
+            };
+            this.items = [{
+                xtype: 'label',
+                text: TR("Google maps service is not available"),
+                cls: 'placeholder-color',
+            }];
+        }
         this.callParent();
     },
 
     afterFirstLayout: function() {
         var center = this.center;
         this.callParent();
-
+        if (!Sp.app.hasGMap()){
+            return;
+        }
         if (center) {
             if (center.geoCodeAddr) {
                 this.lookupCode(center.geoCodeAddr, center.marker);
@@ -37,6 +50,9 @@ Ext.define('Sp.ui.GMapPanel', {
     },
 
     createMap: function(center, marker) {
+        if (!Sp.app.hasGMap()){
+            return;
+        }
         var options = Ext.apply({}, this.mapOptions);
         options = Ext.applyIf(options, {
             zoom : 14,

@@ -64,7 +64,7 @@ Ext.define('Sp.views.settings.Account', {
                 },
                 {
                     xtype:'fieldset',
-                    title: TR("Email & Password"),
+                    title: Sp.app.additional_data.require_email ? TR("Email & Password") : TR("Account password"),
                     defaults: {
                         anchor: '100%'
                     },
@@ -73,21 +73,31 @@ Ext.define('Sp.views.settings.Account', {
                             xtype: 'fieldcontainer',
                             fieldLabel: TR("Current email address"),
                             labelWidth: 145,
+                            hideLabel: !Sp.app.additional_data.require_email,
                             layout: {
                                 type: 'hbox',
                             },
                             items: [
                                 {
-                                    name: 'email',
                                     xtype: 'textfield',
                                     readOnly: true,
                                     width: 290,
+                                    value: Sp.app.getUsername(),
+                                    hidden: !Sp.app.additional_data.require_email,
                                 },
                                 {
                                     xtype: 'button',
                                     text: TR("Change email address"),
                                     icon: '/static/images/icons/mail.png',
                                     margin: '0 0 0 12',
+                                    hidden: !Sp.app.additional_data.require_email,
+                                    handler: function(){
+                                        Ext.create('Sp.views.settings.ChangeEmail').show();
+                                        return;
+                                        Sp.ui.misc.passwordAction(function(){
+                                            Ext.create('Sp.views.settings.ChangeEmail').show();
+                                        }, null, TR("Please type your current password"));
+                                    },
                                 },
                                 {
                                     xtype: 'button',

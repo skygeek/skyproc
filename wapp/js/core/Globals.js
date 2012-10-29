@@ -1,16 +1,9 @@
 
 Ext.ns('Sp.core.Globals');
 
-// set to 'null' to disable google maps api loading
-// set to an empty string to use google maps without an api key
-Sp.core.Globals.GOOGLE_MAPS_API_KEY = null;
-
 Sp.core.Globals.DEBUG = true;
 Sp.core.Globals.BRAND = "Skyproc";
 
-Sp.core.Globals.BASE_URL = "/";
-Sp.core.Globals.COMET_URL = "https://" + window.location.hostname + ":8080";
-Sp.core.Globals.COMET_SECURE = true;
 Sp.core.Globals.AJAX_REQUEST_TIMEOUT = 60000;
 Sp.core.Globals.PRINT_CSS = "/static/css/print.css";
 

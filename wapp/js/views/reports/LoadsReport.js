@@ -37,6 +37,9 @@ Ext.define('Sp.views.reports.LoadsReport', {
                 },
             },
             listeners: {
+                beforeload: function(){
+                    this.collapseAll();
+                },
                 datachanged: function(me){
                     this.down('#pagingTb').setDisabled(me.getCount() == 0);
                 },
@@ -175,11 +178,18 @@ Ext.define('Sp.views.reports.LoadsReport', {
                         {
                             ptype: 'rowexpander',
                             rowBodyTpl : [],
+                            pluginId: 'expand',
                         },
                     ],
                     store: store,
+                    scroll: 'vertical',
                     viewConfig: {
                         deferEmptyText: true,
+                        listeners: {
+                            expandbody: this.onExpand,
+                            collapsebody: this.onCollapse,
+                            scope: this,
+                        },
                     },
                     enableColumnHide: false,
                     enableColumnResize: false,
@@ -299,6 +309,7 @@ Ext.define('Sp.views.reports.LoadsReport', {
                             this.sort_field = col.dataIndex;
                             this.sort_direction = col.sortState;
                         },
+                        resize: this.onGridResize,
                         scope: this,
                     },
                 },
@@ -394,8 +405,10 @@ Ext.define('Sp.views.reports.LoadsReport', {
     
     onExpand: function(row, rec, exp_row){
         var body_div = new Ext.dom.Element(exp_row.getElementsByClassName('x-grid-rowbody')[0]);
-        if (body_div.dom.innerHTML.length > 0){
-            this.slots_grids[rec.data.uuid].doLayout();
+        
+        if (this.slots_grids[rec.data.uuid] && body_div.dom.innerHTML.length > 0){
+            this.slots_grids[rec.data.uuid].bodyExpanded = true;
+            this.updateGridsLayout();
             return;
         }
         
@@ -481,6 +494,17 @@ Ext.define('Sp.views.reports.LoadsReport', {
             ],
             renderTo: body_div,
         });
+        
+        this.down('#grid').doLayout();
+        this.slots_grids[rec.data.uuid].bodyExpanded = true;
+        this.updateGridsLayout();
+    },
+    
+    onCollapse: function(row, rec, exp_row){
+        if (this.slots_grids[rec.data.uuid]){
+            this.slots_grids[rec.data.uuid].bodyExpanded = false;
+        }
+        this.updateGridsLayout();
     },
     
     generate: function(){
@@ -626,6 +650,29 @@ Ext.define('Sp.views.reports.LoadsReport', {
             documentTitle: TR("Loads Listing"),
             mainTitle: header,
         }).show();
+    },
+    
+    updateGridsLayout: function(){
+        Ext.Object.each(this.slots_grids, function(k,v){
+            if (v.bodyExpanded){
+                v.doLayout();
+            }
+        });
+    },
+    
+    onGridResize: function(){
+        this.updateGridsLayout();
+    },
+    
+    collapseAll: function(){
+        var grid = this.down('#grid');
+        var store = grid.getStore();
+        var expand_plugin = grid.getPlugin('expand');
+        Ext.Object.each(this.slots_grids, function(k,v){
+            if (v.bodyExpanded){
+                expand_plugin.toggleRow(store.indexOfId(k));
+            }
+        });
     },
     
 });

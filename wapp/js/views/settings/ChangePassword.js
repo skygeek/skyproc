@@ -26,7 +26,7 @@ Ext.define('Sp.views.settings.ChangePassword', {
             width: 320,
             height: 130,
             modal: true,
-            //resizable: false,
+            resizable: false,
             disableWhatsThis: true,
             title: TR("Set a new password"),
             icon: '/static/images/icons/password.png',
@@ -104,7 +104,7 @@ Ext.define('Sp.views.settings.ChangePassword', {
         this.down('#cancelBt').disable();
         this.body.mask(TR("Please wait"));
         s = new SRP(null, {
-            email: Data.me.data.email,
+            email: Sp.app.getUsername(),
             password: values.passwd,
             change_password: true,
             csrf: Ext.util.Cookies.get('csrftoken'), 

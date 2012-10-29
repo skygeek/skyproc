@@ -49,54 +49,11 @@ Ext.define('Sp.views.locations.InviteMember', {
                             items: [
                                 {
                                     name: 'name',
-                                    xtype: 'combobox',
+                                    xtype: 'personcombo',
                                     itemId: 'name',
                                     fieldLabel: TR("Member's Name"),
-                                    emptyText: TR("search by member's last name"),
-                                    store: Data.createStore('Person_P', {
-                                        pageSize: 20,
-                                        remoteSort: true,
-                                        sorters: [
-                                            {
-                                                property: 'last_name',
-                                                direction: 'ASC'
-                                            },
-                                            {
-                                                property: 'first_name',
-                                                direction: 'ASC'
-                                            }
-                                        ],
-                                        proxy: {
-                                            extraParams: {
-                                                query_field: 'last_name',
-                                                exclude: Ext.encode([
-                                                    {'uuid': Data.me.data.uuid},
-                                                ]),
-                                            },
-                                        },
-                                    }),
-                                    valueField: 'uuid',
-                                    hideTrigger: true,
-                                    queryDelay: 250,
-                                    typeAhead: true,
-                                    minChars: 1,
-                                    tpl: Ext.create('Ext.XTemplate',
-                                        '<tpl for=".">',
-                                            '<div class="x-boundlist-item">',
-                                            "{last_name} {first_name}",
-                                            '</div>',
-                                        '</tpl>'
-                                    ),
-                                    displayTpl: Ext.create('Ext.XTemplate',
-                                        '<tpl for=".">',
-                                            '{last_name} {first_name}',
-                                        '</tpl>'
-                                   ),
-                                   listConfig: {
-                                        loadingText: TR("Searching..."),
-                                        emptyText: TR("No matching members found"),
-                                    },
-                                    pageSize: 20,
+                                    emptyText: TR("search by member's name"),
+                                    selfCreated: true,
                                     listeners: {
                                         change: Ext.bind(function(me, value){
                                             if (value){
@@ -104,55 +61,15 @@ Ext.define('Sp.views.locations.InviteMember', {
                                             }
                                         }, this)
                                     },
-                               },
-                               {
+                                },
+                                {
                                     name: 'email',
-                                    xtype: 'combobox',
+                                    xtype: 'personcombo',
                                     itemId: 'email',
                                     fieldLabel: TR("Member's Email"),
                                     emptyText: TR("or search by member's email"),
-                                    store: Data.createStore('Person_P', {
-                                        buffered: true,
-                                        pageSize: 20,
-                                        remoteSort: true,
-                                        sorters: [
-                                            {
-                                                property: 'last_name',
-                                                direction: 'ASC'
-                                            },
-                                            {
-                                                property: 'first_name',
-                                                direction: 'ASC'
-                                            }
-                                        ],
-                                        proxy: {
-                                            extraParams: {
-                                                query_field: 'email',
-                                            },
-                                        },
-                                    }),
-                                    valueField: 'uuid',
-                                    hideTrigger: true,
-                                    queryDelay: 250,
-                                    typeAhead: true,
-                                    minChars: 1,
-                                    tpl: Ext.create('Ext.XTemplate',
-                                        '<tpl for=".">',
-                                            '<div class="x-boundlist-item">',
-                                            "{last_name} {first_name}",
-                                            '</div>',
-                                        '</tpl>'
-                                    ),
-                                    displayTpl: Ext.create('Ext.XTemplate',
-                                        '<tpl for=".">',
-                                            '{last_name} {first_name}',
-                                        '</tpl>'
-                                   ),
-                                   listConfig: {
-                                        loadingText: TR("Searching..."),
-                                        emptyText: TR("No matching members found"),
-                                    },
-                                    pageSize: 20,
+                                    selfCreated: true,
+                                    queryField: 'email',
                                     listeners: {
                                         change: Ext.bind(function(me, value){
                                             if (value){
@@ -160,7 +77,7 @@ Ext.define('Sp.views.locations.InviteMember', {
                                             }
                                         }, this)
                                     },
-                               }
+                                },
                             ],
                         },
                         {
@@ -177,7 +94,6 @@ Ext.define('Sp.views.locations.InviteMember', {
                                     valueField: 'uuid',
                                     forceSelection: true,
                                     lastQuery: '',
-                                    allowBlank: false,
                                     listeners: {
                                         afterrender: function(me){
                                             var default_profile = me.getStore().findRecord('default', true);
@@ -195,12 +111,14 @@ Ext.define('Sp.views.locations.InviteMember', {
             buttons: [
                 {
                     text: TR("Send Invitation"),
+                    itemId: 'sendBt',
                     icon: '/static/images/icons/save.png',
                     handler: this.invite,
                     scope: this,
                 },
                 {
                     text: TR("Cancel"),
+                    itemId: 'cancelBt',
                     icon: '/static/images/icons/cancel.png',
                     handler: this.close,
                     scope: this,
@@ -213,42 +131,42 @@ Ext.define('Sp.views.locations.InviteMember', {
     },
     
     invite: function(){
-        var me = this;
-        var form = this.getComponent('form');
-        
-        // validation
-        if (!Sp.ui.data.validateForm(form)){
+        var form = this.down('#form').form;
+        if (!form.isValid()){
             return;
         }
-        
-        var values = form.form.getFieldValues();
-        
+        var values = form.getValues();
         if (!values.name && !values.email){
+            form.findField('name').markInvalid(TR(Sp.core.Globals.REQ_MSG));
             return;
         }
-        
-        if (values.name){
-            var person_uuid = values.name;
-        } else {
-            var person_uuid = values.email;
-        }
-        
+        this.body.mask(TR("Please wait"));
+        this.down('#sendBt').disable();
+        this.down('#cancelBt').disable();
         var r = Data.create('LocationMembership', {
             location: this.locationRec.data.uuid,
-            person: person_uuid,
+            person: values.name ? values.name.uuid : values.email.uuid,
             join_type: 'I',
             profile: values.profile,
         });
         r.save({
-            callback: function(){
-                Data.load('LocationMembership', r.data.uuid, function(membership){
-                    me.membersStore.add(membership);
-                });
-            }
+            callback: function(recs, op){
+                if (op.success){
+                    Data.load('LocationMembership', r.data.uuid, function(membership){
+                        this.membersStore.add(membership);
+                        Notify(TR("Invitation sent"));
+                        this.close();
+                    }, this);
+                } else {
+                    var name = Sp.ui.misc.formatFullname({data:values.name ? values.name : values.email}, Data.me.data.name_order, true);
+                    this.body.unmask();
+                    this.down('#sendBt').enable();
+                    this.down('#cancelBt').enable();
+                    Sp.ui.misc.errMsg(Ext.String.format(TR("'{0}' has already been invited"), name), TR("Invitation error"));
+                }
+            },
+            scope: this,
         });
-        
-        Notify(TR("Invitation sent"), TR("Your invitation has been successfully sent"));
-        this.close();
     },
-        
+     
 });
