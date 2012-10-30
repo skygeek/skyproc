@@ -83,23 +83,26 @@ def register_sp_user(req, user):
         person_data['email'] = req.session["srp_name"]
     p = Person.objects.create(**person_data)
         
+    # email confirmation
     if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL and \
     hasattr(settings, 'CONFIRM_EMAIL') and settings.CONFIRM_EMAIL:
-        # email validation record
-        validation_link = misc.get_tmp_link()
-        EmailValidation.objects.create(person=p, email=p.email, validation_link=validation_link)
-        
-        # send confirmation email
-        subject = "Confirm email address for Skyproc.com"
-        name = "%s %s" % (p.first_name, p.last_name)
-        msg = "Hi %s,\n\n" % name.strip()
-        msg += "You're using this inbox as an email address on Skyproc.com.\n\n"
-        msg += "To confirm this is correct, please go to https://%s/validate/email/%s\n\n" % \
-                (settings.SP_HOME_URL, validation_link)
-        msg += "____________\n"
-        msg += "Skyproc.com"
-        send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
+        send_confirmation_email({'person':p})
 
+def send_confirmation_email(data):
+    if not data.has_key('email'):
+        data['email'] = data['person'].email    
+    data['validation_link'] = misc.get_tmp_link()
+    EmailValidation.objects.create(**data)
+    subject = "Confirm email address for Skyproc.com"
+    name = "%s %s" % (data['person'].first_name, data['person'].last_name)
+    msg = "Hi %s,\n\n" % name.strip()
+    msg += "You're using this inbox as an email address on Skyproc.com.\n\n"
+    msg += "To confirm this is correct, please go to https://%s/validate/email/%s\n\n" % \
+            (settings.SP_HOME_URL, data['validation_link'])
+    msg += "___________\n"
+    msg += "Skyproc.com"
+    send_mail(subject, msg, settings.SENDER_EMAIL, [data['email']])
+    
 def create_pwd_reset_request(user):
     p = Person.objects.getOwn(user)
     reset_link = misc.get_tmp_link()
@@ -117,7 +120,7 @@ def create_pwd_reset_request(user):
     msg += "To confirm this and create a new password, please go to https://%s/reset/password/%s\n\n" % \
             (settings.SP_HOME_URL, reset_link)
     msg += "Otherwise, simply ignore this message.\n\n"
-    msg += "____________\n"
+    msg += "___________\n"
     msg += "Skyproc.com"
     send_mail(subject, msg, settings.SENDER_EMAIL, [p.email])
 

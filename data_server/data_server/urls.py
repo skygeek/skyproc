@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     (r'^register/user/$', srp.views.register_user),
     (r'^alter/salt/$', srp.views.alter_salt),
     (r'^alter/user/$', srp.views.alter_user),
+    (r'^alter/email/$', srp.views.alter_email),
     
     # post registration confirmation message
     (r'^registration-succeeded/$', 'ui.views.registration_succeeded'),

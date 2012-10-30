@@ -80,6 +80,7 @@ Ext.define('Sp.views.settings.Account', {
                             items: [
                                 {
                                     xtype: 'textfield',
+                                    itemId: 'currentEmail',
                                     readOnly: true,
                                     width: 290,
                                     value: Sp.app.getUsername(),
@@ -92,12 +93,15 @@ Ext.define('Sp.views.settings.Account', {
                                     margin: '0 0 0 12',
                                     hidden: !Sp.app.additional_data.require_email,
                                     handler: function(){
-                                        Ext.create('Sp.views.settings.ChangeEmail').show();
-                                        return;
-                                        Sp.ui.misc.passwordAction(function(){
-                                            Ext.create('Sp.views.settings.ChangeEmail').show();
+                                        var currentEmail = this.down('#currentEmail');
+                                        Sp.ui.misc.passwordAction(function(p){
+                                            Ext.create('Sp.views.settings.ChangeEmail', {
+                                                p: p,
+                                                currentEmail: currentEmail,
+                                            }).show();
                                         }, null, TR("Please type your current password"));
                                     },
+                                    scope: this,
                                 },
                                 {
                                     xtype: 'button',
@@ -109,6 +113,7 @@ Ext.define('Sp.views.settings.Account', {
                                             Ext.create('Sp.views.settings.ChangePassword', {c:c}).show();
                                         }, null, TR("Please type your current password"));
                                     },
+                                    scope: this,
                                 },
                             ],
                         },

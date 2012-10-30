@@ -4,28 +4,20 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Skyproc.com - Password Reset</title>
-    
         <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css" />
         <link rel="stylesheet" href="/static/css/jquery.qtip.min.css" />
         <link rel="stylesheet" href="/static/css/login_style.css" />
         <link rel="stylesheet" href="/static/css/login.css" />
-        
-        <script src="/static/js/lib/jquery.min.js"> </script>
-        <script src="/static/js/lib/jquery.actual.min.js"> </script>
-        <script src="/static/js/lib/jquery.validate.min.js"> </script>
-        <script src="/static/js/lib/bootstrap.min.js"> </script>
-        
-        <!--<script src='/static/js/srp-all.js'> </script>-->
-        <script type="text/javascript" src='/static/js/login/srp.js'> </script>
-        <script type="text/javascript" src='/static/js/login/srp_register.js'> </script>
-        <script src='/static/js/login/login.js'> </script>
+        <script type="text/javascript" src="/static/js/lib/jquery.min.js"> </script>
+        <script type="text/javascript" src="/static/js/lib/jquery.actual.min.js"> </script>
+        <script type="text/javascript" src="/static/js/lib/jquery.validate.min.js"> </script>
+        <script type="text/javascript" src="/static/js/lib/bootstrap.min.js"> </script>
+        <script type="text/javascript" src="/static/js/srp-all.js"> </script>
+        <script type="text/javascript" src="/static/js/login.js"> </script>
     </head>
-    
     <body>
-
 		<div class="login_box">
-			
 			<form id="reset_pwd" onsubmit="return reset_pwd()">{% csrf_token %}
 			    <div style='display:none'><input type='hidden' name='email' id='email' value='{{ email }}'/></div>
 				<div class="top_b">{{ email }}</div>
@@ -50,9 +42,6 @@
 					<button class="btn btn-inverse" type="submit">Set Password</button>
 				</div>  
 			</form>
-			
-			
-		</div>
-		
+		</div>		
     </body>
 </html>

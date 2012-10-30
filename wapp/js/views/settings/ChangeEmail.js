@@ -23,7 +23,7 @@ Ext.define('Sp.views.settings.ChangeEmail', {
     initComponent: function() {
                 
         Ext.apply(this, {
-            width: 400,
+            width: 360,
             height: 110,
             modal: true,
             resizable: false,
@@ -42,10 +42,18 @@ Ext.define('Sp.views.settings.ChangeEmail', {
                             name: 'email',
                             xtype: 'textfield',
                             anchor: '100%',
-                            fieldLabel: TR("New email address"),
-                            labelWidth: 120,
+                            fieldLabel: TR("New address"),
+                            labelWidth: 85,
                             vtype: 'email',
                             allowBlank: false,
+                            listeners: {
+                                specialkey: function(me, e){
+                                    if (e.getKey() == e.ENTER){
+                                        this.changeEmail();
+                                    }
+                                },
+                                scope: this,
+                            },
                         },
                     ],
                 }
@@ -82,40 +90,38 @@ Ext.define('Sp.views.settings.ChangeEmail', {
             Sp.ui.misc.warnMsg(TR("The email address you entered is the same as your current one"), TR("Email not changed"));
             return;
         }
-    },
-        
-    changePassword: function(){
-        var form = this.down('#form').form;
-        if (!form.isValid()){
-            return;
-        }
-        var values = form.getValues();
-        if (this.c == values.passwd){
-            Sp.ui.misc.warnMsg(TR("The new password you entered is the same as your current password"), TR("Password not changed"));
-            return;
-        }
         this.down('#changeBt').disable();
         this.down('#cancelBt').disable();
         this.body.mask(TR("Please wait"));
+        this.new_email = values.email;
         s = new SRP(null, {
-            email: Sp.app.getUsername(),
-            password: values.passwd,
-            change_password: true,
+            current_email: Sp.app.getUsername(),
+            email: values.email,
+            password: this.p,
+            change_email: true,
             csrf: Ext.util.Cookies.get('csrftoken'), 
-            callback: Ext.bind(this.onPasswordChanged, this),
+            callback: Ext.bind(this.onEmailChanged, this),
         });
         s.register();
     },
     
-    onPasswordChanged: function(success){
-        delete this.c;
-        this.close();
+    onEmailChanged: function(success, msg){
         if (success){
-            Sp.ui.misc.okMsg(TR("Password changed"));
+            delete this.p;
+            this.close();
+            if (Sp.app.additional_data.confirm_email){
+                Sp.ui.misc.okMsg(TR("Please check your new address inbox, you will have received an email containing the link to confirm the change."), 
+                                TR("Email change accepted"));
+            } else {
+                this.currentEmail.setValue(this.new_email);
+                Sp.ui.misc.okMsg(TR("Your email address has been changed"));
+            }
         } else {
-            Sp.ui.misc.errMsg(TR("Password change failed"));
+            this.down('#changeBt').enable();
+            this.down('#cancelBt').enable();
+            this.body.unmask();
+            Sp.ui.misc.errMsg(TR(msg));
         }
     },
     
 });
-

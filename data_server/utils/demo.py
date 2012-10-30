@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public 
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 from django.db import models
 from django.conf import settings
 
@@ -37,7 +38,10 @@ def load_demo_data(location):
     LocationCatalogHire = models.get_model(settings.DATA_APP, 'LocationCatalogHire')
     JumpType = models.get_model(settings.DATA_APP, 'JumpType')
     Person = models.get_model(settings.DATA_APP, 'Person')
+    MembershipProfile = models.get_model(settings.DATA_APP, 'MembershipProfile')
     LocationMembership = models.get_model(settings.DATA_APP, 'LocationMembership')
+    ProfileExtraCatalog = models.get_model(settings.DATA_APP, 'ProfileExtraCatalog')
+    Clearance = models.get_model(settings.DATA_APP, 'Clearance')
     
     en_sp = SpokenLang.objects.get(lang='EN')
     pilot_role = WorkerType.objects.get(type='pilot')
@@ -53,8 +57,7 @@ def load_demo_data(location):
     hpop_jump = JumpType.objects.get(type='hpop')
     no_jump = JumpType.objects.get(type='no_jump')
     
-    try: def_profile = location.membershipprofile_set.all()[0]
-    except: def_profile = None
+    now = datetime.datetime.now()
     
     a = Aircraft()
     a.owner = location.owner
@@ -290,6 +293,7 @@ def load_demo_data(location):
     i.name = '13,000 feet Jump Ticket'
     i.jump_type = belly_jump
     i.save(force_insert=True)
+    def_member_item = LocationCatalogItem.objects.get(pk=i.pk)
     p = LocationCatalogPrice()
     p.owner = location.owner
     p.item = i
@@ -304,6 +308,7 @@ def load_demo_data(location):
     p.price = 20
     p.default = True
     p.save(force_insert=True)
+    def_member_price = LocationCatalogPrice.objects.get(pk=p.pk)
     e = LocationCatalogElement()
     e.owner = location.owner
     e.item = i
@@ -427,6 +432,46 @@ def load_demo_data(location):
     e.altitude = 0
     e.save(force_insert=True)
     
+    i = LocationCatalogItem()
+    i.owner = location.owner
+    i.location = location
+    i.name = 'Rigg Rental'
+    i.jump_type = no_jump
+    i.jump_type_auto = True
+    i.save(force_insert=True)
+    rigg_item = LocationCatalogItem.objects.get(pk=i.pk)
+    p = LocationCatalogPrice()
+    p.owner = location.owner
+    p.item = i
+    p.currency = euro
+    p.price = 20
+    p.default = True
+    p.save(force_insert=True)
+    p = LocationCatalogPrice()
+    p.owner = location.owner
+    p.item = i
+    p.currency = dollar
+    p.price = 20
+    p.default = True
+    p.save(force_insert=True)
+    
+    p = MembershipProfile()
+    p.owner = location.owner
+    p.location = location
+    p.name = 'Demo Profile'
+    p.billing_mode = 'post'
+    p.credit_line = 5000
+    p.currency = dollar
+    p.default_catalog_item = def_member_item
+    p.default_catalog_price = def_member_price
+    p.save(force_insert=True)
+    def_profile = MembershipProfile.objects.get(pk=p.pk)
+    e = ProfileExtraCatalog()
+    e.owner = location.owner
+    e.profile = p
+    e.item = rigg_item
+    e.save(force_insert=True)
+    
     p = Person()
     p.owner = location.owner
     p.first_name = 'Jane'
@@ -444,6 +489,16 @@ def load_demo_data(location):
     m.new_approval = False
     m.profile = def_profile
     m.save(force_insert=True)
+    c = Clearance()
+    c.owner = location.owner
+    c.location = location
+    c.person = p
+    c.approved = True
+    c.new_approval = False
+    c.start_date = now
+    c.duration = 1
+    c.unit = 'y'
+    c.save(force_insert=True)
     
     p = Person()
     p.owner = location.owner
@@ -462,6 +517,16 @@ def load_demo_data(location):
     m.new_approval = False
     m.profile = def_profile
     m.save(force_insert=True)
+    c = Clearance()
+    c.owner = location.owner
+    c.location = location
+    c.person = p
+    c.approved = True
+    c.new_approval = False
+    c.start_date = now
+    c.duration = 1
+    c.unit = 'y'
+    c.save(force_insert=True)
     
     for i in range(1,10):
         p = Person()
@@ -480,6 +545,16 @@ def load_demo_data(location):
         m.new_approval = False
         m.profile = def_profile
         m.save(force_insert=True)
+        c = Clearance()
+        c.owner = location.owner
+        c.location = location
+        c.person = p
+        c.approved = True
+        c.new_approval = False
+        c.start_date = now
+        c.duration = 1
+        c.unit = 'y'
+        c.save(force_insert=True)
     
     location.currencies = (dollar,euro)
     location.default_currency = dollar

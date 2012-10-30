@@ -81,22 +81,33 @@ def registration_succeeded(req):
     c['title'] = "Registration succeeded !"
     c['msg'] = "Check your email inbox, you will have received an email containing the link to activate your account."
     c['link_text'] = "Return"
-    return render_to_response('login_msg.html', c)
+    return render_to_response('msg.html', c)
 
 def validate_email(req, validation_link):
     if not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL:
         raise Http404
-    
     try: v = EmailValidation.objects.get(validation_link=validation_link)
     except EmailValidation.DoesNotExist: raise Http404
-    v.delete()
+    c = {}
+    if v.srp_salt:
+        v.person.owner.srpuser.username = v.email
+        v.person.owner.srpuser.salt = v.srp_salt
+        v.person.owner.srpuser.verifier = v.srp_verifier
+        v.person.owner.srpuser.validate_unique()
+        v.person.email = v.email
+        v.person.full_clean()
+        v.person.owner.srpuser.save()
+        v.person.save()
+        c['title'] = "Email address confirmed"
+        c['msg'] = "%s has been confirmed as your new Skyproc email address." % v.email
+    else:
+        c['title'] = "Account activated"
+        c['msg'] = "%s has been confirmed as your Skyproc email address. Thank you for registering !" % v.email
+    c['link_text'] = "Enter Skyproc"
     user = django.contrib.auth.authenticate(username=v.email, M=(None, None))
     django.contrib.auth.login(req, user)
-    c = {}
-    c['title'] = "Account activated"
-    c['msg'] = "%s has been confirmed as your Skyproc email address. Thank you for registering !" % v.email
-    c['link_text'] = "Enter Skyproc"
-    return render_to_response('login_msg.html', c)
+    v.delete()
+    return render_to_response('msg.html', c)
 
 def reset_password(req, reset_link):
     if not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL:
@@ -121,7 +132,7 @@ def reset_password(req, reset_link):
         c['title'] = "Mail sent !"
         c['msg'] = "Check your email inbox, you will have received an email containing the link to reset your password."
         c['link_text'] = "Return"
-        return render_to_response('login_msg.html', c)
+        return render_to_response('msg.html', c)
     
     raise Http404
 
@@ -132,21 +143,21 @@ def password_reset_succeeded(req):
     c['title'] = "Password changed !"
     c['msg'] = "Your new password has been saved."
     c['link_text'] = "Enter Skyproc"
-    return render_to_response('login_msg.html', c)
+    return render_to_response('msg.html', c)
 
 def page_404(req):
     c = {}
     c['title'] = "Page not found !"
     c['msg'] = "The page you've requested does not exist at this address"
     c['link_text'] = "Skyproc login page"
-    return render_to_response('login_msg.html', c)
+    return render_to_response('msg.html', c)
 
 def page_500(req):
     c = {}
     c['title'] = "Oops !"
     c['msg'] = "Sorry, something went wrong. Please try again."
     c['link_text'] = "Skyproc home"
-    return render_to_response('login_msg.html', c)
+    return render_to_response('msg.html', c)
     
 # webcron
 def weather_update(req):

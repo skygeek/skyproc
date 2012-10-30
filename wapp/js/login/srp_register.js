@@ -7,8 +7,12 @@ function SRP_REGISTER()
     {
         that = this;
         var operation = this.getOperation();
-        var params = "I="+this.getI();
-        var path = (operation && operation.change_password) ? 'alter/salt/' : 'register/salt/';
+        if (operation && operation.change_email){
+            var params = "I="+operation.current_email;
+        } else {
+            var params = "I="+this.getI();
+        }
+        var path = (operation && (operation.change_password || operation.change_email)) ? 'alter/salt/' : 'register/salt/';
         if (path == 'register/salt/' && typeof(reCAPTCHA_PK) != 'undefined' && reCAPTCHA_PK){
             params += "&C="+encodeURIComponent(Recaptcha.get_challenge());
             params += "&R="+encodeURIComponent(Recaptcha.get_response());
@@ -39,10 +43,17 @@ function SRP_REGISTER()
     {
         var operation = that.getOperation();
         var params = "v="+v;
-        try {
-            params += "&fullname=" + encodeURIComponent(document.getElementById("r_fullname").value);
-        } catch(e){}
-        var path = (operation && operation.change_password) ? 'alter/user/' : 'register/user/';
+        if (operation && operation.change_password){
+            var path = 'alter/user/';
+        } else if (operation && operation.change_email){
+            var path = 'alter/email/';
+            params += "&I=" + operation.email;
+        } else {
+            var path = 'register/user/';
+            try {
+                params += "&fullname=" + encodeURIComponent(document.getElementById("r_fullname").value);
+            } catch(e){}
+        }
         that.ajaxRequest(that.geturl() + path, params, that.register_user);
     };
 
@@ -54,7 +65,7 @@ function SRP_REGISTER()
 	        if(xhr.responseXML.getElementsByTagName("ok").length > 0)
 	        {
 	            var operation = that.getOperation();
-	            if (operation && operation.change_password){
+	            if (operation && operation.callback){
 	                operation.callback(true);
 	            } else {
 	                var auto_login = false;

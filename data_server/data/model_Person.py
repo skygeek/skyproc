@@ -99,6 +99,8 @@ class EmailValidation(models.Model):
     person = models.ForeignKey('Person')
     email = models.EmailField()
     validation_link = models.CharField(max_length=48)
+    srp_salt = models.CharField(max_length=32, blank=True, null=True)
+    srp_verifier = models.CharField(max_length=128, blank=True, null=True)
     
 class PasswordResetRequest(models.Model):
     private = True

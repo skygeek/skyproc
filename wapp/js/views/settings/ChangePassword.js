@@ -113,15 +113,17 @@ Ext.define('Sp.views.settings.ChangePassword', {
         s.register();
     },
     
-    onPasswordChanged: function(success){
-        delete this.c;
-        this.close();
+    onPasswordChanged: function(success, msg){
         if (success){
-            Sp.ui.misc.okMsg(TR("Password changed"));
+            delete this.c;
+            this.close();
+            Sp.ui.misc.okMsg(TR("Your password has been changed"));
         } else {
-            Sp.ui.misc.errMsg(TR("Password change failed"));
+            this.down('#changeBt').enable();
+            this.down('#cancelBt').enable();
+            this.body.unmask();
+            Sp.ui.misc.errMsg(TR(msg));
         }
     },
     
 });
-

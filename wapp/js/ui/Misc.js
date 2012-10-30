@@ -362,11 +362,13 @@ Sp.ui.misc.passwordAction = function(callback, previous_pwd, title){
     title = title || TR("Please type your password");
     var msgbox = Ext.Msg.prompt(title, '', function(btn, pwd){
         if (btn == 'ok'){
+            Ext.getBody().mask(TR("Please wait"));
             s = new SRP(null, {
                 email: Sp.app.getUsername(),
                 password: pwd,
                 csrf: Ext.util.Cookies.get('csrftoken'), 
                 callback: function(verified){
+                    Ext.getBody().unmask();
                     if (verified){
                         callback(pwd);
                     } else {

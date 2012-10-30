@@ -31,7 +31,7 @@ Ext.define('Sp.views.locations.Clearances', {
             width: 700,
             height: 525,
             modal: true,
-            resizable: false,
+            maximizable: true,
             title: TR("Clearances list"),
             icon: '/static/images/icons/clearance.png',
             layout: 'fit',

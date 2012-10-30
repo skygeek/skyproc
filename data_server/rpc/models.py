@@ -245,5 +245,6 @@ def getAll():
     if hasattr(settings, 'GOOGLE_MAPS_API_KEY') and settings.GOOGLE_MAPS_API_KEY:
         ret['__additional_data__']['gmk'] = settings.GOOGLE_MAPS_API_KEY
     ret['__additional_data__']['require_email'] = hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL
+    ret['__additional_data__']['confirm_email'] = hasattr(settings, 'CONFIRM_EMAIL') and settings.CONFIRM_EMAIL
             
     return ret
