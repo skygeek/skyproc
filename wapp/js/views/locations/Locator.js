@@ -290,7 +290,7 @@ Ext.define('Sp.views.locations.Locator', {
     doSearch: function(){
         var store = this.down('#grid').getStore();
         var values = this.down('#form').form.getValues();
-        var filters = [];
+        var filters = [{property: 'public', value: true}];
         Ext.Object.each(values, function(k,v){
             if (!v){
                 return;

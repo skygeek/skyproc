@@ -85,6 +85,12 @@ Ext.define('Sp.views.settings.ChangePassword', {
                     scope: this,
                 },
             ],
+            listeners: {
+                show: function(){
+                    this.down('#passwd').focus(true, 100);
+                },
+                scope: this,
+            },
         });
  
         this.callParent(arguments);

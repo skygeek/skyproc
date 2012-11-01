@@ -15,15 +15,21 @@
 
 @font-face{
     font-family: "Open Sans Bold";
+    src : url('/static/fonts/OpenSans-Bold.eot');
+    src : url('/static/fonts/OpenSans-Bold.eot?') format('eot');
     src : url('/static/fonts/OpenSans-Bold.ttf') format('truetype');
 }
 
 @font-face{
     font-family: "Open Sans Semibold";
+    src : url('/static/fonts/OpenSans-Semibold.eot');
+    src : url('/static/fonts/OpenSans-Semibold.eot?') format('eot');
     src : url('/static/fonts/OpenSans-Semibold.ttf') format('truetype');
 }
 
 @font-face{
     font-family: "Russo One";
+    src : url('/static/fonts/RussoOne-Regular.eot');
+    src : url('/static/fonts/RussoOne-Regular.eot?') format('eot');
     src : url('/static/fonts/RussoOne-Regular.ttf') format('truetype');
 }

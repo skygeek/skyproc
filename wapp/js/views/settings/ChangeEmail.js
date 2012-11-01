@@ -40,6 +40,7 @@ Ext.define('Sp.views.settings.ChangeEmail', {
                     items: [
                         {
                             name: 'email',
+                            itemId: 'email',
                             xtype: 'textfield',
                             anchor: '100%',
                             fieldLabel: TR("New address"),
@@ -75,6 +76,12 @@ Ext.define('Sp.views.settings.ChangeEmail', {
                     scope: this,
                 },
             ],
+            listeners: {
+                show: function(){
+                    this.down('#email').focus(true, 100);
+                },
+                scope: this,
+            },
         });
  
         this.callParent(arguments);

@@ -237,7 +237,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                     },
                                     scope: this,
                                 },
-                                {
+                                /*{
                                     text: TR("List"),
                                     icon: '/static/images/icons/calendar_list.png',
                                     checked: false,
@@ -247,7 +247,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                     handler: function(){
                                     },
                                     scope: this,
-                                },
+                                },*/
                             ],
                         },
                         '-',
@@ -388,7 +388,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                                     tooltip: TR("Search"),
                                                 }
                                             ],
-                                            bbar: [
+                                            /*bbar: [
                                                 '->',
                                                 {
                                                     xtype: 'button',
@@ -396,7 +396,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                                     icon: '/static/images/icons/rewind.png',
                                                 },
                                                 '->',
-                                            ],
+                                            ],*/
                                         },
                                         {
                                             tabConfig: {
@@ -427,7 +427,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                                     tooltip: TR("Search"),
                                                 }
                                             ],
-                                            bbar: [
+                                            /*bbar: [
                                                 '->',
                                                 {
                                                     xtype: 'button',
@@ -435,7 +435,7 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                                     icon: '/static/images/icons/rewind.png',
                                                },
                                                 '->',
-                                            ],
+                                            ],*/
                                         },
                                         {
                                             tabConfig: {
@@ -469,7 +469,15 @@ Ext.define('Sp.views.reservations.MainPanel', {
                     margin: '5 0 0 0',
                 },
             ],
-            
+            listeners: {
+                afterlayout: function(){
+                    if (!this.warning_shown){
+                        Sp.ui.misc.warnMsg(TR("This module is not yet finished ! it's here for internal testing..."));
+                        this.warning_shown = true;
+                    }
+                },
+                scope: this,
+            },
         });
         this.callParent(arguments);
         this.buildLocationsStore();

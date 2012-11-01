@@ -18,6 +18,8 @@
 # License along with Skyproc. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import os
+import pwd
 import logging
 import httplib
 import cPickle
@@ -26,7 +28,7 @@ import threading
 import copy
 import ssl
 import ujson
-
+import tempfile
 from os import path as op
 
 import tornado.web
@@ -34,9 +36,6 @@ import tornadio2
 import tornadio2.router
 import tornadio2.server
 import tornadio2.conn
-
-ROOT = op.normpath(op.dirname(__file__))
-CONNECTIONS = set()
 
 class DataChangeHandler(tornado.web.RequestHandler):
     def post(self):
@@ -109,6 +108,46 @@ class Connection(tornadio2.conn.SocketConnection):
         if self.session_id:
             log_msg.append("session-id=%s" % self.session_id)
         logging.info(', '.join(log_msg))
+ 
+
+private_dir = '/opt/skyproc/comet/var'
+def get_private_copy(src):
+    if not src: return
+    f, p = tempfile.mkstemp(prefix='.', dir=private_dir)
+    src_file = open(src, 'r')
+    os.write(f, src_file.read())
+    src_file.close()
+    os.close(f)
+    os.system("chown %s %s" % (settings.COMET_USER, p))
+    return p
+
+# setup logging level
+logging.getLogger().setLevel(logging.INFO)
+
+# import django settings
+sys.path.append('/opt/skyproc/data_server')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "data_server.settings")
+from django.conf import settings
+
+# clean private dir
+os.system("rm -rf %s >/dev/null 2>&1" % private_dir)
+os.system("mkdir -p %s" % private_dir)
+os.system("chown %s %s" % (settings.COMET_USER, private_dir))
+os.system("chmod 500 %s" % private_dir)
+
+# set socket ssl options
+ssl_options = {}
+ssl_options['certfile'] = get_private_copy(settings.COMET_CERT_FILE)
+ssl_options['keyfile'] = get_private_copy(settings.COMET_KEY_FILE)
+ssl_options['ca_certs'] = get_private_copy(settings.COMET_CA_CERT)
+ssl_options['ssl_version'] = ssl.PROTOCOL_TLSv1
+if ssl_options['ca_certs']: ssl_options['cert_reqs'] = ssl.CERT_OPTIONAL
+
+# drop privileges
+os.setuid(pwd.getpwnam(settings.COMET_USER)[2])
+
+# global connections list
+CONNECTIONS = set()
 
 # Create router
 router = tornadio2.router.TornadioRouter(Connection, {'websocket_check':True})
@@ -118,17 +157,8 @@ application = tornado.web.Application(
         router.apply_routes([
                     (r"/datachanged", DataChangeHandler),
         ]),
-        socket_io_port = 8080, 
+        socket_io_port = settings.COMET_PORT, 
 )
 
-# setup logging
-#logging.getLogger().setLevel(logging.INFO)
-logging.getLogger().setLevel(logging.DEBUG)
-
 # start server
-tornadio2.server.SocketServer(application, ssl_options={
-        "certfile": "server.crt",
-        "keyfile": "server.key",
-        #"ca_certs": "bundle.crt",
-        #"cert_reqs": ssl.CERT_OPTIONAL,
-})
+tornadio2.server.SocketServer(application, ssl_options=ssl_options)
