@@ -21,7 +21,7 @@ Sp.utils.request = function(method, url, body, params, headers){
     params = params || {};
     headers = headers || {};
     if(method == 'POST' || method == 'PUT' || method == 'DELETE'){
-        var csrf_token = Ext.util.Cookies.get('csrftoken');
+        var csrf_token = Sp.app.getCookie('csrftoken');
         if (csrf_token){
             headers['X-CSRFToken'] = csrf_token;
         }

@@ -74,6 +74,7 @@ Ext.define('Sp.core.Application', {
     config: {
         baseUrl: window.location.pathname,
         cometUrl: 'https://' + window.location.hostname + ':8080',
+        dataUrl: window.location.pathname + 'data/',
     },
     
     constructor: function(config){
@@ -707,12 +708,6 @@ Ext.define('Sp.core.Application', {
         Data.newRequestsList.on('datachanged', this.updateRequestCounter, this);
         Data.notifications.on('datachanged', this.updateNotificationCounter, this);
         Comet.setReady(true);
-        
-        // collapse menu in small resolution
-        /*if (this.vp.getWidth() <= 1024){
-            this.vp.down('#mainMenuPanel').collapse();
-        }*/
-        
         Log("Ready");
     },
     
@@ -751,12 +746,24 @@ Ext.define('Sp.core.Application', {
         return typeof google !== 'undefined' && typeof google.maps !== 'undefined';
     },
     
+    getCookie: function(cookie_name){
+        return Ext.util.Cookies.get(cookie_name);
+    },
+    
     getUsername: function(){
         var username = Ext.clone(Ext.util.Cookies.get('sp_user'));
         if (username[0] == '"' && username[username.length-1] == '"'){
             return username.slice(1, username.length-1);
         }
         return username;
+    },
+    
+    getCsrfToken: function(){
+        return Ext.util.Cookies.get('csrftoken');
+    },
+    
+    generateUuid: function(){
+        return Ext.data.IdGenerator.get('uuid').generate();
     },
     
     lock: function(){

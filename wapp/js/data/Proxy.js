@@ -22,19 +22,23 @@ Ext.define('Sp.data.Proxy', {
     alias : 'proxy.spproxy',
     
     constructor: function(config){
+        var reader_config = {};
+        reader_config[Sp.app._mobile ? 'rootProperty' : 'root'] = 'data';    
         Ext.applyIf(config, {
-            reader: {
-                root: 'data',
-            },
+            reader: reader_config,
             timeout: Sp.core.Globals.AJAX_REQUEST_TIMEOUT,
             headers: {
-                'X-CSRFToken': Ext.util.Cookies.get('csrftoken'),
+                'X-CSRFToken': Sp.app.getCookie('csrftoken'),
             },
             limitParam: undefined,
-            listeners: {
-                exception: Sp.ui.misc.reportProxyException,
-            },
-        });        
+        });
+        try {
+            Ext.applyIf(config, {
+                listeners: {
+                    exception: Sp.ui.misc.reportProxyException,
+                },
+            });    
+        } catch (e){}
         this.callParent(arguments);
     },
     

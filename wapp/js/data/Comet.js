@@ -24,7 +24,9 @@ Ext.define('Sp.data.Comet', {
 
     constructor: function (config) {
         this.mixins.observable.constructor.call(this, config);
-        this.addEvents('datachanged');
+        if (!Sp.app._mobile){
+            this.addEvents('datachanged');
+        }
         this.ready = false;
         this.queue = [];
     },

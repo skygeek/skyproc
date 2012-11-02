@@ -143,7 +143,7 @@ Sp.utils.rpc = function(){
             config.callback = Ext.emptyFn;
         }
         var headers = {};
-        var csrf_token = Ext.util.Cookies.get('csrftoken');
+        var csrf_token = Sp.app.getCookie('csrftoken');
         if (csrf_token){
             headers['X-CSRFToken'] = csrf_token;
         }

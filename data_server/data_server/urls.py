@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     (r'^$', 'ui.views.home'),
     (r'^rpc/(?P<rpc_path>.*$)', 'rpc.__dispatcher__.dispatch'), # rpc dispatcher
     (r'^data/(?P<data_path>.*$)', 'data.__dispatcher__.dispatch'), # data dispatcher
+    (r'^app.json$', 'ui.views.mobile_app'), # mobile app json
     
     # SRP urls
     (r'^handshake/$', srp.views.handshake),

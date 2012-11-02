@@ -21,7 +21,6 @@ Ext.define('Sp.data.Manager', {
     
     config: {
         modelsNs: 'Sp.data.models',
-        dataBaseUrl: 'data/',
         modelsDef: null,
     },
     
@@ -31,6 +30,7 @@ Ext.define('Sp.data.Manager', {
         if (Ext.isString(this.config.modelsNs) && this.config.modelsNs.length > 0){
             this.setModelsNs(this.config.modelsNs + '.');
         }
+        this.defined_models = {};
     },
     
     loadAllModels: function(){
@@ -46,10 +46,10 @@ Ext.define('Sp.data.Manager', {
     },
     
     getModelUrl: function(modelName){
-        return Sp.app.getBaseUrl() + this.getDataBaseUrl() + modelName;
+        return Sp.app.getDataUrl() + modelName;
     },
         
-    define: function(modelName){
+    define: function(modelName, callback){
         if (!Ext.isString(modelName) || modelName.length == 0){
             logError('define(): you must specify a model name as a string');
             return;
@@ -59,7 +59,8 @@ Ext.define('Sp.data.Manager', {
         var name = this.getModelName(modelName);
         
         // return if the model is already defined
-        if (Ext.ModelManager.getModel(name)){
+        //if (Ext.ModelManager.getModel(name)){
+        if (this.defined_models[name]){
             return true;
         }
         
@@ -97,11 +98,8 @@ Ext.define('Sp.data.Manager', {
             associations[m.type].push(association);
             models.push(m.model);
         }
-        
-        // define the model
-        Ext.define(name, {
-            extend: 'Ext.data.Model',
-            idgen: 'uuid',
+            
+        var model_config = {
             idProperty: 'uuid',
             fields: modelDef.fields,
             validations: modelDef.validations,
@@ -112,7 +110,26 @@ Ext.define('Sp.data.Manager', {
                 type: 'spproxy',
                 url: this.getModelUrl(modelName),
             },
-        });
+        };
+        if (Sp.app._mobile){
+            var model_config = {
+                extend: 'Ext.data.Model',
+                config: model_config,
+            };
+            model_config.config.identifier = 'uuid';
+        } else {
+            model_config.extend = 'Ext.data.Model';
+            model_config.idgen = 'uuid';
+        }
+        
+        // define the model
+        this.defined_models[name] = true;
+        if (Ext.isFunction(callback)){
+            Ext.define(name, model_config, callback);
+            return;
+        } else {
+            Ext.define(name, model_config);
+        }
         
         // define related models
         for (var i = 0,m ; m = models[i] ; i++){
@@ -120,6 +137,22 @@ Ext.define('Sp.data.Manager', {
         }
         
         return true;
+    },
+    
+    defineAll: function(callback, scope){
+        if (scope){
+            callback = Ext.bind(callback, scope);
+        }
+        var models_count = Ext.Object.getSize(this.modelsDef);
+        var models_defined = 0;
+        for (var name in this.modelsDef){
+            this.define(name, function(){
+                models_defined++;
+                if (models_defined == models_count){
+                    callback();
+                }
+            });
+        }
     },
     
     create: function(modelName, modelData){
@@ -169,7 +202,7 @@ Ext.define('Sp.data.Manager', {
         storeConfig = storeConfig || {};
         storeConfig.model = this.getModelName(modelName);
         if (!storeConfig.storeId){
-            storeConfig.storeId = Ext.data.IdGenerator.get('uuid').generate();
+            storeConfig.storeId = Sp.app.generateUuid();
         }
         if (storeConfig.pageSize && !storeConfig.proxy){
             storeConfig.proxy = {};
@@ -227,7 +260,7 @@ Ext.define('Sp.data.Manager', {
         var copy = this.create(model);
         copy.copyFrom(record);
         copy.beginEdit();
-        copy.setId(Ext.data.IdGenerator.get('uuid').generate());
+        copy.setId(Sp.app.generateUuid());
         copy.set(values);
         copy.endEdit();
         copy.setDirty();

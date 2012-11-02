@@ -33,6 +33,20 @@ Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
 PasswordResetRequest = models.get_model(settings.DATA_APP, 'PasswordResetRequest')
 
+def page_404(req):
+    c = {}
+    c['title'] = "Page not found !"
+    c['msg'] = "The page you've requested does not exist at this address"
+    c['link_text'] = "Skyproc login page"
+    return render_to_response('msg.html', c)
+
+def page_500(req):
+    c = {}
+    c['title'] = "Oops !"
+    c['msg'] = "Sorry, something went wrong. Please try again."
+    c['link_text'] = "Skyproc home"
+    return render_to_response('msg.html', c)
+
 def login(req):
     c = context_processors.csrf(req)
     if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL:
@@ -59,7 +73,8 @@ def wapp(req):
     return r
 
 def home(req):
-    if req.user.is_authenticated() and not req.session.has_key('locked'):
+    v = auth.validate_request(req)
+    if v is True:
         return wapp(req)
     else:
         return login(req)
@@ -145,20 +160,12 @@ def password_reset_succeeded(req):
     c['link_text'] = "Enter Skyproc"
     return render_to_response('msg.html', c)
 
-def page_404(req):
-    c = {}
-    c['title'] = "Page not found !"
-    c['msg'] = "The page you've requested does not exist at this address"
-    c['link_text'] = "Skyproc login page"
-    return render_to_response('msg.html', c)
+def mobile_app(req):
+    v = auth.validate_request(req)
+    if v is True:
+        return render_to_response('mapp.json')
+    raise Http404
 
-def page_500(req):
-    c = {}
-    c['title'] = "Oops !"
-    c['msg'] = "Sorry, something went wrong. Please try again."
-    c['link_text'] = "Skyproc home"
-    return render_to_response('msg.html', c)
-    
 # webcron
 def weather_update(req):
     if req.META['REMOTE_ADDR'] != '127.0.0.1':
