@@ -28,6 +28,7 @@ from django.contrib.auth.models import User
 from utils import auth
 from utils import weather
 from utils import misc
+from utils import settings as sp_settings
 
 Person = models.get_model(settings.DATA_APP, 'Person')
 EmailValidation = models.get_model(settings.DATA_APP, 'EmailValidation')
@@ -165,6 +166,9 @@ def mobile_app(req):
     if v is True:
         return render_to_response('mapp.json')
     raise Http404
+
+def settings_form(req):
+    return sp_settings.render_form(req)
 
 # webcron
 def weather_update(req):

@@ -1,0 +1,5 @@
+<h2>Skyproc Appliance Settings</h2>
+<form action="/admin/" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Save" />
+</form>

@@ -8,9 +8,12 @@ handler404 = 'ui.views.page_404'
 handler500 = 'ui.views.page_500'
 
 urlpatterns = patterns('',
-    # admin
-    (r'^admin/', include(admin.site.urls)),
-
+    # django admin
+    (r'^dadmin/', include(admin.site.urls)),
+    
+    # appliance admin
+    (r'^admin/', 'ui.views.settings_form'),
+    
     # wapp
     (r'^$', 'ui.views.home'),
     (r'^rpc/(?P<rpc_path>.*$)', 'rpc.__dispatcher__.dispatch'), # rpc dispatcher

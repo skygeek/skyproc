@@ -140,7 +140,6 @@ ssl_options = {}
 ssl_options['certfile'] = get_private_copy(settings.COMET_CERT_FILE)
 ssl_options['keyfile'] = get_private_copy(settings.COMET_KEY_FILE)
 ssl_options['ca_certs'] = get_private_copy(settings.COMET_CA_CERT)
-ssl_options['ssl_version'] = ssl.PROTOCOL_TLSv1
 if ssl_options['ca_certs']: ssl_options['cert_reqs'] = ssl.CERT_OPTIONAL
 
 # drop privileges
