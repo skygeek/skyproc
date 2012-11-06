@@ -21,7 +21,7 @@ Ext.define('Sp.views.locations.Viewer', {
     extend: 'Ext.panel.Panel',
     
     initComponent: function() {
-        
+                
         this.taskRunner = new Ext.util.TaskRunner();
         this.next_loads_filter = null;
         this.locationRec = this.moduleData;
@@ -1116,6 +1116,7 @@ Ext.define('Sp.views.locations.Viewer', {
         this.down('#manageSep').show();
         this.down('#closeBt').show();
         this.down('#viewBt').hide();
+        this.updateMap();
     },
     
     buildRessourcesStore: function(){
@@ -1345,6 +1346,19 @@ Ext.define('Sp.views.locations.Viewer', {
         this.down('#balanceLabel').setText(balance_label, false);
     },
     
+    updateMap: function(){
+        var map = this.down('#viewMap');
+        var gmap = map.getMap();
+        if (gmap){
+            var map_infos = Sp.ui.data.getLocationMapInfos(this.locationRec, false);            
+            map.clearMapObjects();
+            gmap.setMapTypeId(map_infos.map_type);
+            gmap.setZoom(map_infos.map_zoom);
+            gmap.setCenter(map_infos.map_center);
+            map.addMapObjects(map_infos);
+        }
+    },
+    
     updateView: function(init, dont_update_buttons, dont_update_infos){
         var rec = this.locationRec, val;
         
@@ -1352,6 +1366,12 @@ Ext.define('Sp.views.locations.Viewer', {
             this.getRelationship();
         }
         
+        // dont update buttons when manage page is shown
+        var active_item = this.getLayout().getActiveItem();
+        if (this.is_mine && active_item && active_item.itemId == this.locationRec.data.uuid + '-editor'){
+            dont_update_buttons = true;
+        }
+            
         // update buttons visibility
         if (!dont_update_buttons){
             this.updateButtons();           
@@ -1479,16 +1499,7 @@ Ext.define('Sp.views.locations.Viewer', {
         this.updateWeather();
         
         // update map
-        var map = this.down('#viewMap');
-        var gmap = map.getMap();
-        if (gmap){
-            var map_infos = Sp.ui.data.getLocationMapInfos(rec, false);
-            map.clearMapObjects();
-            gmap.setMapTypeId(map_infos.map_type);
-            gmap.setZoom(map_infos.map_zoom);
-            gmap.setCenter(map_infos.map_center);
-            map.addMapObjects(map_infos); 
-        }
+        this.updateMap();
         
         // terrain infos
         // GPS pos

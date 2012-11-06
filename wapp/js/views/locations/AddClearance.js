@@ -223,10 +223,7 @@ Ext.define('Sp.views.locations.AddClearance', {
                             this.locationRec.Clearances().add(rec);
                             this.close();
                             if (this.standalone){
-                                Notify( TR("Clearance issued"), Ext.String.format(
-                                        TR("Clearance successfully issued for '{0}'"), 
-                                        Sp.ui.misc.formatFullname(p, Data.me.data.name_order, true)
-                                ));
+                                Notify( TR("Clearance successfully issued"));
                             }
                         }, this);   
                     }

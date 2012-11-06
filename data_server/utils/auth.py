@@ -107,11 +107,7 @@ def create_pwd_reset_request(user):
     p = Person.objects.getOwn(user)
     reset_link = misc.get_tmp_link()
     PasswordResetRequest.objects.create(person=p, reset_link=reset_link)
-    
-    # do not send email in debug mode
-    if settings.DEBUG:
-        return
-    
+        
     # send pwd reset email
     subject = "Reset password for Skyproc.com"
     name = "%s %s" % (p.first_name, p.last_name)

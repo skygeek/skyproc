@@ -133,6 +133,7 @@ def __bill_slot(slot, membership=None, bill_for_member=None):
                     buyed_item.consuming = True
                 buyed_item.usage_count = F('usage_count') + 1
             else:
+                buyed_item.usage_count = 1
                 buyed_item.consumed = True
             buyed_item.save(force_update=True)
             # item is already paid

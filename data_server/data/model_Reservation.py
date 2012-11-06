@@ -33,7 +33,7 @@ class Reservation(base.Model):
 
 class ReservationItem(base.Model):
     
-    relations = 'Person Phantom'
+    relations = 'Person Phantom ReservationHire'
     
     reservation = models.ForeignKey('Reservation')
     
@@ -49,6 +49,8 @@ class ReservationItem(base.Model):
         ordering = ["created"]
 
 class ReservationHire(base.Model):
+    
+    relations = None
     
     item = models.ForeignKey('ReservationItem')
     

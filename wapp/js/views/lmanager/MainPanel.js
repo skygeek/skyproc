@@ -812,7 +812,12 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         this.actionRpc(action.record, 'misc.undelete', [Data.getSpModelName(action.record), action.record.data.uuid], have_related);
         stack.push(action);
         
-        if (model_name == 'Slot'){
+        if (model_name == 'Load'){
+            var planner = this.down('#plannersCtx').getComponent(action.record.data.location + '-planner');
+            if (planner){
+                planner.collapseLoad(action.record);
+            }
+        } else if (model_name == 'Slot'){
             var loadRec = Sp.utils.findLoad(action.record.data.load);
             if (loadRec){
                 var planner = this.down('#plannersCtx').getComponent(loadRec.data.location + '-planner');

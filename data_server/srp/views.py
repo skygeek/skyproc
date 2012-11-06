@@ -52,7 +52,7 @@ def generate_verifier(salt, username, password):
 def register_salt(request):
     if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
         raise Http404
-    if hasattr(settings, 'CAPTCHA_KEY') and settings.CAPTCHA_KEY is not None:
+    if hasattr(settings, 'CAPTCHA_KEY') and settings.CAPTCHA_KEY:
         try:
             result = captcha.submit(request.POST["C"], request.POST["R"], settings.CAPTCHA_KEY, request.META['REMOTE_ADDR'])
             if not result.is_valid: raise Exception
@@ -65,10 +65,16 @@ def register_salt(request):
         return HttpResponse("<error>%s</error>" % error, mimetype="text/xml")
     request.session["srp_name"] = request.POST["I"]
     request.session["srp_salt"] = generate_salt()
+    request.session["srp_phase2"] = True
     return HttpResponse("<salt>%s</salt>" % request.session["srp_salt"], mimetype="text/xml")
 
 def alter_salt(request):
     if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
+        raise Http404
+    try: srp_phase2 = request.session["srp_phase2"] == True
+    except: srp_phase2 = False
+    valid = utils.auth.validate_request(request)
+    if valid is not True and not srp_phase2:
         raise Http404
     try: User.objects.get(username=request.POST["I"])
     except ObjectDoesNotExist: raise Http404
@@ -80,16 +86,26 @@ def alter_salt(request):
 def register_user(request):
     if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
         raise Http404
+    try: srp_phase2 = request.session["srp_phase2"] == True
+    except: srp_phase2 = False
+    if not srp_phase2:
+        raise Http404
     u = SRPUser(salt=request.session["srp_salt"], username=request.session["srp_name"], verifier=request.POST["v"])
     u.save()
     utils.auth.register_sp_user(request, u)
     del request.session["srp_salt"]
     del request.session["srp_name"]
+    del request.session["srp_phase2"]
     return HttpResponse("<ok/>", mimetype="text/xml")
 
 # alter user password
 def alter_user(request):
     if hasattr(settings, 'ALLOW_SELF_REGISTERING') and not settings.ALLOW_SELF_REGISTERING:
+        raise Http404
+    try: srp_phase2 = request.session["srp_phase2"] == True
+    except: srp_phase2 = False
+    valid = utils.auth.validate_request(request)
+    if valid is not True and not srp_phase2:
         raise Http404
     try: u = SRPUser.objects.get(username=request.session["srp_name"])
     except ObjectDoesNotExist: raise Http404
@@ -102,6 +118,8 @@ def alter_user(request):
     login(request, user)
     del request.session["srp_salt"]
     del request.session["srp_name"]
+    try: del request.session["srp_phase2"]
+    except KeyError: pass
     return HttpResponse("<ok/>", mimetype="text/xml")
 
 # alter user email (when emails are used as usernames)

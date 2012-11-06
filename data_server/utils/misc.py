@@ -183,10 +183,10 @@ def is_clear_member(membership):
     if clr.end_date:
         end_date = clr.end_date
     elif clr.duration:
-        if clr.unit == 'd': period = datetime.timedelta(days=1)
-        elif clr.unit == 'w': period = datetime.timedelta(weeks=1)
-        elif clr.unit == 'm': period = datetime.timedelta(days=30)
-        elif clr.unit == 'y': period = datetime.timedelta(days=365)
+        if clr.unit == 'd': period = datetime.timedelta(days=clr.duration-1)
+        elif clr.unit == 'w': period = datetime.timedelta(weeks=clr.duration)
+        elif clr.unit == 'm': period = datetime.timedelta(days=30)*clr.duration+datetime.timedelta(days=1)
+        elif clr.unit == 'y': period = datetime.timedelta(days=365)*clr.duration
         else: period = datetime.timedelta()
         end_date = clr.start_date + period
     else:

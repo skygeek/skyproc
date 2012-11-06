@@ -28,6 +28,7 @@ from django.contrib.auth.models import User
 from utils import auth
 from utils import weather
 from utils import misc
+from utils import maintenance
 from utils import settings as sp_settings
 
 Person = models.get_model(settings.DATA_APP, 'Person')
@@ -52,11 +53,13 @@ def login(req):
     c = context_processors.csrf(req)
     if hasattr(settings, 'REQUIRE_EMAIL') and settings.REQUIRE_EMAIL:
         c['require_email'] = 1
+        c['confirm_email'] = 1 if (hasattr(settings, 'CONFIRM_EMAIL') and settings.CONFIRM_EMAIL) else 0
         c['auto_login'] = 1 if (not hasattr(settings, 'CONFIRM_EMAIL') or not settings.CONFIRM_EMAIL) else 0
         c['username_placeholder'] = 'Email address'
         c['reset_username_placeholder'] = 'Your email address'
     else:
         c['require_email'] = 0
+        c['confirm_email'] = 0
         c['auto_login'] = 1
         c['username_placeholder'] = 'Login name'
         c['reset_username_placeholder'] = 'Your login name'
@@ -132,6 +135,7 @@ def reset_password(req, reset_link):
     if req.method == 'GET' and reset_link:
         try: r = PasswordResetRequest.objects.get(reset_link=reset_link)
         except PasswordResetRequest.DoesNotExist: raise Http404
+        req.session["srp_phase2"] = True
         c = context_processors.csrf(req)
         c['email'] = r.person.email
         return render_to_response('pwd_reset.html', c)
@@ -171,8 +175,17 @@ def settings_form(req):
     return sp_settings.render_form(req)
 
 # webcron
-def weather_update(req):
+def __webcron_exec(req, function):
     if req.META['REMOTE_ADDR'] != '127.0.0.1':
         raise Http404
-    weather.update()
+    function()
     return HttpResponse()
+
+def weather_update(req):
+    return __webcron_exec(req, weather.update)
+
+def purge_deleted(req):
+    return __webcron_exec(req, maintenance.purge_deleted)
+
+def purge_expired(req):
+    return __webcron_exec(req, maintenance.purge_expired)

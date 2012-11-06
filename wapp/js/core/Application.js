@@ -95,8 +95,6 @@ Ext.define('Sp.core.Application', {
             });
         }
         this.additional_data = {};
-        // variable for auto collapse menu on first clisk
-        this.menu_never_clicked = true;
     },
     
     appOverrides: function(){
@@ -114,7 +112,28 @@ Ext.define('Sp.core.Application', {
         Ext.tip.QuickTipManager.init();
         Ext.getBody().mask('Loading ' + Sp.core.Globals.BRAND);
         Comet.ready = false;
+        this.preloadMainImages();
         this.loadDataModels();
+    },
+    
+    preloadMainImages: function() {
+        Sp.utils.preloadImage('/static/images/sp_icon.png');
+        Sp.utils.preloadImage('/static/images/icons/user.png');
+        Sp.utils.preloadImage('/static/images/icons/info_white.png');
+        Sp.utils.preloadImage('/static/images/icons/member.png');
+        Sp.utils.preloadImage('/static/images/icons/arrow_white.png');
+        Sp.utils.preloadImage('/static/images/icons/parachute.png');
+        Sp.utils.preloadImage('/static/images/icons/calendar.png');
+        Sp.utils.preloadImage('/static/images/icons/plane.png');
+        Sp.utils.preloadImage('/static/images/icons/book.png');
+        Sp.utils.preloadImage('/static/images/icons/report.png');
+        Sp.utils.preloadImage('/static/images/icons/user.png');
+        Sp.utils.preloadImage('/static/images/icons/preferences.png');
+        Sp.utils.preloadImage('/static/images/icons/help.png');
+        Sp.utils.preloadImage('/static/images/icons/whatsthis.png');
+        Sp.utils.preloadImage('/static/images/icons/about.png');
+        Sp.utils.preloadImage('/static/images/icons/lock.png');
+        Sp.utils.preloadImage('/static/images/icons/logout.png');
     },
         
     loadDataModels: function(){
@@ -386,7 +405,12 @@ Ext.define('Sp.core.Application', {
                                     handler: function(){
                                         var module = Sp.app.showModule({id:'settings'});
                                         module.showModule({id: 'home'});
+                                        if (this.vp.getWidth() <= 1024 && !Sp.app.mainMenuAutoCollapsed){
+                                            this.vp.down('#mainMenuPanel').collapse();
+                                            Sp.app.mainMenuAutoCollapsed = true;
+                                        }                                
                                     },
+                                    scope: this,
                                 },
                                 '-',
                                 {
@@ -456,10 +480,10 @@ Ext.define('Sp.core.Application', {
                         listeners: {
                             itemclick: function(v, r){
                                 this.showModule({id:r.data.id});
-                                if (this.menu_never_clicked && this.vp.getWidth() <= 1024){
+                                if (this.vp.getWidth() <= 1024 && !Sp.app.mainMenuAutoCollapsed){
                                     this.vp.down('#mainMenuPanel').collapse();
+                                    Sp.app.mainMenuAutoCollapsed = true;
                                 }
-                                this.menu_never_clicked = false;
                             },
                             itemcontextmenu: this.onMainMenuCtxMenu,
                             scope: this,

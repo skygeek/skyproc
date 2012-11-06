@@ -1219,6 +1219,7 @@ Ext.define('Sp.views.lmanager.Planner', {
     deleteLoad: function(loadRec){
         var store = this.getStore();
         store.remove(loadRec);
+        delete this.slots_grids[loadRec.data.uuid];
         this.actionOperation(loadRec, 'destroy');
         this.storeAction(this.locationRec.data.uuid, {
             action: 'destroy',
@@ -1625,6 +1626,7 @@ Ext.define('Sp.views.lmanager.Planner', {
             loadRec: loadRec,
             cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
             resetActions: this.resetActions,
+            slots_grids: this.slots_grids,
         }).show();
     },
     
@@ -1633,7 +1635,15 @@ Ext.define('Sp.views.lmanager.Planner', {
             loadRec: loadRec,
             cancelBoardingTimerUpdater: Ext.bind(this.cancelBoardingTimerUpdater, this),
             resetActions: this.resetActions,
+            slots_grids: this.slots_grids,
         }).show();
+    },
+    
+    collapseLoad: function(loadRec){
+        var idx = this.locationRec.Loads().indexOf(loadRec);
+        if (idx != -1){
+            this.getPlugin('expand').collapseRow(idx);
+        }
     },
     
     collapseAll: function(){
@@ -1890,7 +1900,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                         }
                         if (pp.bill_person_data || pp.bill_person){
                             undo_values.payer = event.record.data.payer;
-                            edit_values.payer = pp.bill_person_data || pp.bill_person;
+                            edit_values.payer = pp.bill_person_data ? pp.bill_person_data : pp.bill_person;
                         }
                     }
                 } else if (field == 'phantom'){ // default phantom catalog

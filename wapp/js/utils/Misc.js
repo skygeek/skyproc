@@ -128,3 +128,7 @@ Sp.utils.getWebsiteLink = function(url){
 Sp.utils.getEmailLink = function(email){
     return Ext.String.format("<a href='mailto:{0}' target='_blank'>{0}</a>", Ext.String.htmlEncode(email));
 }
+
+Sp.utils.preloadImage = function(image_url){
+    new Image().src = image_url;
+}

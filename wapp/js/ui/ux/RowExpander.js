@@ -205,6 +205,23 @@ Ext.define('Ext.ux.RowExpander', {
             view.fireEvent('collapsebody', rowNode, record, nextBd.dom);
         }
     },
+    
+    collapseRow: function(rowIdx) {
+        var view = this.view,
+            rowNode = view.getNode(rowIdx),
+            row = Ext.get(rowNode),
+            nextBd = Ext.get(row).down(this.rowBodyTrSelector),
+            record = view.getRecord(rowNode),
+            grid = this.getCmp();
+
+        if (!row.hasCls(this.rowCollapsedCls)) {
+            row.addCls(this.rowCollapsedCls);
+            nextBd.addCls(this.rowBodyHiddenCls);
+            this.recordsExpanded[record.internalId] = false;
+            view.refreshSize();
+            view.fireEvent('collapsebody', rowNode, record, nextBd.dom);
+        }
+    },
 
     onDblClick: function(view, cell, rowIdx, cellIndex, e) {
         this.toggleRow(rowIdx);

@@ -121,6 +121,7 @@ Ext.define('Sp.views.lmanager.DeleteLoad', {
             }
             this.loadRec.store.remove(this.loadRec, true);
             this.resetActions(this.loadRec.data.location);
+            delete this.slots_grids[this.loadRec.data.uuid];
             this.close();
         }, this);
     },

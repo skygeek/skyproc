@@ -49,4 +49,6 @@ urlpatterns = patterns('',
     
     # webcron
     (r'^webcron/weather-update/$', 'ui.views.weather_update'),
+    (r'^webcron/purge-deleted/$', 'ui.views.purge_deleted'),
+    (r'^webcron/purge-expired/$', 'ui.views.purge_expired'),
 )

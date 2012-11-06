@@ -113,7 +113,11 @@
 			
 			<div class="links_b links_btm clearfix">
 			    {% if require_email %}
-                    <span class="linkform"><a href="#reset_password">Forgot password?</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="?v=mobile">Mobile login</a></span>
+                    {% if confirm_email %}
+                        <span class="linkform"><a href="#reset_password">Forgot password?</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="?v=mobile">Mobile login</a></span>
+                    {% else %}
+                        <span class="linkform"><a href="?v=mobile">Mobile login</a></span>
+                    {% endif %}
                 {% else %}
                     <span class="linkform"><a href="?v=mobile">Mobile login</a></span>
                 {% endif %}
