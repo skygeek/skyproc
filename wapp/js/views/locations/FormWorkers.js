@@ -94,9 +94,9 @@ Ext.define('Sp.views.locations.FormWorkers', {
                                     width: 80,
                                     renderer: function(value, metaData, record){
                                         if (record.data.available_fulltime){
-                                            return "<img src='/static/images/icons/available.png'/> " + TR("YES");  
+                                            return "<img src='/static/images/icons/available.png'/> " + TR("Yes");  
                                         } else {
-                                            return "<img src='/static/images/icons/unavailable.png'/> " + TR("NO");
+                                            return "<img src='/static/images/icons/unavailable.png'/> " + TR("No");
                                         }
                                     },
                                 },

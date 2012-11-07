@@ -31,6 +31,7 @@ Ext.define('Sp.ui.PersonCombo', {
             allowPhantom: false,
             returnMembership: false,
             selfCreated: false,
+            maxChars: 4,
         });
         
         if (this.locationRec){
@@ -88,6 +89,15 @@ Ext.define('Sp.ui.PersonCombo', {
             },
         }); 
         Ext.applyIf(this.listeners, {
+            beforequery: {
+                fn: function(qe){
+                    if (Ext.isNumber(this.maxChars) && qe.query.length >= this.maxChars){
+                        this.collapse();
+                        return false;
+                    }
+                },
+                scope: this,
+            },
             focus: {
                 fn: function(me){
                     if (me.getRawValue().trim().length == 0){

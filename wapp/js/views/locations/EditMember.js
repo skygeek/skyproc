@@ -527,7 +527,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                                     create_model: 'MembershipCatalog',
                                                                     parent_field: 'membership',
                                                                     parent_uuid: this.membershipRec.data.uuid,
-                                                                    title: TR("Select additional available catalog items"),
+                                                                    title: TR("Additional available catalog items"),
                                                                 }).show();
                                                             },
                                                             scope: this,
@@ -544,7 +544,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                                     create_model: 'MembershipExtraCatalog',
                                                                     parent_field: 'membership',
                                                                     parent_uuid: this.membershipRec.data.uuid,
-                                                                    title: TR("Select extra catalog items"),
+                                                                    title: TR("Extra catalog items"),
                                                                 }).show();
                                                             },
                                                             scope: this,

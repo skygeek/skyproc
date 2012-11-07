@@ -202,7 +202,7 @@ Ext.define('Sp.views.locations.Viewer', {
                             this.leaveLocation();
                         } else {
                             Ext.MessageBox.confirm( TR("Confirmation"),
-                                Ext.String.format(TR("Are you sure you want to leave {0}"), this.locationRec.data.name),
+                                Ext.String.format(TR("Are you sure you want to leave {0} ?"), this.locationRec.data.name),
                                 function(btn){
                                     if (btn == 'yes'){
                                         this.leaveLocation();
@@ -1164,7 +1164,7 @@ Ext.define('Sp.views.locations.Viewer', {
         Ext.Object.each(roles, function(k,v){
             store.add({
                 order_index: v.order_index,
-                label: "<img src='/static/images/icons/roles/" + k + ".png'/> " + v.label,
+                label: "<img src='/static/images/icons/roles/" + k + ".png'/> " + TR(v.label),
                 count: v.count,
             }); 
         });
@@ -1293,10 +1293,10 @@ Ext.define('Sp.views.locations.Viewer', {
             // source and datetime
             var src_label = "<dl style='font-size: 11px'>";
             var station = infos.data.station || TR("N/A");
-            src_label += Ext.String.format("<dt><span class='header-color'>Station:</span>&nbsp;{0}</dt>", station);
-            src_label += Ext.String.format("<dt><span class='header-color'>Last update:</span>&nbsp;{0}</dt>", 
+            src_label += Ext.String.format("<dt><span class='header-color'>{0}:</span>&nbsp;{1}</dt>", TR("Station"), station);
+            src_label += Ext.String.format("<dt><span class='header-color'>{0}:</span>&nbsp;{1}</dt>", TR("Last update"),
                             Ext.Date.format(infos.data.datetime, Data.me.data.time_format));
-            src_label += Ext.String.format("<dt><span class='header-color'>Sunset:</span>&nbsp;{0}</dt>", 
+            src_label += Ext.String.format("<dt><span class='header-color'>{0}:</span>&nbsp;{1}</dt>", TR("Sunset"), 
                             Ext.Date.format(infos.data.sunset, Data.me.data.time_format));
             src_label += '</dl>';
             this.down('#weatherSrcDate').setText(src_label, false);

@@ -23,13 +23,14 @@ Ext.define('Sp.ui.TimezoneCombo', {
     
     initComponent: function() {
         
-        Ext.applyIf(this, {
+        Ext.apply(this, {
             store: Data.timezones,
             queryMode: 'local',
             forceSelection: true,
             editable: true,
             typeAhead: true,
             valueField: 'uuid',
+            displayField: 'name',
             lastQuery: '',
             emptyText: TR("Automatic"),
             tpl: Ext.create('Ext.XTemplate',

@@ -26,7 +26,7 @@ Ext.define('Sp.views.global.Requests', {
         this.restore_focus = true;
                 
         Ext.apply(this, {
-            width: 320,
+            width: 340,
             height: (Data.newRequestsList.getCount() == 0 ? 80 : 410),
             resizable: false,
             draggable: false,

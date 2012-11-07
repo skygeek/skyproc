@@ -316,6 +316,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                         editable: false,
                         valueField: 'code',
                         displayField: 'label',
+                        matchFieldWidth: false,
                         tpl: Ext.create('Ext.XTemplate',
                             '<tpl for=".">',
                                 '<div class="x-boundlist-item">',
@@ -670,6 +671,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                         displayField: 'label',
                         valueField: 'uuid',
                         lastQuery: '',
+                        matchFieldWidth: false,
                         listeners: {
                             focus: function(me){
                                 me.expand();

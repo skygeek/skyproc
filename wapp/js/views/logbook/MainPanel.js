@@ -38,7 +38,7 @@ Ext.define('Sp.views.logbook.MainPanel', {
         Data.jumpTypes.each(function(t){
             jump_type_menu.push({
                 jump_type: t.data.label,
-                text: TR(t.data.label),
+                text: t.data.label,
                 checked: false,
             });
         });

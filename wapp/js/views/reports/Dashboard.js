@@ -330,7 +330,7 @@ Ext.define('Sp.views.reports.Dashboard', {
                                         {
                                             dataIndex: 'label',
                                             header: TR("Payment Category"),
-                                            flex: 1,
+                                            width: 140,
                                             summaryRenderer: function(){
                                                 return TR("TOTALS");
                                             }
@@ -339,7 +339,7 @@ Ext.define('Sp.views.reports.Dashboard', {
                                             dataIndex: 'count',
                                             header: TR("Total Slots"),
                                             align: 'center',
-                                            width: 70,
+                                            width: 80,
                                             summaryType: 'sum',
                                         },
                                         {
@@ -414,7 +414,7 @@ Ext.define('Sp.views.reports.Dashboard', {
                                                     dataIndex: 'count',
                                                     header: TR("Loads"),
                                                     align: 'center',
-                                                    width: 60,
+                                                    width: 62,
                                                 },
                                             ],
                                         },
@@ -439,7 +439,7 @@ Ext.define('Sp.views.reports.Dashboard', {
                                                     dataIndex: 'loads',
                                                     header: TR("Loads"),
                                                     align: 'center',
-                                                    width: 60,
+                                                    width: 62,
                                                 },
                                                 {
                                                     dataIndex: 'slots',

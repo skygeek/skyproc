@@ -185,9 +185,14 @@ Ext.define('Sp.views.locations.AddClearance', {
         // check duplicate
         Sp.utils.rpc('clearance.hasOne', [this.locationRec.data.uuid, person_uuid], function(has_clearance){
             if (has_clearance){
+                if (this.personRequest){
+                    var msg = TR("You have already sent a clearance request");
+                } else {
+                    var msg = Ext.String.format(TR("Member '{0}' already has a clearance"), person_name);
+                }
                 Ext.MessageBox.show({
                     title: TR("Clearance exists"),
-                    msg: Ext.String.format(TR("Member '{0}' already has a clearance"), person_name),
+                    msg: msg,
                     buttons: Ext.MessageBox.OK,
                     icon: Ext.MessageBox.ERROR,
                 });

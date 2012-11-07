@@ -342,7 +342,7 @@ Sp.ui.misc.getCatalogElementLabel = function(element){
             label.full += "<table><tr>";
             label.full += Ext.String.format("<td>+ {0}&nbsp;&nbsp;</td>", h.data.count);
             label.full += Ext.String.format("<td><img src='/static/images/icons/roles/{0}.png'></td>", wt.data.type);
-            label.full += Ext.String.format("<td>&nbsp;{0}</td>", h.data.count == 1 ? wt.data.label : wt.data.plural_label);
+            label.full += Ext.String.format("<td>&nbsp;{0}</td>", h.data.count == 1 ? TR(wt.data.label) : TR(wt.data.plural_label));
             label.full += "</tr></table>";
             workers_count += h.data.count;
         }

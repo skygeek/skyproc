@@ -69,7 +69,7 @@ Ext.define('Sp.views.global.Notifications', {
         }
                 
         Ext.apply(this, {
-            width: 320,
+            width: 340,
             height: (notif_count == 0 ? 80 : 410),
             resizable: false,
             draggable: false,

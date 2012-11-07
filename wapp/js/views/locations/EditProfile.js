@@ -255,7 +255,7 @@ Ext.define('Sp.views.locations.EditProfile', {
                                             create_model: 'ProfileCatalog',
                                             parent_field: 'profile',
                                             parent_uuid: this.profileRec.data.uuid,
-                                            title: TR("Select additional available catalog items"),
+                                            title: TR("Additional available catalog items"),
                                         }).show();
                                     },
                                     scope: this,
@@ -272,7 +272,7 @@ Ext.define('Sp.views.locations.EditProfile', {
                                             create_model: 'ProfileExtraCatalog',
                                             parent_field: 'profile',
                                             parent_uuid: this.profileRec.data.uuid,
-                                            title: TR("Select extra catalog items"),
+                                            title: TR("Extra catalog items"),
                                         }).show();
                                     },
                                     scope: this,

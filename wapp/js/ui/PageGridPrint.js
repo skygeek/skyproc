@@ -26,7 +26,7 @@ Ext.define('Sp.ui.PageGridPrint', {
         var multipages = store.getTotalCount() > store.pageSize;
         
         Ext.apply(this, {
-            width: 400,
+            width: 410,
             height: 220,
             modal: true,
             resizable: false,

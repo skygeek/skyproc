@@ -27,14 +27,14 @@ Ext.define('Sp.views.locations.EditWorker', {
         
         if (this.workerRec){
             var rec = this.workerRec;
-            var title = rec.data.name + ' - ' + TR("Edit staff member");
+            var title = rec.data.name + ' - ' + TR("Edit Staff member");
             var ok_text = TR("Apply");
         } else {
             this.workerRec = Data.create('Worker', {
                 location: this.locationRec.data.uuid,
             });
             var rec = this.workerRec;
-            var title = TR("New staff member");
+            var title = TR("New Staff member");
             var ok_text = TR("Add");
             this.new_worker = true;
         }

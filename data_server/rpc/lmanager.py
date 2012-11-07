@@ -290,7 +290,7 @@ def take_slot(person_uuid, load_uuid, user_data):
     try: load = Load.objects.get_by_natural_key(load_uuid)
     except ObjectDoesNotExist: raise Http404
     
-    if not load.location.enable_self_manifesting or load.state != 'P':
+    if not load.location.enable_self_manifesting or load.state not in ('P', 'B'):
         raise Http404
     
     try: membership = LocationMembership.objects.get(location=load.location, person=req_person, deleted=False)

@@ -211,7 +211,7 @@ Ext.define('Sp.views.reports.LoadsReport', {
                         {
                             dataIndex: 'number',
                             header: TR("Load"),
-                            width: 50,
+                            width: 55,
                             align: 'center',
                         },
                         {
@@ -245,7 +245,7 @@ Ext.define('Sp.views.reports.LoadsReport', {
                         {
                             dataIndex: 'postpaid_slots',
                             header: TR("Postpaid"),
-                            width: 60,
+                            width: 62,
                             align: 'center',
                         },
                         {
@@ -431,7 +431,7 @@ Ext.define('Sp.views.reports.LoadsReport', {
                 {
                     dataIndex: 'exit_order',
                     header: TR("Exit"),
-                    width: 45,
+                    width: 55,
                     align: 'center',
                 },
                 {
@@ -482,8 +482,9 @@ Ext.define('Sp.views.reports.LoadsReport', {
                         header += Ext.String.format("<br>{0}: {1}", TR("Aircraft"), d.aircraft_reg);
                         header += Ext.String.format("<br>{0}: {1}", TR("Total billed"), Sp.ui.data.getPricesLabel(d.prices));
                         header += Ext.String.format("<br>{0}: {1}<br><br>", TR("Slots summary"), 
-                                            Ext.String.format("{0} ({1} Staff, {2} Prepaid, {3} Postpaid, {4} Unpaid)",
-                                            d.total_slots, d.staff_slots, d.prepaid_slots, d.postpaid_slots, d.unpaid_slots));
+                                            Ext.String.format("{0} ({1} {5}, {2} {6}, {3} {7}, {4} {8})",
+                                            d.total_slots, d.staff_slots, d.prepaid_slots, d.postpaid_slots, d.unpaid_slots,
+                                            TR("Staff"), TR("Prepaid"), TR("Postpaid"), TR("Unpaid")));
                         Ext.ux.grid.Printer.documentTitle = TR("Load details");
                         Ext.ux.grid.Printer.mainTitle = header;
                         Ext.ux.grid.Printer.print(this.slots_grids[me.loadRec.data.uuid]);

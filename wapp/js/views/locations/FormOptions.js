@@ -233,7 +233,7 @@ Ext.define('Sp.views.locations.FormOptions', {
                                             title: TR("Archiving periods"),
                                             defaults: {
                                                 anchor: '100%',
-                                                labelWidth: 220,
+                                                labelWidth: 240,
                                             },
                                             items: [
                                                 {

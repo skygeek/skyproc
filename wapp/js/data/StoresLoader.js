@@ -33,7 +33,7 @@ Ext.define('Sp.data.StoresLoader', {
     
     load: function(callback){
         this.waitMsgBox.show({
-            progressText: TR("<span class='spfont'>Loading Data, Please Wait...</span>"),
+            progressText: Ext.String.format("<span class='spfont'>{0}</span>", TR("Loading Data, Please Wait...")),
             progress: true,
             closable: false,
         });

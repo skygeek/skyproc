@@ -222,6 +222,7 @@ Ext.define('Sp.data.Manager', {
             for (var i=0,f ; f = fields[i] ; i++){
                 r.set(f, TR(r.get(f)));
             }
+            r.commit();
         });
     },
     

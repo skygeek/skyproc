@@ -328,7 +328,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                         {
                                                             dataIndex: 'altitude',
                                                             header: Ext.String.format(TR("Altitude ({0})"), rec.data.altitude_unit),
-                                                            flex: 1,
+                                                            width: 90,
                                                             align: 'center',
                                                             editor: {
                                                                 xtype: 'numberfield',
@@ -346,7 +346,7 @@ Ext.define('Sp.views.locations.EditAircraft', {
                                                         {
                                                             dataIndex: 'max_exits',
                                                             header: TR("Maximum Exits"),
-                                                            flex: 1,
+                                                            width: 80,
                                                             align: 'center',
                                                             editor: {
                                                                 xtype: 'numberfield',

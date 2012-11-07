@@ -198,7 +198,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                 {
                                                     name: 'jump_type_auto',
                                                     xtype: 'checkbox',
-                                                    boxLabel: TR("Always use the default Work"),
+                                                    boxLabel: TR("Always use this jump work"),
                                                     hideEmptyLabel: false,
                                                 },
                                             ],
@@ -240,7 +240,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                             title: TR("Pricing details"),
                                             flex: 1,
                                             layout: 'fit',
-                                            autoScroll: true,
+                                            scroll: 'vertical',
                                             items: [
                                                 {
                                                     xtype: 'grid',
@@ -472,7 +472,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                     ],
                                 },
                                 {
-                                    title: TR("<span class='disabled-text'>Ressources</span>"),
+                                    title: "<span class='disabled-text'>" + TR("Resources") + "</span>",
                                     icon: '/static/images/icons/ressources.png',
                                     padding: 10,
                                     layout: {
