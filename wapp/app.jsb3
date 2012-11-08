@@ -122,6 +122,10 @@ GNU Affero General Public License for more details.",
                     "name": "PageGridPrint.js",
                     "path": "/static/js/ui/"
                 },
+                {
+                    "name": "Help.js",
+                    "path": "/static/js/ui/"
+                },
                 
                 
                 {

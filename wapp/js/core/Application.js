@@ -416,7 +416,9 @@ Ext.define('Sp.core.Application', {
                                 {
                                     text: TR("Help Center"), 
                                     icon:'/static/images/icons/help.png',
-                                    disabled: true,
+                                    handler: function(){
+                                        Ext.create('Sp.ui.Help').show();
+                                    },
                                 },
                                 {
                                     text: TR("What's This"), 
@@ -791,8 +793,7 @@ Ext.define('Sp.core.Application', {
     },
     
     lock: function(){
-        var w = Ext.create('Sp.ui.LockWindow');
-        w.show();
+        Ext.create('Sp.ui.LockWindow').show();
     },
         
 });

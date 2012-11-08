@@ -849,6 +849,12 @@ Sp.utils.i18n.STRINGS = {
     "Afin d'appliquer le changement de la langue, {0} doit être rechargé.<br/>Voulez-vous recharger maintenant ?",   
 
 "You have no dropzone, please create one in the 'Dropzones' menu.": 
-"Vous n'avez aucune dropzone ! Veuillez en créer une dans le menu 'Dropzones'.", 
+"Vous n'avez aucune dropzone ! Veuillez en créer une dans le menu 'Dropzones'.",
+
+"Introduction": "Introduction",
+"Catalogs": "Catalogues",
+"Clearances System": "système de Clearances",   
+"'{0}' chapter is not yet written...": "Le chapitre '{0}' n'a pas ecnore été redigé...",
+
 
 }
