@@ -427,3 +427,27 @@ Sp.ui.misc.buildDefaultPricesStore = function(locationRec, record, item_uuid, cu
         }
     }
 }
+
+Sp.ui.misc.updateLifManagerLocations = function(){
+    if (!Sp.app.isOp()){
+        return;
+    }
+    var p = Sp.app.vp.down('#liftManagerMainPanel');
+    if (p){
+        p.buildLocationsStore(true);
+    }
+}
+
+Sp.ui.misc.trOperationNote = function(label){
+    var tr_strings = [
+        "Deposit operation",
+        "Withdraw operation",
+        "Buyed",
+        "Refund",
+        "Billed",
+    ];
+    for (var i=0,s ; s = tr_strings[i] ; i++){
+        label = label.replace(s, TR(s));
+    }
+    return label;
+}

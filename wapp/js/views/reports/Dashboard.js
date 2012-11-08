@@ -127,7 +127,7 @@ Ext.define('Sp.views.reports.Dashboard', {
             this.setLocation(r.data.uuid);
         } else {
             this.getDockedItems('toolbar[dock="top"]')[0].disable();
-            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one."), TR("No dropzone"));
+            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one in the 'Dropzones' menu."), TR("No dropzone"));
         }
     },
     
@@ -190,6 +190,12 @@ Ext.define('Sp.views.reports.Dashboard', {
                     count: data.totals.unpaid.count,
                     prices: data.totals.unpaid.prices,
                     ratio: Math.round((100*data.totals.unpaid.count)/data.totals.slots),
+                },
+                {
+                    label: TR("None"),
+                    count: data.totals.none.count,
+                    prices: null,
+                    ratio: Math.round((100*data.totals.none.count)/data.totals.slots),
                 },
                 {
                     label: TR("Staff slots"),

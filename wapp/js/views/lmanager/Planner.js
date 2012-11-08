@@ -434,6 +434,12 @@ Ext.define('Sp.views.lmanager.Planner', {
                         }
                     }   
                 }
+                // is_paid & is_ready
+                if (col == 5 || col == 6){
+                    if (!rec.data.phantom){
+                        return;
+                    }
+                }
                 var domEl = new Ext.dom.Element(el);
                 domEl.setStyle('cursor', 'pointer');
             },
@@ -709,11 +715,11 @@ Ext.define('Sp.views.lmanager.Planner', {
                     width: 45,
                     align: 'center',
                     renderer: function(v,o,r){
-                        if (r.data.related_slot){
+                        if (r.data.phantom){
+                            return Ext.String.format("<img src='/static/images/icons/{0}.png'/>", v ? 'active' : 'cancel_round');
+                        } else {
                             // add a blank icon to keep the rows height equal
                             return Ext.String.format("<img src='{0}'/>", Sp.core.Globals.BLANK_ICON);
-                        } else {
-                            return Ext.String.format("<img src='/static/images/icons/{0}.png'/>", v ? 'active' : 'cancel_round');
                         }
                     },
                     editor: {
@@ -735,7 +741,7 @@ Ext.define('Sp.views.lmanager.Planner', {
                     width: 45,
                     align: 'center',
                     renderer: function(v,o,r){
-                        if (!r.data.related_slot){
+                        if (r.data.phantom){
                             return Ext.String.format("<img src='/static/images/icons/{0}.png'/>", v ? 'active' : 'cancel_round');
                         }
                     },
@@ -1806,6 +1812,9 @@ Ext.define('Sp.views.lmanager.Planner', {
             return false;
         }
         if (event.record.data.related_slot && event.colIdx != 0){
+            return false;
+        }
+        if ((event.field == 'is_paid' || event.field == 'is_ready') && !event.record.data.phantom){
             return false;
         }
         if (event.colIdx == 0){

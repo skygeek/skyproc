@@ -249,7 +249,7 @@ def __handle_filter(config, field, value, transform=''):
             else:
                 q_filter = q_filter | models.Q(**{'%s%s' % (f, transform): value})
         config['q_filters'].append(q_filter)
-    elif isinstance(value, list):
+    elif isinstance(value, list) and not (isinstance(field, (str,unicode)) and field.endswith('__in')):
         q_filter = models.Q()
         for v in value:
             q_filter = q_filter | models.Q(**{'%s%s' % (field, transform): v})

@@ -260,7 +260,9 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                     i.onPrevClick();
                                     start_date = i.startDate;
                                 }, this);
-                                this.down('#dtPicker').setValue(start_date);
+                                if (start_date){
+                                    this.down('#dtPicker').setValue(start_date);
+                                }
                             },
                             scope: this,
                         },
@@ -273,7 +275,9 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                     i.onTodayClick();
                                     start_date = i.startDate;
                                 }, this);
-                                this.down('#dtPicker').setValue(start_date);
+                                if (start_date){
+                                    this.down('#dtPicker').setValue(start_date);
+                                }
                             },
                             scope: this,
                         },
@@ -286,7 +290,9 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                     i.onNextClick();
                                     start_date = i.startDate;
                                 }, this);
-                                this.down('#dtPicker').setValue(start_date);
+                                if (start_date){
+                                    this.down('#dtPicker').setValue(start_date);
+                                }
                             },
                             scope: this,
                         },
@@ -319,6 +325,9 @@ Ext.define('Sp.views.reservations.MainPanel', {
                                         select: {
                                             fn: function(p, dt){
                                                 var cal = this.getCurrentCal();
+                                                if (!cal){
+                                                    return;
+                                                }
                                                 if (Ext.isFunction(cal.layout.activeItem.moveTo)){
                                                     cal.startDate = cal.layout.activeItem.moveTo(dt, true);
                                                     cal.updateNavState();
@@ -472,7 +481,10 @@ Ext.define('Sp.views.reservations.MainPanel', {
             listeners: {
                 afterlayout: function(){
                     if (!this.warning_shown){
-                        Sp.ui.misc.warnMsg(TR("This module is not yet finished ! it's here for internal testing..."));
+                        this.warning_task = new Ext.util.DelayedTask(function(){
+                            Sp.ui.misc.warnMsg(TR("This module is not yet finished ! it's here for internal testing..."));
+                        });
+                        this.warning_task.delay(1000);
                         this.warning_shown = true;
                     }
                 },
@@ -803,6 +815,9 @@ Ext.define('Sp.views.reservations.MainPanel', {
     },
     
     getCurrentCal: function(){
+        if (!this.currentLocation){
+            return;
+        }
         var ctx = this.down('#calendarsCtx');
         var cal_id = this.currentLocation.data.uuid + '-cal';
         return ctx.getComponent(cal_id);
@@ -836,8 +851,11 @@ Ext.define('Sp.views.reservations.MainPanel', {
     },
     
     newReservation: function(startDate, endDate){
-        this.setEditMode(true);
         var cal = this.getCurrentCal();
+        if (!cal){
+            return;
+        }
+        this.setEditMode(true);
         var p = Ext.create('Sp.views.reservations.EditReservation', {
             mainPanel: this,
             calendar: cal,

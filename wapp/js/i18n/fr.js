@@ -55,6 +55,7 @@ Sp.utils.i18n.STRINGS = {
 "Redo"                              : "Refaire",
 "Ok"                                : "Ok",  
 "Group"                             : "Groupe", 
+"Saving"                            : "Enregistrement", 
 
 
 "Please wait"                       : "Veuillez patienter",
@@ -570,6 +571,11 @@ Sp.utils.i18n.STRINGS = {
 "No enough {0} credit ({1})": "Solde en {0} insuffisant ({1})",
 "Set members profile": "Affecter un profil",
 "Disable members overrides": "Désactiver les personnalisations des membres",
+"Deposit operation": "Opération de dépôt",
+"Withdraw operation": "Opération de retrait",
+"Buyed": "Achat",
+"Refund": "Remboursement",
+"Billed": "Comptabilisation",
 
 "Invite {0} member": "Inviter un membre {0}",
 "search by member's name": "Chercher par nom de membre",
@@ -703,7 +709,7 @@ Sp.utils.i18n.STRINGS = {
 "Print": "Imprimer", 
 "Add a jumper": "Ajouter un sautant",
 "Syncing": "Synchronisation",
-"Updated": "A jour",
+"Updated": "Synchronisé",
 "Filter by": "Filtrer avec",
 "Select Catalog Item": "Sélectionner un article du catalogue",
 "Element": "Elément",
@@ -716,7 +722,10 @@ Sp.utils.i18n.STRINGS = {
 "No Jumpers": "Aucun sautant",
 "Select active aircrafts": "Sélectionnez les avions actifs",
 "Select active staff members": "Sélectionnez les membres actifs du staff",
-"Add a staff member": "Ajouter un membre du staff",    
+"Add a staff member": "Ajouter un membre du staff",
+"Missing resource": "Ressource manquante",
+"No aircraft available": "Pas d'avion disponible",
+"No pilot available": "Pas de pilote disponible",
 
 "No catalog item is set for this slot": "Aucun article n'est attribué à cette place",
 "No catalog element is set for this slot": "Aucun élément d'article n'est attribué à cette place",
@@ -809,7 +818,7 @@ Sp.utils.i18n.STRINGS = {
 "No Data": "Pas de données",
 
 "Staff slots": "Places Staff",
-"SUMMARY DASHBOARD": "TABLEAU DE BORD DES ROTATIONS",
+"SUMMARY DASHBOARD": "TABLEAU DE BORD",
 "Payment Categories Summary": "Résumé des catégories de paiement",
 "Payment Category": "Catégorie de paiement",
 "Slots Ratio": "% Places",
@@ -838,5 +847,8 @@ Sp.utils.i18n.STRINGS = {
 "Language change": "Changement de langue",
 "To apply the language change, {0} must be reloaded.<br/>Do you want to reload now ?": 
     "Afin d'appliquer le changement de la langue, {0} doit être rechargé.<br/>Voulez-vous recharger maintenant ?",   
+
+"You have no dropzone, please create one in the 'Dropzones' menu.": 
+"Vous n'avez aucune dropzone ! Veuillez en créer une dans le menu 'Dropzones'.", 
 
 }

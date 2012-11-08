@@ -834,6 +834,9 @@ Ext.define('Sp.views.locations.Viewer', {
                                                                     dataIndex: 'note',
                                                                     header: TR("Label"),
                                                                     flex: 1,
+                                                                    renderer: function(v){
+                                                                        return Sp.ui.misc.trOperationNote(v);
+                                                                    },
                                                                 },
                                                                 {
                                                                     dataIndex: 'amount',

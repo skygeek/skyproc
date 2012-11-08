@@ -311,7 +311,7 @@ Ext.define('Sp.views.reports.AccountsReport', {
             this.setLocation(r.data.uuid);
         } else {
             this.getDockedItems('toolbar[dock="top"]')[0].disable();
-            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one."), TR("No dropzone"));
+            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one in the 'Dropzones' menu."), TR("No dropzone"));
         }
     },
     
@@ -415,6 +415,10 @@ Ext.define('Sp.views.reports.AccountsReport', {
                     dataIndex: 'note',
                     header: TR("Operation"),
                     flex: 1,
+                    renderer: function(v){
+                        return Sp.ui.misc.trOperationNote(v);
+                    },
+                    
                 },
                 {
                     dataIndex: 'amount_int',

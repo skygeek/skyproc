@@ -193,7 +193,7 @@ def archive_load(load_uuid, note, del_options={}):
     for slot in load.slot_set.filter(deleted=False):
         
         # skip empty slot
-        if not slot.person and not slot.phantom and not slot.worker and not slot.item:
+        if not slot.person and not slot.phantom and not slot.worker:
             continue
         
         slot_log = {}
@@ -221,15 +221,16 @@ def archive_load(load_uuid, note, del_options={}):
         slot_log['exit_order'] = slot.exit_order
                 
         slot_log['payment_type'] = 'none'
-        
         if slot.person:
             slot_log.update(__archive_person_slot(slot, del_options))
-        elif slot.phantom and slot.is_paid:
-            slot_log['payment_type'] = 'prepaid'
+        elif slot.phantom:
+            slot_log['payment_type'] = 'prepaid' if slot.is_paid else 'unpaid'
         
         # slot price
         if not slot.worker_type:
-            if slot.price:
+            if slot_log['payment_type'] == 'none':
+                pass
+            elif slot.price:
                 price = slot.price.price
                 # zero price for buyed items, they are already paid
                 if slot_log.has_key('has_buyed_item') and slot_log['has_buyed_item']:
@@ -246,18 +247,13 @@ def archive_load(load_uuid, note, del_options={}):
         load_log['total_slots'] += 1
         if slot.worker_type:
             load_log['staff_slots'] += 1
-            slot_log['payment_type'] = ''
-        elif slot_log['payment_type'] == 'none':
-            load_log['unpaid_slots'] += 1
-        elif slot_log['payment_type'] == '':
-            pass
-        else:
+        elif slot_log['payment_type'] != 'none':
             load_log['%s_slots' % slot_log['payment_type']] += 1
             
         # label
         labels = {
-            '': '',
-            'none': 'Unpaid',
+            'none': 'None',
+            'unpaid': 'Unpaid',
             'prepaid': 'Prepaid',
             'postpaid': 'Postpaid',
         }
@@ -265,9 +261,8 @@ def archive_load(load_uuid, note, del_options={}):
         
         slots_log.append(slot_log)
             
-    load_log['prices'] = ujson.encode(prices)
-        
     if not del_options.has_key('delLoad') or not del_options['delLoad']:
+        load_log['prices'] = ujson.encode(prices)
         load_log_rec = LoadLog.objects.create(**load_log)
         for i in slots_log:
             i['load'] = load_log_rec
@@ -292,6 +287,13 @@ def take_slot(person_uuid, load_uuid, user_data):
     
     if not load.location.enable_self_manifesting or load.state not in ('P', 'B'):
         raise Http404
+    
+    slots_used = 0
+    for s in load.slot_set.objects.filter(deleted=False):
+        if s.person or s.phantom or s.related_slot:
+            slots_used += 1
+    if slots_used >= load.aircraft.max_slots:
+        return HttpResponseForbidden('This load is full')
     
     try: membership = LocationMembership.objects.get(location=load.location, person=req_person, deleted=False)
     except ObjectDoesNotExist: return HttpResponseForbidden('Access denied')

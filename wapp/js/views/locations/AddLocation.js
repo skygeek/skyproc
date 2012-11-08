@@ -130,6 +130,7 @@ Ext.define('Sp.views.locations.AddLocation', {
                 if (op.success){
                     Data.load('Location', record.data.uuid, function(locationRec){
                         Ext.data.StoreManager.lookup('mainLocationsStore').add(locationRec);
+                        Sp.ui.misc.updateLifManagerLocations();
                         Data.locations.add(locationRec);
                         this.showModuleFunction({
                             id: locationRec.data.uuid,

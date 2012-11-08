@@ -339,7 +339,7 @@ Ext.define('Sp.views.reports.LoadsReport', {
             this.setLocation(r.data.uuid);
         } else {
             this.getDockedItems('toolbar[dock="top"]')[0].disable();
-            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one."), TR("No dropzone"));
+            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one in the 'Dropzones' menu."), TR("No dropzone"));
         }
     },
     
@@ -451,6 +451,9 @@ Ext.define('Sp.views.reports.LoadsReport', {
                     dataIndex: 'payment',
                     header: TR("Payment"),
                     width: 80,
+                    renderer: function(v){
+                        return TR(v);
+                    },
                 },
                 {
                     dataIndex: 'payer',

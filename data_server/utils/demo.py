@@ -558,7 +558,6 @@ def load_demo_data(location):
     
     location.currencies = (dollar,euro)
     location.default_currency = dollar
-    location.public = False
     location.lmanager_default_catalog_item = def_item
     location.lmanager_default_catalog_price = def_price
     location.load_demo_data = False

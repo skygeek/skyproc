@@ -82,6 +82,9 @@ Ext.define('Sp.views.locations.FormDelete', {
         // delete location record
         this.locationRec.destroy();
         
+        // update lmanager view
+        Sp.ui.misc.updateLifManagerLocations();
+        
         // close location view
         this.ownerCt.ownerCt.ownerCt.close();
         

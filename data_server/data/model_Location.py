@@ -9,6 +9,7 @@ from utils import demo
 
 class Location(base.Model):
     show_all = True
+    immediate_delete = True
     
     relations = '+all -LocationMembership -Reservation -Account'
     
@@ -79,7 +80,7 @@ class Location(base.Model):
     lmanager_default_catalog_item = models.ForeignKey('LocationCatalogItem', blank=True, null=True, related_name='+')
     lmanager_default_catalog_price = models.ForeignKey('LocationCatalogPrice', blank=True, null=True, related_name='+')
     
-    public = models.BooleanField(default=True)
+    public = models.BooleanField(default=False)
     use_clearances = models.BooleanField(default=True)
     enable_self_manifesting = models.BooleanField(default=True)
     share_account_data = models.BooleanField(default=True)

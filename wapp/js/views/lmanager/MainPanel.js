@@ -31,6 +31,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         this.boards = {};
         
         Ext.apply(this, {
+            itemId: 'liftManagerMainPanel',
             layout: 'border',
             margin: '10 5 5 0',
             items: [
@@ -177,6 +178,9 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                             text: TR("Resources"),
                             icon: '/static/images/icons/sheet.png',
                             handler: function(){
+                                if (!this.currentLocation){
+                                    return;
+                                }
                                 Ext.create('Sp.views.lmanager.Ressources', {
                                     locationRec: this.currentLocation,
                                     planner: this.getPlanner(this.currentLocation),
@@ -207,7 +211,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                 },
                 {
                     region: 'east',
-                    width: 190,
+                    width: 195,
                     border: 0,
                     header: false,
                     split:true,
@@ -503,6 +507,13 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                     itemId: 'plannersCtx',
                     region: 'center',
                     layout: 'card',
+                    items: [
+                        {
+                            xtype: 'label',
+                            text: TR("You have no dropzone, please create one in the 'Dropzones' menu."),
+                            cls: 'placeholder-color',
+                        },
+                    ],
                 },
                 {
                     xtype: 'statusbar',
@@ -518,7 +529,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
             listeners: {
                 activate: function(){
                     var active_planner = this.down('#plannersCtx').getLayout().getActiveItem();
-                    if (active_planner){
+                    if (active_planner && Ext.isFunction(active_planner.doLayout)){
                         active_planner.doLayout();
                         active_planner.updateSlotsGridsLayout();
                     }
@@ -530,7 +541,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         this.buildLocationsStore();
     },
     
-    buildLocationsStore: function(){
+    buildLocationsStore: function(update_cbx_only){
         var data = [];
         if (Sp.app.isOp()){
             Data.locations.each(function(l){
@@ -542,14 +553,13 @@ Ext.define('Sp.views.lmanager.MainPanel', {
         }
         var store = this.down('#locationCbx').getStore();
         store.loadRawData(data);
+        if (update_cbx_only){
+            return;
+        }
         var r = store.getAt(0);
         if (r){
             this.setLocation(r.data.uuid);
-        } else {
-            this.down('#topToolbar').disable();
-            Sp.ui.misc.warnMsg(TR("You have no dropzone, please create one."), TR("No dropzone"));
         }
-        
     },
 
     setMyLocation: function(locationRec){
@@ -626,7 +636,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                 return;
             }
         }
-        if (Sp.app.isCm()){
+        /*if (Sp.app.isCm()){
             Data.memberships.each(function(m){
                 var l = m.getLocation();
                 if (l.data.uuid == location_uuid){
@@ -634,7 +644,7 @@ Ext.define('Sp.views.lmanager.MainPanel', {
                     return false;
                 }
             }, this);
-        }
+        }*/
     },
     
     toggleAutoM: function(){
@@ -721,6 +731,9 @@ Ext.define('Sp.views.lmanager.MainPanel', {
     
     getPlanner: function(locationRec){
         locationRec = locationRec || this.currentLocation;
+        if (!locationRec){
+            return;
+        }
         return this.down('#plannersCtx').getComponent(locationRec.data.uuid + '-planner');
     },
     
