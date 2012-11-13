@@ -289,7 +289,7 @@ def take_slot(person_uuid, load_uuid, user_data):
         raise Http404
     
     slots_used = 0
-    for s in load.slot_set.objects.filter(deleted=False):
+    for s in load.slot_set.filter(deleted=False):
         if s.person or s.phantom or s.related_slot:
             slots_used += 1
     if slots_used >= load.aircraft.max_slots:
