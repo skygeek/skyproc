@@ -140,7 +140,7 @@ ssl_options = {}
 ssl_options['certfile'] = get_private_copy(settings.COMET_CERT_FILE)
 ssl_options['keyfile'] = get_private_copy(settings.COMET_KEY_FILE)
 ssl_options['ca_certs'] = get_private_copy(settings.COMET_CA_CERT)
-if ssl_options['ca_certs']: ssl_options['cert_reqs'] = ssl.CERT_OPTIONAL
+ssl_options['cert_reqs'] = ssl.CERT_OPTIONAL if ssl_options['ca_certs'] else ssl.CERT_NONE
 
 # drop privileges
 os.setuid(pwd.getpwnam(settings.COMET_USER)[2])

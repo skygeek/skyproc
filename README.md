@@ -17,13 +17,15 @@ Skyproc is a free software project that aims to build a comprehensive and integr
 
 ### Current state
 
-The first beta version is almost ready, it will be launched in mid November 2012. Here is a summary of features that will be supported by this release :
+Skyproc beta is available. Here is a summary of features supported by this release :
 
 - **Multi dropzones resources manager**: DZ description, aircrafts, staff members and catalogs. 
 - **Club members**: memberships, profiling and multi currencies accounts management. 
 - **Lift manager**: a real time loads manager with live information broadcast and self manifesting capabilities.
 - **Automatic jump logbook maintainer** for members.
 - **Dropzone reporting**: detailed logs of loads and aggregated tables.
+
+[Read more details](https://github.com/skygeek/skyproc/wiki/Introduction)
 
 
 Those features are sufficient to handle a day by day activity of a dropzone and generate reports. The beta release can be put in a real testing environment, but I don't recommend it, there may still exist some obscure minor bugs that can have a big impact ! If stability is a requirement for your dropzone, please wait for the stable release.
