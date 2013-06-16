@@ -83,7 +83,7 @@ Ext.define('Sp.views.locations.CatalogItemsSelect', {
                                                     var currency = Data.currencies.getById(price.data.currency);
                                                     var currency_code = currency.data.code;
                                                 }
-                                                return Ext.util.Format.currency(price.data.price, ' '+currency_code, 0, true);
+                                                return Ext.util.Format.currency(price.data.price, ' '+currency_code, 2, true);
                                             }
                                         }
                                     },

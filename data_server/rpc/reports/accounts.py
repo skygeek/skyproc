@@ -40,5 +40,7 @@ def get_grand_total(location_uuid, negativeOnly, positiveOnly,currencies):
         if not ret.has_key(account.currency.code):
             ret[account.currency.code] = 0
         ret[account.currency.code] += account.balance
+    for i in ret:
+        ret[i] = str(ret[i])
     return ret
 

@@ -139,6 +139,13 @@ ACCOUNT_OPERATIONS = (
     ('C','Cancellation'),
 )
 
+PAYMENT_TYPE = (
+    ('C','Cash'),
+    ('R','Credit card'),
+    ('H','Cheque'),
+    ('O','Other'),
+)
+
 LOAD_STATES = (
     ('P','Planned'),
     ('B','Boarding'),

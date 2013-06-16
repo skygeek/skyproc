@@ -276,7 +276,7 @@ Ext.define('Sp.views.settings.EditCatalogItem', {
                                                             align: 'center',
                                                             flex: 1,
                                                             renderer: function(v){
-                                                                return Ext.util.Format.currency(v, ' ', 0);
+                                                                return Ext.util.Format.currency(v, ' ', 2);
                                                             },
                                                             editor: {
                                                                 xtype: 'numberfield',

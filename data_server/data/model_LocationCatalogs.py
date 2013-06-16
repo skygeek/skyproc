@@ -41,7 +41,8 @@ class LocationCatalogPrice(base.Model):
     item = models.ForeignKey('LocationCatalogItem')
     
     currency = models.ForeignKey('Currency')
-    price = models.IntegerField()
+    #price = models.IntegerField()
+    price = models.DecimalField(max_digits=8, decimal_places=2)
     default = models.BooleanField(default=False)
     
     def __unicode__(self):

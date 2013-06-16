@@ -663,7 +663,7 @@ Ext.define('Sp.views.locations.EditMember', {
                                                                 var label = '';
                                                                 label += item.data.name;
                                                                 label += Ext.String.format("<br>{0}: {1}", TR("Price"),
-                                                                         Ext.util.Format.currency(price.data.price, ' '+currency.data.code, 0, true))
+                                                                         Ext.util.Format.currency(price.data.price, ' '+currency.data.code, 2, true))
                                                                 if (remain !== null){
                                                                     label += Ext.String.format(
                                                                             "&nbsp;-&nbsp;{0}: <span class='semi-bold'>{1}</span>", 
@@ -814,7 +814,7 @@ Ext.define('Sp.views.locations.EditMember', {
         accounts_store.each(function(a){
             if (a.data.balance != 0){
                 var currency = Data.currencies.getById(a.data.currency);
-                balance.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 0, true));
+                balance.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 2, true));
             }
         });
         this.down('#balanceText').setValue(balance.join(' | '));        

@@ -608,7 +608,7 @@ Ext.define('Sp.views.reports.LoadsReport', {
             if (total.loads > 0){
                 var prices = [];
                 Ext.Object.each(total.prices, function(c,a){
-                    prices.push(Ext.util.Format.currency(a, ' '+c, 0, true));
+                    prices.push(Ext.util.Format.currency(a, ' '+c, 2, true));
                 });
                 label = prices.join(' | ');
                 label += Ext.String.format(" ({0} {1}, {2} {3})", total.loads,

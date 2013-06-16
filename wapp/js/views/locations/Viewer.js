@@ -843,7 +843,7 @@ Ext.define('Sp.views.locations.Viewer', {
                                                                     header: TR("Amount"),
                                                                     align: 'right',
                                                                     renderer: function(v,o,r){
-                                                                        return Ext.util.Format.currency(v, ' '+r.data.currency, 0, true);
+                                                                        return Ext.util.Format.currency(v, ' '+r.data.currency, 2, true);
                                                                     },
                                                                 },
                                                             ],
@@ -1338,7 +1338,7 @@ Ext.define('Sp.views.locations.Viewer', {
         membership.Accounts().each(function(a){
             if (a.data.balance != 0){
                 var currency = Data.currencies.getById(a.data.currency);
-                balance_label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 0, true));  
+                balance_label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 2, true));  
             }
         });
         if (balance_label.length > 0){

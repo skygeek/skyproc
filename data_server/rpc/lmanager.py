@@ -236,7 +236,7 @@ def archive_load(load_uuid, note, del_options={}):
                 if slot_log.has_key('has_buyed_item') and slot_log['has_buyed_item']:
                     price = 0
                     del slot_log['has_buyed_item']
-                slot_log['catalog_price'] = ujson.encode({slot.price.currency.code:price})
+                slot_log['catalog_price'] = ujson.encode({slot.price.currency.code:str(price)})
                 if not prices.has_key(slot.price.currency.code):
                     prices[slot.price.currency.code] = 0
                 prices[slot.price.currency.code] += price
@@ -262,6 +262,8 @@ def archive_load(load_uuid, note, del_options={}):
         slots_log.append(slot_log)
             
     if not del_options.has_key('delLoad') or not del_options['delLoad']:
+        for i in prices:
+            prices[i] = str(prices[i])
         load_log['prices'] = ujson.encode(prices)
         load_log_rec = LoadLog.objects.create(**load_log)
         for i in slots_log:

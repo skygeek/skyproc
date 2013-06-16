@@ -502,7 +502,7 @@ Sp.ui.data.getPricesLabel = function(prices){
     }
     var label = [];
     Ext.Object.each(prices, function(c,a){
-        label.push(Ext.util.Format.currency(a, ' '+c, 0, true));
+        label.push(Ext.util.Format.currency(a, ' '+c, 2, true));
     });
     return label.join(' | ');   
 }

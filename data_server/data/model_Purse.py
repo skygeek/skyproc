@@ -14,7 +14,8 @@ class Account(base.Model):
     
     membership = models.ForeignKey('LocationMembership')
     currency = models.ForeignKey('Currency')
-    balance = models.IntegerField(default=0)
+    #balance = models.IntegerField(default=0)
+    balance = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     
     def save(self, *args, **kwargs):
         if not hasattr(self, 'balance_update') or not self.balance_update:
@@ -29,8 +30,11 @@ class AccountOperation(base.Model):
     
     account = models.ForeignKey('Account')
     type = models.CharField(max_length=1, choices=ACCOUNT_OPERATIONS)
-    amount = models.IntegerField()
+    #amount = models.IntegerField()
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
     note = models.CharField(max_length=200, blank=True, null=True)
+    payment_type = models.CharField(max_length=1, choices=PAYMENT_TYPE, default='C')
+    payment_id = models.CharField(max_length=200, blank=True, null=True)
     
     def save(self, *args, **kwargs):
         super(AccountOperation, self).save(*args, **kwargs) 

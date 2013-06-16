@@ -154,6 +154,9 @@ def get(model_name):
         elif isinstance(field, models.FloatField):
             fieldDef['type'] = 'float'
             fieldDef['useNull'] = True
+        # decimal
+        elif isinstance(field, models.DecimalField):
+            fieldDef['type'] = 'string'
         # int
         elif isinstance(field, models.IntegerField):
             fieldDef['type'] = 'int'

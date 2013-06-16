@@ -223,7 +223,7 @@ Ext.define('Sp.views.reports.AccountsReport', {
                                     }
                                     if (a.data.balance != 0){
                                         var currency = Data.currencies.getById(a.data.currency);
-                                        label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 0, true));  
+                                        label.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 2, true));  
                                     }
                                     
                                 });
@@ -362,7 +362,7 @@ Ext.define('Sp.views.reports.AccountsReport', {
                 return;
             }
             a.AccountOperations().each(function(o){
-                var amount = Ext.util.Format.currency(o.data.amount, ' '+currency.data.code, 0, true);
+                var amount = Ext.util.Format.currency(o.data.amount, ' '+currency.data.code, 2, true);
                 if (o.data.type == 'B'){
                     amount = Ext.String.format('-{0}', amount);
                 } else if (o.data.type == 'C'){
@@ -523,7 +523,7 @@ Ext.define('Sp.views.reports.AccountsReport', {
             Sp.utils.rpc('reports.accounts.get_grand_total', [location_uuid, negativeOnly, positiveOnly, currencies], function(total){
                 var label = [];
                 Ext.Object.each(total, function(k,v){
-                    label.push(Ext.util.Format.currency(v, ' '+k, 0, true));
+                    label.push(Ext.util.Format.currency(v, ' '+k, 2, true));
                 });
                 if (label.length > 0){
                     grandTotal.setValue(label.join(' | '));

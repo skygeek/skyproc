@@ -119,6 +119,12 @@ Ext.define('Sp.views.locations.MakeDeposit', {
     },
     
     makeOperation: function(account, amount){
+        
+        Log('XXX')
+        Log(amount)
+        Log(typeof(amount))
+        Log('XXX')
+        
         var op = Data.create('AccountOperation', {
             account: account.data.uuid,
             type: 'D',
@@ -126,7 +132,8 @@ Ext.define('Sp.views.locations.MakeDeposit', {
             note: amount < 0 ? TR("Withdraw operation") : TR("Deposit operation"),
         });
         account.AccountOperations().add(op);
-        var balance = account.data.balance + parseInt(amount);
+        //var balance = account.data.balance + parseInt(amount);
+        var balance = account.data.balance + parseFloat(amount);
         account.set('balance', balance);
         this.updateBalance();
         this.close();

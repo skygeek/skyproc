@@ -159,7 +159,8 @@ def update_prices(price, prices):
     for k,v in price.items():
         if not prices.has_key(k):
             prices[k] = 0
-        prices[k] += v
+        #prices[k] += v
+        prices[k] += float(v)
 
 def get_tmp_link():
     link = ''
