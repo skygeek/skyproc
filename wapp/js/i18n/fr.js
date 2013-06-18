@@ -56,6 +56,7 @@ Sp.utils.i18n.STRINGS = {
 "Ok"                                : "Ok",  
 "Group"                             : "Groupe", 
 "Saving"                            : "Enregistrement", 
+"By"                                : "Par",
 
 
 "Please wait"                       : "Veuillez patienter",
@@ -467,6 +468,8 @@ Sp.utils.i18n.STRINGS = {
 "Select the accepted payment methods": "Choisir les moyens de paiement utilisés",
 "Cash": "Liquide",
 "Credit Card": "Carte de crédit",
+"Cheque": "Chèque",
+"Infos": "Infos", 
 "Visa": "Visa",
 "MasterCard": "MasterCard",
 "Discover": "Discover",

@@ -25,7 +25,7 @@ Ext.define('Sp.views.locations.MakeDeposit', {
         
         Ext.apply(this, {
             width: 375,
-            height: 110,
+            height: 155,
             modal: true,
             resizable: false,
             title: TR("Make a deposit"),
@@ -38,6 +38,8 @@ Ext.define('Sp.views.locations.MakeDeposit', {
                     margin: Sp.core.Globals.WINDOW_MARGIN,
                     border: 0,
                     defaults: {
+                        anchor: '100%',
+                        labelWidth: 60,
                         defaults: {
                             anchor: '100%',
                         },
@@ -46,7 +48,6 @@ Ext.define('Sp.views.locations.MakeDeposit', {
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: TR("Amount"),
-                            labelWidth: 60,
                             layout: 'hbox',
                             items: [
                                 {
@@ -88,6 +89,31 @@ Ext.define('Sp.views.locations.MakeDeposit', {
                                 },
                             ],
                         },
+                        {
+                            name: 'payment_type',
+                            xtype: 'combobox',
+                            fieldLabel: TR("By"),
+                            store: Ext.create('Ext.data.Store', {
+                                fields: ['type', 'label'],
+                                data : [
+                                    {type:'C', label: TR("Cash")},
+                                    {type:'R', label: TR("Credit Card")},
+                                    {type:'H', label: TR("Cheque")},
+                                    {type:'O', label: TR("Other")},
+                                ]
+                            }),
+                            queryMode: 'local',
+                            forceSelection: true,
+                            editable: false,
+                            displayField: 'label',
+                            valueField: 'type',
+                            value: 'C',
+                        },
+                        {
+                            name: 'payment_id',
+                            xtype: 'textfield',
+                            fieldLabel: TR("Infos"),
+                        },
                     ],
                 },
             ],
@@ -118,23 +144,41 @@ Ext.define('Sp.views.locations.MakeDeposit', {
         this.callParent(arguments);
     },
     
-    makeOperation: function(account, amount){
+    makeOperation: function(account, values){
+        amount = parseFloat(values.amount.replace(',', '.'));
         
-        Log('XXX')
-        Log(amount)
-        Log(typeof(amount))
-        Log('XXX')
+        var note = '';
+        if (amount < 0){
+            note +=  TR("Withdraw operation");
+        } else {
+            note +=  TR("Deposit operation");
+        }
+        note += ' (';
+        if (values.payment_type == 'C'){
+            note += TR("Cash");
+        } else if (values.payment_type == 'R'){
+            note += TR("Credit Card");
+        } else if (values.payment_type == 'H'){
+            note += TR("Cheque");
+        } else {
+            note += TR("Other");
+        }
+        if (values.payment_id.length > 0){
+            note += ': ' + values.payment_id;
+        }
+        note += ')';
         
         var op = Data.create('AccountOperation', {
             account: account.data.uuid,
             type: 'D',
             amount: amount,
-            note: amount < 0 ? TR("Withdraw operation") : TR("Deposit operation"),
+            payment_type: values.payment_type,
+            payment_id: values.payment_id,
+            note: note,
         });
         account.AccountOperations().add(op);
-        //var balance = account.data.balance + parseInt(amount);
-        var balance = account.data.balance + parseFloat(amount);
-        account.set('balance', balance);
+        var balance = parseFloat(account.data.balance) + amount;
+        account.set('balance', balance.toString());
         this.updateBalance();
         this.close();
     },
@@ -150,7 +194,15 @@ Ext.define('Sp.views.locations.MakeDeposit', {
         var account_store = this.membershipRec.Accounts();
         // get account
         var account = account_store.findRecord('currency', values.currency);
-        if (account){ // just create operation
+        if (!account){
+            var account = Data.create('Account', {
+                membership: this.membershipRec.data.uuid,
+                currency: values.currency,
+            });
+            account_store.add(account);
+        }
+        this.makeOperation(account, values);
+        /*if (account){ // just create operation
             this.makeOperation(account, values.amount);
         } else { // create account
             var account = Data.create('Account', {
@@ -159,7 +211,7 @@ Ext.define('Sp.views.locations.MakeDeposit', {
             });
             account_store.add(account);
             this.makeOperation(account, values.amount);
-        }
+        }*/
     },
         
 });

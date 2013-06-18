@@ -802,19 +802,19 @@ Ext.define('Sp.views.locations.EditMember', {
             }
             var account = accounts_store.findRecord('currency', currency.data.uuid);
             if (account){
-                var amount = price.data.price;
+                var amount = parseFloat(price.data.price);
                 if (!removed){
                     amount = -amount;
                 }
-                var balance = account.data.balance + amount;
-                account.set('balance', balance);
+                var balance = parseFloat(account.data.balance) + amount;
+                account.set('balance', balance.toString());
             }
         }
         var balance = [];
         accounts_store.each(function(a){
             if (a.data.balance != 0){
                 var currency = Data.currencies.getById(a.data.currency);
-                balance.push(Ext.util.Format.currency(a.data.balance, ' '+currency.data.code, 2, true));
+                balance.push(Ext.util.Format.currency(parseFloat(a.data.balance), ' '+currency.data.code, 2, true));
             }
         });
         this.down('#balanceText').setValue(balance.join(' | '));        
