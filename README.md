@@ -2,8 +2,6 @@
 
 This is the primary resources page of Skyproc. Here you will find all the materials needed to run and use the software. 
 
-To start using Skyproc, simply go to [skyproc.com](http://beta.skyproc.com/) and create an account.
-
 Want to install your own Skyproc server ? Go to the [SVA wiki page](https://github.com/skygeek/skyproc/wiki/Skyproc-Virtual-Appliance-%28SVA%29/) for instructions.
 
 ### What is Skyproc
